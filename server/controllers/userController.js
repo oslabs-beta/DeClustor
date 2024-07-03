@@ -4,12 +4,8 @@ const sqlite3 = require('sqlite3').verbose();
 
 const userController = {};
 
-// const usersFilePath = path.join(__dirname, '../data/users.js');
-// console.log(usersFilePath)
-
-
-
-
+const usersFilePath = path.join(__dirname, '../data/users.js');
+console.log(usersFilePath)
 
 userController.createUser = (req, res, next) => {
   const { username, password } = req.body;
