@@ -16,16 +16,16 @@ export const darkTheme = {
       1000: "#000000", 
     },
     primary: {
-      // blue // background
-      100: "#d3d4de",
-      200: "#a6a9be",
-      300: "#7a7f9d",
-      400: "#4d547d",
-      500: "#21295c",
-      600: "#191F45", 
-      700: "#141937",
-      800: "#0d1025",
-      900: "#070812",
+      // indigo // background
+    100: "#d7dbdd",
+    200: "#afb8bb",
+    300: "#889498",
+    400: "#607176",
+    500: "#384d54",
+    600: "#2d3e43",
+    700: "#222e32",
+    800: "#161f22",
+    900: "#0b0f11"
     },
     secondary: {
         // orange
@@ -40,7 +40,7 @@ export const darkTheme = {
         900: "#331900"
     },
   };
-  
+
   // representing the theme light and dark
   // function that reverses the color palette
   function reverseTheme(darkTheme) {
