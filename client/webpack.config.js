@@ -31,7 +31,12 @@ module.exports = {
       },
     ],
   },
-  resolve: { extensions: ['.js', '.jsx'] },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+    alias: {
+      '@emotion/react': path.resolve(__dirname, 'node_modules/@emotion/react'),
+    }
+  },
   plugins: [
     new HtmlWebPackPlugin({
       template: './public/index.html',
