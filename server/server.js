@@ -18,9 +18,9 @@ app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
 
-// app.post('/login', userController.verifyUser, (req, res) => {
-//   res.status(200).json({ message: 'logged in!' });
-// });
+app.post('/login', userController.verifyUser, (req, res) => {
+  res.status(200).json({ message: 'logged in!' });
+});
 
 app.get('/getCpu', (req, res) => {});
 app.get('/getMemory', (req, res) => {});
