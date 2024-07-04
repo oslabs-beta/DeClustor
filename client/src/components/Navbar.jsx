@@ -1,75 +1,69 @@
-import React, { useState } from 'react'
-import {
-  LightModeOutlined,
-  DarkModeOutlined,
-  Menu as MenuIcon,
-  Search,
-  SettingsOutlined,
-  ArrowDropDownOutlined,
-} from '@mui/icons-material'
+import React from "react";
+import { useTheme } from '@emotion/react';
+import { Box, IconButton, InputBase } from '@mui/material';
 import FlexBetween from './FlexBetween'
 import { useDispatch } from 'react-redux'
 import { setMode } from '../state/index.js'
-import profileImage from '../assests/profile.png'
-import { useTheme } from '@emotion/react'
-import { IconButton, InputBase, Toolbar } from '@mui/material'
-import { AppBar } from '@mui/material'
+import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
+import Search from "@mui/icons-material/Search";
+import { Menu as MenuIcon } from '@mui/icons-material'
+// import profileImage from '../assests/profile.png'
 
 const Navbar = () => {
-  const dispatch = useDispatch()
-  const theme = useTheme()
+    // theme setting 
+    const dispatch = useDispatch()
+    const theme = useTheme()
 
-  // AppBar has 2 sections , left and right // space between
-  // left for searching
-  // right for profile
+    return (
+       <Box display='flex' justifyContent='space-between' padding={2}>
+        
+        {/* dash menu icon button */}
+        <IconButton onClick={() => console.log('open/close sidebar')}>
+          <MenuIcon />
+        </IconButton>
 
-  return (
-    <div>
-      <AppBar
-        sx={{ position: 'static', background: 'none', boxShadow: 'none' }}
-      >
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          {/* left side */}
-          {/* for search box */}
-          <FlexBetween>
-            <IconButton onClick={() => console.log('open/close sidebar')}>
-              <MenuIcon />
-            </IconButton>
-            <FlexBetween
-                backgroundColor={theme.palette.background.alt}
-                borderRadius="9px"
-                gap="3rem"
-                padding="0.1rem 1.5rem"
-            >
-              <InputBase placeholder="Search..." />
-              <IconButton>
-                <Search />
-              </IconButton>
-            </FlexBetween>
-          </FlexBetween>
+        {/* search bar */}
+        <FlexBetween backgroundColor={theme.palette.background.alt} borderRadius="9px" gap="3rem" padding="0.1rem 1.5rem">
+          <InputBase placeholder="Search..." />
+          <IconButton>
+            <Search />
+          </IconButton>
+        </FlexBetween>
 
-          {/* right side */}
-          {/*create a button for profile and mode dark/light and setting*/}
-          <FlexBetween gap="1.5rem">
-            {/* when this button was clicked, it will swich to light/dark mode 
-                call usDispach on th setMode to set the theme/mode*/}
+        {/* dark/light mode , notification and profile icons */}
+        <FlexBetween gap="1.5rem">
+            {/* dark/light mode */}
             <IconButton onClick={() => dispatch(setMode())}>
               {theme.palette.mode === 'dark' ? (
-                <DarkModeOutlined sx={{ fontSize: '25px' }} />
+                <DarkModeOutlinedIcon sx={{ fontSize: '25px' }} />
               ) : (
-                <LightModeOutlined sx={{ fontSize: '25px' }} />
+                <LightModeOutlinedIcon sx={{ fontSize: '25px' }} />
               )}
             </IconButton>
-            {/* setting button on the right*/}
-            <IconButton>
-              {/* call the SettingsOutlined to make the setting button */}
-              <SettingsOutlined sx={{ fontSize: '25px' }} />
-            </IconButton>
-          </FlexBetween>
-        </Toolbar>
-      </AppBar>
-    </div>
-  )
-}
 
-export default Navbar
+            {/* notification icon button */}
+            <IconButton>
+                <NotificationsOutlinedIcon sx={{ fontSize: '25px' }}/>
+            </IconButton>
+
+              {/* setting icon button */}
+            <IconButton>
+              <SettingsOutlinedIcon sx={{ fontSize: '25px' }} />
+            </IconButton>
+
+            {/* profile icon button */}
+            <IconButton>
+                <PersonOutlinedIcon />
+            </IconButton>
+        </FlexBetween>
+
+       </Box>
+    )
+
+};
+
+export default Navbar;
