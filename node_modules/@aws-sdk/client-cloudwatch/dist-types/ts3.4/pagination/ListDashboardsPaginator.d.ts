@@ -1,0 +1,11 @@
+import { Paginator } from "@smithy/types";
+import {
+  ListDashboardsCommandInput,
+  ListDashboardsCommandOutput,
+} from "../commands/ListDashboardsCommand";
+import { CloudWatchPaginationConfiguration } from "./Interfaces";
+export declare const paginateListDashboards: (
+  config: CloudWatchPaginationConfiguration,
+  input: ListDashboardsCommandInput,
+  ...rest: any[]
+) => Paginator<ListDashboardsCommandOutput>;

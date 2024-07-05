@@ -1,0 +1,9 @@
+import { booleanSelector, SelectorType } from "@smithy/util-config-provider";
+export const NODE_DISABLE_REQUEST_COMPRESSION_ENV_NAME = "AWS_DISABLE_REQUEST_COMPRESSION";
+export const NODE_DISABLE_REQUEST_COMPRESSION_INI_NAME = "disable_request_compression";
+export const DEFAULT_DISABLE_REQUEST_COMPRESSION = false;
+export const NODE_DISABLE_REQUEST_COMPRESSION_CONFIG_OPTIONS = {
+    environmentVariableSelector: (env) => booleanSelector(env, NODE_DISABLE_REQUEST_COMPRESSION_ENV_NAME, SelectorType.ENV),
+    configFileSelector: (profile) => booleanSelector(profile, NODE_DISABLE_REQUEST_COMPRESSION_INI_NAME, SelectorType.CONFIG),
+    default: DEFAULT_DISABLE_REQUEST_COMPRESSION,
+};
