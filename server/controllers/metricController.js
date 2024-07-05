@@ -12,7 +12,7 @@ const db = new sqlite3.Database('./database/Credentials.db', (err) => {
 
 async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
     const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); // 5 minute ago
+    const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); //3 days
   
     const command = new GetMetricStatisticsCommand({
       Namespace: namespace,
@@ -20,7 +20,7 @@ async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dim
       Dimensions: dimensions,
       StartTime: startTime,
       EndTime: endTime,
-      Period: 60 * 60, // every on minute
+      Period: 60 * 60, // every one hour
       Statistics: ['Average', 'Minimum', 'Maximum', 'Sum']
     });
   
