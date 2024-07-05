@@ -160,7 +160,7 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
             }
         };
         sendData();
-        const intervalId = setInterval(sendData, 60 * 1000); // 每分钟更新一次
+        const intervalId = setInterval(sendData, 60 * 1000); //update everyone minute
 
         ws.on('close', () => {
             clearInterval(intervalId);
