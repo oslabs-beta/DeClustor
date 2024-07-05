@@ -1,0 +1,11 @@
+import { Paginator } from "@smithy/types";
+import {
+  DescribeAlarmsCommandInput,
+  DescribeAlarmsCommandOutput,
+} from "../commands/DescribeAlarmsCommand";
+import { CloudWatchPaginationConfiguration } from "./Interfaces";
+export declare const paginateDescribeAlarms: (
+  config: CloudWatchPaginationConfiguration,
+  input: DescribeAlarmsCommandInput,
+  ...rest: any[]
+) => Paginator<DescribeAlarmsCommandOutput>;
