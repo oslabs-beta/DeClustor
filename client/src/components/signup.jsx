@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -12,17 +11,20 @@ import {
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 
-const Login = () => {
+const Signup = () => {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/login', {
+      const response = await fetch('http://localhost:3000/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,11 +35,12 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Login successful');
-        navigate('/dashboard');
+        setSuccess('Signup successful!');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         setError(data.message);
-        navigate('/signup');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -59,7 +62,7 @@ const Login = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
-          Login In
+          Sign Up
         </Typography>
         {error && (
           <Alert
@@ -72,6 +75,19 @@ const Login = () => {
             }}
           >
             {error}
+          </Alert>
+        )}
+        {success && (
+          <Alert
+            severity='success'
+            sx={{
+              mt: 2,
+              width: '100%',
+              backgroundColor: 'primary',
+              color: 'white',
+            }}
+          >
+            {success}
           </Alert>
         )}
         <Box
@@ -90,6 +106,22 @@ const Login = () => {
             gap: 2,
           }}
         >
+          <TextField
+            variant='outlined'
+            label='First Name'
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+            required
+            fullWidth
+          />
+          <TextField
+            variant='outlined'
+            label='Last Name'
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+            required
+            fullWidth
+          />
           <TextField
             variant='outlined'
             label='Username'
@@ -114,21 +146,14 @@ const Login = () => {
             fullWidth
             sx={{ mt: 2 }}
           >
-            Login
+            Sign Up
           </Button>
           <Button
-            onClick={() => alert('Redirect to forgot password page')}
+            onClick={() => navigate('/login')}
             color='secondary'
             sx={{ mt: 0.5 }}
           >
-            Forgot Password?
-          </Button>
-          <Button
-            onClick={() => navigate('/signup')}
-            color='secondary'
-            sx={{ mt: 0.5 }}
-          >
-            Don't have an account? Sign up!
+            Already have an account? Log in!
           </Button>
         </Box>
       </Box>
@@ -136,4 +161,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Signup;

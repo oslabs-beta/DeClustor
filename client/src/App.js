@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './components/login.jsx';
 import Home from './components/home.jsx';
 import Info from './components/info.jsx';
+import Signup from './components/signup.jsx';
 
 const App = () => {
   // State for mode
@@ -40,6 +41,7 @@ const App = () => {
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/info' element={<Info />} />
+            <Route path='/signup' element={<Signup />} />
             <Route path='*' element={<Navigate to='/' replace />} />
           </Routes>
         </ThemeProvider>
