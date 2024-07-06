@@ -13,16 +13,16 @@ import Search from "@mui/icons-material/Search";
 import { Menu as MenuIcon } from '@mui/icons-material'
 // import profileImage from '../assests/profile.png'
 
-const Navbar = () => {
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     // theme setting 
     const dispatch = useDispatch()
     const theme = useTheme()
-
+    // const [isSidebarOpen , setIsSideBarOpen] = useState(true);
     return (
        <Box display='flex' justifyContent='space-between' padding={2}>
         
-        {/* dash menu icon button */}
-        <IconButton onClick={() => console.log('open/close sidebar')}>
+        {/* hide the sidebar */}
+        <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           <MenuIcon />
         </IconButton>
 

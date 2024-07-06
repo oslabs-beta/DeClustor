@@ -26,8 +26,9 @@ import profileImage from '../assests/profile.png'
 import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined'
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
+import logo from '../assests/logo.png' 
 
-// passin props from Layout
+
 {
   /* <Sidebar
 isNonMobile={isNonMobile}
@@ -36,12 +37,12 @@ isSidebarOpen={isSidebarOpen}
 setIsSideBarOpen={setIsSideBarOpen}
 /> */
 }
-
+// passin props from Layout
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
   isSidebarOpen,
-  setIsSideBarOpen,
+  setIsSidebarOpen,
   // user
 }) => {
   // grap the path that we currently at
@@ -100,12 +101,12 @@ const Sidebar = ({
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
-          onClose={() => setIsSideBarOpen(false)}
+          onClose={() => setIsSidebarOpen(false)}
           variant="persistent"
           anchor="left"
           sx={{
             width: drawerWidth,
-            // mui drawer paper
+            // class name ที่ MUI ใช้กำหนดสำหรับส่วนของ Drawer component ที่ประพฤติเหมือนกระดาษ (paper), โดยปกติจะเป็นส่วนที่เลื่อนเข้าออกได้.
             '& .MuiDrawer-paper': {
               color: theme.palette.secondary[200],
               backgroundColor: theme.palette.background.alt,
@@ -114,19 +115,35 @@ const Sidebar = ({
             },
           }}
         >
-          <Box width="100%">
+          <Box width="230px">
             {/* t r b l */}
-            <Box margin="1.5rem 2rem 2rem 3rem">
+            <Box margin="1.2rem 1.8rem 0.8rem 1rem" >
               <FlexBetween color={theme.palette.secondary.main}>
-                <Box display="flex" alignItems="center" gap="0.5rem">
+              <Box
+                component="img"
+                alt="logo"
+                src={logo}
+                height="100px"
+                width="100px"
+                borderRadius="28%"
+                sx={{
+                  objectFit: 'cover',
+                  borderColor: theme.palette.primary[400],
+                  borderStyle: 'solid', 
+                  borderWidth: 1,
+                  marginLeft: '47px',
+                  padding: '5px'
+                }}
+              />
+                {/* <Box display="flex" alignItems="center" gap="0.5rem">
                   <Typography variant="h3" fontWeight="bold">
                     DeClustor
                   </Typography>
-                </Box>
+                </Box> */}
 
                 {/* responsive for mobile , it's will pop up the left arrow */}
                 {!isNonMobile && (
-                  <IconButton onClick={() => setIsSideBarOpen(!isSidebarOpen)}>
+                  <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     <ChevronLeft />
                   </IconButton>
                 )}
@@ -144,6 +161,7 @@ const Sidebar = ({
                     </Typography>
                   )
                 }
+                
                 const lowerCaseText = text.toLowerCase()
 
                 // set the navagat by following the {text} navItems name
@@ -189,16 +207,17 @@ const Sidebar = ({
               })}
             </List>
           </Box>
-
+        
+          {/* user profile need an update!*/}
+          <Divider sx={{ width: '100%', maxWidth: '500px' , marginTop: '230px' }} />
           <Box position="absolute" bottom="2rem">
-            <Divider />
             <FlexBetween textTransform="none" gap="1rem" m="1.5rem 2rem 0 3rem">
               <Box
                 component="img"
                 alt="profile"
                 src={profileImage}
-                height="40px"
-                width="40px"
+                height="60px"
+                width="60px"
                 borderRadius="50%"
                 sx={{ objectFit: 'cover' }}
               />
