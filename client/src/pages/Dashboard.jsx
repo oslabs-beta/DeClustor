@@ -29,7 +29,7 @@ const Dashboard = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
            >
-          Dashboard Overview
+          Tasks Overview
           <PieChart data={mockPieData} />
           </Typography>
         </Box>
