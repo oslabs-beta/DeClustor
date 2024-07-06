@@ -1,8 +1,9 @@
 const {CloudWatchClient, GetMetricStatisticsCommand} = require('@aws-sdk/client-cloudwatch');
 const { ECSClient, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand } = require("@aws-sdk/client-ecs");
 const sqlite3 = require('sqlite3').verbose();
-
-const db = new sqlite3.Database('./database/Credentials.db', (err) => {
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../database/Credentials.db');
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.log('Fail to connect to Credential database');
     } else {
@@ -13,7 +14,6 @@ const db = new sqlite3.Database('./database/Credentials.db', (err) => {
 async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
     const endTime = new Date();
     const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); //3 days
-  
     const command = new GetMetricStatisticsCommand({
       Namespace: namespace,
       MetricName: metricName,

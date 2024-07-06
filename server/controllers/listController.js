@@ -1,5 +1,7 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./database/Credentials.db');
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../database/Credentials.db');
+const db = new sqlite3.Database(dbPath);
 const { ECSClient, ListServicesCommand, DescribeServicesCommand } = require("@aws-sdk/client-ecs");
 
 const listController = {}
