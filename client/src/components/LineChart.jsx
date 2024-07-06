@@ -1,18 +1,61 @@
-import React , { useMemo } from "react";
+import React , { useMemo, useState , useEffect } from "react";
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { themeSettings } from "../theme";
-import { mockLineData as initialData } from "../data/mockData";
+import { fetchMetrics } from '../state/api.js'
+import { connectWebSocket } from '../webService/websocketService.js'; 
+// import { mockLineData as initialData } from "../data/mockData";
 
-const LineChart = ({ data }) => {
-    if (!data) {
-        console.log("Using fallback data because prop 'data' is undefined");
-        data = initialData;
-    }
+const LineChart = ({  userId, serviceName, metricNames }) => {
+    // if (!data) {
+    //     console.log("Using fallback data because prop 'data' is undefined");
+    //     data = initialData;
+    // }
 
-    console.log('data -->' , data); // Check what data is now
+    // console.log('data -->' , data); // Check what data is now
     const theme = useTheme();
     // const colors = themeSettings(theme.palette.mode);
+    // dta state management with array of data
+    const [ data , setData ] = useState([]);
+    // loading state during waiting for the load
+    const [ loading , setLoading ] = useState(true);
+    // state of error // nulll
+    const [ error , setError ] = useState(null);
+    
+    //app.get('/listAllService', listController.Service);
+    useEffect(() => {
+        const ws = connectWebSocket(
+            userId,
+            serviceName,
+            metricNames,
+            (data) => {
+                setData(data);
+                setLoading(false);
+            },
+            (error) => {
+                setError(error.message);
+                setLoading(false);
+            },
+            () => {
+                console.log('WebSocket closed');
+            }
+        );
+
+        // Cleanup WebSocket connection when component unmounts
+        return () => {
+            ws.close();
+        };
+    }, [userId, serviceName, metricNames]);
+
+    console.log('[userId, serviceName, metricNames] --> ' , [userId, serviceName, metricNames])
+    // loading
+    if (loading) {
+        return <div>Loading...</div>
+    };
+    // error
+    if (error) {
+        return <div>Error: {error}</div>
+    }
 
     return (
         <div style={{ height: "400px", width: "100%" }}>

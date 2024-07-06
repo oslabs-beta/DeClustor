@@ -1,4 +1,4 @@
-import React from 'react';
+import React , { useState , useEffect } from 'react';
 import LineChart from '../components/LineChart.jsx';
 //client/src/components/LineChart.jsx
 import { mockLineData } from '../data/mockData'; 
@@ -7,11 +7,16 @@ import { themeSettings as theme } from '../theme.js';
 //import FlexBetween from '../components/FlexBetween'
 import PieChart from '../components/PieChart.jsx';
 import { mockPieData } from '../data/mockData'; 
+import { fetchMetrics } from '../state/api.js'
 
 const Dashboard = () => {
 
   const theme = useTheme();
+  const userId = 'ploy'; // Replace with actual user ID
+  const serviceName = 'yourServiceName'; // Replace with actual service name
+  const metricNames = ['CPUUtilization', 'MemoryUtilization', 'NetworkRxBytes', 'NetworkTxBytes'];
 
+  
   // note: change <div> later if want to split into flex
 
   return (
@@ -30,7 +35,7 @@ const Dashboard = () => {
             sx={{ color: theme.palette.secondary[100] }}
            >
           Tasks Overview
-          <PieChart data={mockPieData} />
+           <PieChart data={mockPieData} />
           </Typography>
         </Box>
 
@@ -48,7 +53,7 @@ const Dashboard = () => {
             sx={{ color: theme.palette.secondary[100] }}
            >
           CPUUtilization
-          <LineChart data={mockLineData} />
+          <LineChart userId={userId} serviceName={serviceName} metricNames={['CPUUtilization']} />
           </Typography>
         </Box>
   
@@ -65,8 +70,8 @@ const Dashboard = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
            >
-          MemoryUtilization:
-          <LineChart data={mockLineData} />
+          MemoryUtilization
+          <LineChart userId={userId} serviceName={serviceName} metricNames={['MemoryUtilization']} />
           </Typography>
         </Box>
 
@@ -84,7 +89,7 @@ const Dashboard = () => {
             sx={{ color: theme.palette.secondary[100] }}
            >
           NetworkRxBytes
-          <LineChart data={mockLineData} />
+          <LineChart userId={userId} serviceName={serviceName} metricNames={['NetworkRxBytes']} />
           </Typography>
         </Box>
 
@@ -102,7 +107,7 @@ const Dashboard = () => {
             sx={{ color: theme.palette.secondary[100] }}
            >
           NetworkTxBytes
-          <LineChart data={mockLineData} />
+          <LineChart userId={userId} serviceName={serviceName} metricNames={['NetworkTxBytes']} />
           </Typography>
         </Box>
 
