@@ -1,8 +1,9 @@
 const {CloudWatchClient, GetMetricStatisticsCommand} = require('@aws-sdk/client-cloudwatch');
 const { ECSClient, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand } = require("@aws-sdk/client-ecs");
 const sqlite3 = require('sqlite3').verbose();
-
-const db = new sqlite3.Database('./database/Credentials.db', (err) => {
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../database/Credentials.db');
+const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.log('Fail to connect to Credential database');
     } else {
@@ -12,15 +13,14 @@ const db = new sqlite3.Database('./database/Credentials.db', (err) => {
 
 async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
     const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); // 5 minute ago
-  
+    const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); //3 days
     const command = new GetMetricStatisticsCommand({
       Namespace: namespace,
       MetricName: metricName,
       Dimensions: dimensions,
       StartTime: startTime,
       EndTime: endTime,
-      Period: 60 * 60, // every on minute
+      Period: 60 * 60, // every one hour
       Statistics: ['Average', 'Minimum', 'Maximum', 'Sum']
     });
   
@@ -160,7 +160,7 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
             }
         };
         sendData();
-        const intervalId = setInterval(sendData, 60 * 1000); // 每分钟更新一次
+        const intervalId = setInterval(sendData, 60 * 1000); //update everyone minute
 
         ws.on('close', () => {
             clearInterval(intervalId);
