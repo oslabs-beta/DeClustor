@@ -4,14 +4,19 @@ import App from './App.js';
 import { configureStore } from '@reduxjs/toolkit';
 import globalReducer from './state';
 import { Provider } from 'react-redux';
+// import { setupListeners } from '@reduxjs/toolkit/query';
+// import { api } from 'state/api.js';
 
 // redux store
 const store = configureStore({
   // call reducer
   reducer: {
     global: globalReducer,
+    // [api.reducerPath]: api.reducer,
   },
+  // add middleware
 });
+// setupListener(stroe.dispatch)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

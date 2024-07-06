@@ -15,6 +15,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Login from './components/login.jsx';
 import Home from './components/home.jsx';
 import Info from './components/info.jsx';
+import Signup from './components/signup.jsx';
 
 const App = () => {
   // State for mode
@@ -25,7 +26,9 @@ const App = () => {
   return (
     <div>
       <Router>
-        <h1 className='header'>DeClustor</h1>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+        {/* <h1 className='header'>DeClustor</h1>
         <nav>
           <Link to='/'>Home</Link>
           <br />
@@ -33,15 +36,23 @@ const App = () => {
           <br />
           <Link to='/info'>Getting Started</Link>
         </nav>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
 
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/info' element={<Info />} />
+            <Route path='/signup' element={<Signup />} />
             <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes>
+          </Routes> */}
+
+          {/* // testing Dashboard -- start here -- */}
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+              </Route>
+            </Routes>
+            
         </ThemeProvider>
       </Router>
     </div>
