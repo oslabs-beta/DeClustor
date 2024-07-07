@@ -13,7 +13,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
     const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - 1 * 24 * 60 * 60 * 1000); //3 days
+    const startTime = new Date(endTime.getTime() - 1 * 24 * 60 * 60 * 1000);
     const command = new GetMetricStatisticsCommand({
       Namespace: namespace,
       MetricName: metricName,
@@ -93,6 +93,34 @@ async function getTotalTask(ecsClient, clusterName) {
     };
 }
 
+function fillMissingData(dataPoints) {
+    const result = [];
+    const now = new Date();
+    const defaultDataPoint = {
+        Average: 0,
+        Sum: 0,
+        Minimum: 0,
+        Maximum: 0,
+        Unit: "Percent"
+      };
+    for (let i = 0; i < 24; i++) {
+        const hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - i);
+        const dataPoint = dataPoints.find(dp => {
+            const dpTime = new Date(dp.Timestamp);
+            return dpTime.getFullYear() === hour.getFullYear() &&
+                   dpTime.getMonth() === hour.getMonth() &&
+                   dpTime.getDate() === hour.getDate() &&
+                   dpTime.getHours() === hour.getHours();
+        });
+        if (dataPoint) {
+            result.push({ ...dataPoint });
+        } else {
+            result.push({ Timestamp: hour, ...defaultDataPoint });
+        }
+    }
+    return result.reverse(); 
+}
+
 async function handleMetricRequest(ws, userId, serviceName, metricName) {
     db.all(`SELECT access_key, secret_key, region, cluster_name FROM Credentials WHERE user_id = ?`, [userId], async(err, rows) => {
         if (err) {
@@ -135,24 +163,27 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
         const sendData = async () => {
             try {
                 let data;
+                let completeData
                 if (metricName === 'NetworkRxBytes' || metricName === 'NetworkTxBytes') {
                     data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'ECS/ContainerInsights', dimensionsContainerInsights);
+                    completeData = fillMissingData(data);
                 } else if (metricName === 'serviceStatus') {
-                    data = await getserviceStatus(ecsClient, cluster_name, serviceName);
+                    completeData = await getserviceStatus(ecsClient, cluster_name, serviceName);
                 } else if (metricName === 'taskStatus') {
-                    data = await getTaskStatus(ecsClient, cluster_name, serviceName);
+                    completeData = await getTaskStatus(ecsClient, cluster_name, serviceName);
                 } else if (metricName === 'CPUUtilization' || metricName === 'MemoryUtilization') {
                     data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'AWS/ECS', dimensionsEcs);
+                    completeData = fillMissingData(data);
                 } else if (metricName === 'RunningTaskCount' || metricName === 'PendingTaskCount') {
-                    data = await getCloudWatchMetrics(cloudwatchClient, metricName , 'ECS/ContainerInsights', dimensionsEcs);
+                    completeData = await getCloudWatchMetrics(cloudwatchClient, metricName , 'ECS/ContainerInsights', dimensionsEcs);
                 } else if (metricName === 'totalTasks') {
-                    data = await getTotalTask(ecsClient, cluster_name);
+                    completeData = await getTotalTask(ecsClient, cluster_name);
                 }else {
                     ws.send(JSON.stringify({ error: 'We don\'t support this metric' }));
                     ws.close();
                     return;
                 }
-                ws.send(JSON.stringify(data));
+                ws.send(JSON.stringify(completeData));
             } catch (err) {
                 ws.send(JSON.stringify({ error: 'Error fetching metric data' }));
                 ws.close();
