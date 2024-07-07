@@ -28,31 +28,24 @@ const App = () => {
       <Router>
         <ThemeProvider theme={theme}>
           <CssBaseline />
-        {/* <h1 className='header'>DeClustor</h1>
-        <nav>
-          <Link to='/'>Home</Link>
-          <br />
-          <Link to='/login'>Login</Link>
-          <br />
-          <Link to='/info'>Getting Started</Link>
-        </nav>
-
           <Routes>
             <Route path='/' element={<Home />} />
             <Route path='/login' element={<Login />} />
             <Route path='/info' element={<Info />} />
             <Route path='/signup' element={<Signup />} />
+            <Route element={<Layout />}>
+              <Route path='/dashboard' element={<Dashboard />} />
+            </Route>
             <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes> */}
+          </Routes>
 
           {/* // testing Dashboard -- start here -- */}
-            <Routes>
-              <Route element={<Layout />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-              </Route>
-            </Routes>
-            
+          {/* <Routes>
+            <Route element={<Layout />}>
+              <Route path='/' element={<Navigate to='/dashboard' replace />} />
+              <Route path='/dashboard' element={<Dashboard />} />
+            </Route>
+          </Routes> */}
         </ThemeProvider>
       </Router>
     </div>
