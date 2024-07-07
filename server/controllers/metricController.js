@@ -13,7 +13,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
     const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - 1 * 24 * 60 * 60 * 1000); //1 days
+    const startTime = new Date(endTime.getTime() - 1 * 24 * 60 * 60 * 1000);
     const command = new GetMetricStatisticsCommand({
       Namespace: namespace,
       MetricName: metricName,
