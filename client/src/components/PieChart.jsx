@@ -3,6 +3,11 @@ import { ResponsivePie } from '@nivo/pie';
 import { useTheme } from "@mui/material";
 import { mockPieData as initialData } from "../data/mockData";
 
+
+
+
+
+
 const PieChart = ({ data = initialData }) => {
     const theme = useTheme();
 
