@@ -11,40 +11,33 @@ const {
 } = require('@aws-sdk/client-ecs');
 const sqlite3 = require('sqlite3').verbose();
 
-const credentialsdbPath = path.resolve(__dirname, '../database/Credentials.db');
-
-const db = new sqlite3.Database(credentialsdbPath, (err) => {
-  if (err) {
-    console.log('Fail to connect to Credential database');
-  } else {
-    console.log('Connected to the database');
-  }
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../database/Credentials.db');
+const db = new sqlite3.Database(dbPath, (err) => {
+    if (err) {
+        console.log('Fail to connect to Credential database');
+    } else {
+        console.log('Connected to the database');
+    }
 });
 
-async function getCloudWatchMetrics(
-  cloudwatchClient,
-  metricName,
-  namespace,
-  dimensions
-) {
-  const endTime = new Date();
-  const startTime = new Date(endTime.getTime() - 3 * 24 * 60 * 60 * 1000); // 5 minute ago
+async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dimensions) {
+    const endTime = new Date();
+    const startTime = new Date(endTime.getTime() - 1 * 24 * 60 * 60 * 1000);
+    const command = new GetMetricStatisticsCommand({
+      Namespace: namespace,
+      MetricName: metricName,
+      Dimensions: dimensions,
+      StartTime: startTime,
+      EndTime: endTime,
+      Period: 60 * 60, // every one hour
+      Statistics: ['Average', 'Minimum', 'Maximum', 'Sum']
+    });
+  
+    const response = await cloudwatchClient.send(command);
+    const sortedDatapoints = response.Datapoints.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
+    return sortedDatapoints;
 
-  const command = new GetMetricStatisticsCommand({
-    Namespace: namespace,
-    MetricName: metricName,
-    Dimensions: dimensions,
-    StartTime: startTime,
-    EndTime: endTime,
-    Period: 60 * 60, // every on minute
-    Statistics: ['Average', 'Minimum', 'Maximum', 'Sum'],
-  });
-
-  const response = await cloudwatchClient.send(command);
-  const sortedDatapoints = response.Datapoints.sort(
-    (a, b) => new Date(a.Timestamp) - new Date(b.Timestamp)
-  );
-  return sortedDatapoints;
 }
 
 async function getserviceStatus(ecsClient, clusterName, serviceName) {
@@ -115,6 +108,34 @@ async function getTotalTask(ecsClient, clusterName) {
     pendingTasks,
     stoppedTasks,
   };
+}
+
+function fillMissingData(dataPoints) {
+    const result = [];
+    const now = new Date();
+    const defaultDataPoint = {
+        Average: 0,
+        Sum: 0,
+        Minimum: 0,
+        Maximum: 0,
+        Unit: "Percent"
+      };
+    for (let i = 0; i < 24; i++) {
+        const hour = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours() - i);
+        const dataPoint = dataPoints.find(dp => {
+            const dpTime = new Date(dp.Timestamp);
+            return dpTime.getFullYear() === hour.getFullYear() &&
+                   dpTime.getMonth() === hour.getMonth() &&
+                   dpTime.getDate() === hour.getDate() &&
+                   dpTime.getHours() === hour.getHours();
+        });
+        if (dataPoint) {
+            result.push({ ...dataPoint });
+        } else {
+            result.push({ Timestamp: hour, ...defaultDataPoint });
+        }
+    }
+    return result.reverse(); 
 }
 
 async function handleMetricRequest(ws, userId, serviceName, metricName) {
@@ -217,11 +238,67 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
       sendData();
       const intervalId = setInterval(sendData, 60 * 1000); // 每分钟更新一次
 
-      ws.on('close', () => {
-        clearInterval(intervalId);
-      });
-    }
-  );
+        const { access_key, secret_key, region, cluster_name } = rows[0];
+        const cloudwatchClient = new CloudWatchClient({
+            region: region,
+            credentials: {
+                accessKeyId: access_key,
+                secretAccessKey: secret_key
+            }
+        });
+        const ecsClient = new ECSClient({
+            region: region,
+            credentials: {
+              accessKeyId: access_key,
+              secretAccessKey: secret_key
+            }
+        });
+
+        const dimensionsEcs = [
+            { Name: 'ClusterName', Value: cluster_name },
+            { Name: 'ServiceName', Value: serviceName }
+        ];
+        const dimensionsContainerInsights = [
+            { Name: 'ClusterName', Value: cluster_name }
+        ];
+
+        const sendData = async () => {
+            try {
+                let data;
+                let completeData
+                if (metricName === 'NetworkRxBytes' || metricName === 'NetworkTxBytes') {
+                    data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'ECS/ContainerInsights', dimensionsContainerInsights);
+                    completeData = fillMissingData(data);
+                } else if (metricName === 'serviceStatus') {
+                    completeData = await getserviceStatus(ecsClient, cluster_name, serviceName);
+                } else if (metricName === 'taskStatus') {
+                    completeData = await getTaskStatus(ecsClient, cluster_name, serviceName);
+                } else if (metricName === 'CPUUtilization' || metricName === 'MemoryUtilization') {
+                    data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'AWS/ECS', dimensionsEcs);
+                    completeData = fillMissingData(data);
+                } else if (metricName === 'RunningTaskCount' || metricName === 'PendingTaskCount') {
+                    completeData = await getCloudWatchMetrics(cloudwatchClient, metricName , 'ECS/ContainerInsights', dimensionsEcs);
+                } else if (metricName === 'totalTasks') {
+                    completeData = await getTotalTask(ecsClient, cluster_name);
+                }else {
+                    ws.send(JSON.stringify({ error: 'We don\'t support this metric' }));
+                    ws.close();
+                    return;
+                }
+                ws.send(JSON.stringify(completeData));
+            } catch (err) {
+                ws.send(JSON.stringify({ error: 'Error fetching metric data' }));
+                ws.close();
+                return;
+            }
+        };
+        sendData();
+        const intervalId = setInterval(sendData, 60 * 1000); //update everyone minute
+
+        ws.on('close', () => {
+            clearInterval(intervalId);
+        });
+    })
 }
 
 module.exports = {
