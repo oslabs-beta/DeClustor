@@ -8,10 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import nobglogo from '../assests/nobglogo.png';
+import nobglogo from '../assets/nobglogo.png';
 import LoginIcon from '@mui/icons-material/Login';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import GettingStartedIcon from '@mui/icons-material/PlayCircleOutline';
+import Team from '../components/Team';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -87,6 +88,9 @@ const Home = () => {
           Get Started
         </Button>
       </Container>
+      <Box sx={{ mt: 8 }}>
+        <Team />
+      </Box>
     </>
   );
 };
