@@ -3,13 +3,13 @@ import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
 import { themeSettings } from "../theme";
 import { fetchMetrics } from '../state/api.js'
-import { connectWebSocket } from '../webService/websocketService.js'; 
+import { connectWebSocketToLineChart } from '../webService/connectWebSocketToLineChart.js'; 
 // import { mockLineData as initialData } from "../data/mockData";
 
 // ฟังก์ชันเพื่อแปลงข้อมูลดิบให้เป็นข้อมูลที่สามารถใช้กับ Nivo Line Chart
 const transformData = (rawData) => {
     if (!Array.isArray(rawData)) {
-        console.error("Expected rawData to be an array, but got:", rawData);
+        console.error("Expected rawData in the Line Chart components to be an array, but got:", rawData);
         return [];
     }
 
@@ -37,7 +37,7 @@ const transformData = (rawData) => {
         }
     ];
 
-    console.log('Transformed data:', transformedData);
+    console.log('Line Transformed data -->', transformedData);
   
     return transformedData;
 };
@@ -58,13 +58,15 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
     // state of error // nulll
     const [ error , setError ] = useState(null);
 
+    // call the function connectWebSocket 
+    // then setData with the tranformed raw data
     useEffect(() => {
-        const ws = connectWebSocket(
+        const ws = connectWebSocketToLineChart(
             userId,
             serviceName,
             metricNames,
             (rawData) => {
-                console.log('Received rawData -->', rawData);
+                console.log('hi from line chart im received rawData -->', rawData);
                 const transformedData = transformData(rawData);
                 setData(transformedData);
                 setLoading(false);
@@ -74,7 +76,7 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
                 setLoading(false);
             },
             () => {
-                console.log('WebSocket closed');
+                console.log('WebSocket from Line closed');
             }
         );
         // Cleanup WebSocket connection when component unmounts
@@ -83,7 +85,7 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
         };
     }, [userId, serviceName, metricNames]);
     
-    console.log('[userId, serviceName, metricNames] --> ' , [userId, serviceName, metricNames])
+    console.log('Line Data: [userId, serviceName, metricNames] --> ' , [userId, serviceName, metricNames])
 
     // loading
     if (loading) {

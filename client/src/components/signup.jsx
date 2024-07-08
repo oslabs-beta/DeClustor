@@ -33,6 +33,7 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (response.ok) {
         setSuccess('Signup successful!');
@@ -65,28 +66,12 @@ const Signup = () => {
           Sign Up
         </Typography>
         {error && (
-          <Alert
-            severity='error'
-            sx={{
-              mt: 2,
-              width: '100%',
-              backgroundColor: 'primary',
-              color: 'white',
-            }}
-          >
+          <Alert severity='error' sx={{ mt: 2, width: '100%' }}>
             {error}
           </Alert>
         )}
         {success && (
-          <Alert
-            severity='success'
-            sx={{
-              mt: 2,
-              width: '100%',
-              backgroundColor: 'primary',
-              color: 'white',
-            }}
-          >
+          <Alert severity='success' sx={{ mt: 2, width: '100%' }}>
             {success}
           </Alert>
         )}

@@ -1,12 +1,12 @@
 import React , { useState , useEffect } from 'react';
 import LineChart from '../components/LineChart.jsx';
 //client/src/components/LineChart.jsx
-import { mockLineData } from '../data/mockData'; 
+// import { mockLineData } from '../data/mockData'; 
 import { Box, useTheme , Typography , useMediaQuery } from "@mui/material";
 import { themeSettings as theme } from '../theme.js';
 //import FlexBetween from '../components/FlexBetween'
 import PieChart from '../components/PieChart.jsx';
-import { mockPieData } from '../data/mockData'; 
+//import { mockPieData } from '../data/mockData'; 
 //import { fetchMetrics } from '../state/api.js'
 import Service from '../components/Service.jsx';
 import StatusCard from '../components/StatusCard.jsx';
@@ -54,7 +54,7 @@ const Dashboard = () => {
             fontSize="1rem"
             sx={{ color: theme.palette.secondary[100] }}
           >
-            <Service />
+            <Service userId={userId}/>
           </Typography>
         </Box>
         <Box flex="1" sx={{ marginTop: '50px' }}>
@@ -75,7 +75,7 @@ const Dashboard = () => {
           sx={{ color: theme.palette.secondary[100] }}
         >
           Tasks Overview
-          <PieChart data={mockPieData} />
+          <PieChart userId={userId} serviceName={serviceName} />
         </Typography>
       </Box>
     </Box>
