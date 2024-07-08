@@ -1,6 +1,16 @@
-const {CloudWatchClient, GetMetricStatisticsCommand} = require('@aws-sdk/client-cloudwatch');
-const { ECSClient, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand } = require("@aws-sdk/client-ecs");
+const path = require('path');
+const {
+  CloudWatchClient,
+  GetMetricStatisticsCommand,
+} = require('@aws-sdk/client-cloudwatch');
+const {
+  ECSClient,
+  DescribeServicesCommand,
+  ListTasksCommand,
+  DescribeTasksCommand,
+} = require('@aws-sdk/client-ecs');
 const sqlite3 = require('sqlite3').verbose();
+
 const path = require('path');
 const dbPath = path.resolve(__dirname, '../database/Credentials.db');
 const db = new sqlite3.Database(dbPath, (err) => {
@@ -27,70 +37,77 @@ async function getCloudWatchMetrics(cloudwatchClient, metricName, namespace, dim
     const response = await cloudwatchClient.send(command);
     const sortedDatapoints = response.Datapoints.sort((a, b) => new Date(a.Timestamp) - new Date(b.Timestamp));
     return sortedDatapoints;
+
 }
 
 async function getserviceStatus(ecsClient, clusterName, serviceName) {
-    const serviceCommand = new DescribeServicesCommand({
-      cluster: clusterName,
-      services: [serviceName]
-    });
-  
-    const serviceResponse = await ecsClient.send(serviceCommand);
-    const serviceStatus = serviceResponse.services[0]?.status;
-    return [serviceStatus];
+  const serviceCommand = new DescribeServicesCommand({
+    cluster: clusterName,
+    services: [serviceName],
+  });
+
+  const serviceResponse = await ecsClient.send(serviceCommand);
+  const serviceStatus = serviceResponse.services[0]?.status;
+  return [serviceStatus];
 }
 
 async function getTaskStatus(ecsClient, clusterName, serviceName) {
-    const tasksCommand = new ListTasksCommand({
-      cluster: clusterName,
-      serviceName: serviceName
-    });
-  
-    const tasksResponse = await ecsClient.send(tasksCommand);
-    const taskArns = tasksResponse.taskArns;
-  
-    let taskStatuses = [];
-    if (taskArns.length > 0) {
-      const describeTasksCommand = new DescribeTasksCommand({
-        cluster: clusterName,
-        tasks: taskArns
-      });
-  
-      const taskDetails = await ecsClient.send(describeTasksCommand);
-      taskStatuses = taskDetails.tasks.map(task =>  ({
-        taskArn: task.taskArn,
-        lastStatus: task.lastStatus})
-      );
-    }
-    return taskStatuses;
-}
+  const tasksCommand = new ListTasksCommand({
+    cluster: clusterName,
+    serviceName: serviceName,
+  });
 
-async function getTotalTask(ecsClient, clusterName) {
-    const tasksCommand = new ListTasksCommand({
-        cluster: clusterName
-    });
+  const tasksResponse = await ecsClient.send(tasksCommand);
+  const taskArns = tasksResponse.taskArns;
 
-    const taskResponse = await ecsClient.send(tasksCommand);
-    const taskArns = taskResponse.taskArns;
-
+  let taskStatuses = [];
+  if (taskArns.length > 0) {
     const describeTasksCommand = new DescribeTasksCommand({
-        cluster: clusterName,
-        tasks: taskArns
+      cluster: clusterName,
+      tasks: taskArns,
     });
 
     const taskDetails = await ecsClient.send(describeTasksCommand);
-    const tasks = taskDetails.tasks;
-    const totalTasks = tasks.length;
-    const runningTasks = tasks.filter(task => task.lastStatus === 'RUNNING').length;
-    const pendingTasks = tasks.filter(task => task.lastStatus === 'PENDING').length;
-    const stoppedTasks = tasks.filter(task => task.lastStatus === 'STOPPED').length;
+    taskStatuses = taskDetails.tasks.map((task) => ({
+      taskArn: task.taskArn,
+      lastStatus: task.lastStatus,
+    }));
+  }
+  return taskStatuses;
+}
 
-    return {
-        totalTasks,
-        runningTasks,
-        pendingTasks,
-        stoppedTasks
-    };
+async function getTotalTask(ecsClient, clusterName) {
+  const tasksCommand = new ListTasksCommand({
+    cluster: clusterName,
+  });
+
+  const taskResponse = await ecsClient.send(tasksCommand);
+  const taskArns = taskResponse.taskArns;
+
+  const describeTasksCommand = new DescribeTasksCommand({
+    cluster: clusterName,
+    tasks: taskArns,
+  });
+
+  const taskDetails = await ecsClient.send(describeTasksCommand);
+  const tasks = taskDetails.tasks;
+  const totalTasks = tasks.length;
+  const runningTasks = tasks.filter(
+    (task) => task.lastStatus === 'RUNNING'
+  ).length;
+  const pendingTasks = tasks.filter(
+    (task) => task.lastStatus === 'PENDING'
+  ).length;
+  const stoppedTasks = tasks.filter(
+    (task) => task.lastStatus === 'STOPPED'
+  ).length;
+
+  return {
+    totalTasks,
+    runningTasks,
+    pendingTasks,
+    stoppedTasks,
+  };
 }
 
 function fillMissingData(dataPoints) {
@@ -122,19 +139,104 @@ function fillMissingData(dataPoints) {
 }
 
 async function handleMetricRequest(ws, userId, serviceName, metricName) {
-    db.all(`SELECT access_key, secret_key, region, cluster_name FROM Credentials WHERE user_id = ?`, [userId], async(err, rows) => {
-        if (err) {
-            console.log('Error querying the database:', err.message);
-            ws.send(JSON.stringify({ error: 'Error querying the database' }));
-            ws.close();
-            return;
-        }
+  db.all(
+    `SELECT access_key, secret_key, region, cluster_name FROM Credentials WHERE user_id = ?`,
+    [userId],
+    async (err, rows) => {
+      if (err) {
+        console.log('Error querying the database:', err.message);
+        ws.send(JSON.stringify({ error: 'Error querying the database' }));
+        ws.close();
+        return;
+      }
 
-        if (rows.length === 0) {
-            ws.send(JSON.stringify({ error: 'No credentials found for the specified user ID.' }));
+      if (rows.length === 0) {
+        ws.send(
+          JSON.stringify({
+            error: 'No credentials found for the specified user ID.',
+          })
+        );
+        ws.close();
+        return;
+      }
+
+      const { access_key, secret_key, region, cluster_name } = rows[0];
+      const cloudwatchClient = new CloudWatchClient({
+        region: region,
+        credentials: {
+          accessKeyId: access_key,
+          secretAccessKey: secret_key,
+        },
+      });
+      const ecsClient = new ECSClient({
+        region: region,
+        credentials: {
+          accessKeyId: access_key,
+          secretAccessKey: secret_key,
+        },
+      });
+
+      const dimensionsEcs = [
+        { Name: 'ClusterName', Value: cluster_name },
+        { Name: 'ServiceName', Value: serviceName },
+      ];
+      const dimensionsContainerInsights = [
+        { Name: 'ClusterName', Value: cluster_name },
+      ];
+
+      const sendData = async () => {
+        try {
+          let data;
+          if (
+            metricName === 'NetworkRxBytes' ||
+            metricName === 'NetworkTxBytes'
+          ) {
+            data = await getCloudWatchMetrics(
+              cloudwatchClient,
+              metricName,
+              'ECS/ContainerInsights',
+              dimensionsContainerInsights
+            );
+          } else if (metricName === 'serviceStatus') {
+            data = await getserviceStatus(ecsClient, cluster_name, serviceName);
+          } else if (metricName === 'taskStatus') {
+            data = await getTaskStatus(ecsClient, cluster_name, serviceName);
+          } else if (
+            metricName === 'CPUUtilization' ||
+            metricName === 'MemoryUtilization'
+          ) {
+            data = await getCloudWatchMetrics(
+              cloudwatchClient,
+              metricName,
+              'AWS/ECS',
+              dimensionsEcs
+            );
+          } else if (
+            metricName === 'RunningTaskCount' ||
+            metricName === 'PendingTaskCount'
+          ) {
+            data = await getCloudWatchMetrics(
+              cloudwatchClient,
+              metricName,
+              'ECS/ContainerInsights',
+              dimensionsEcs
+            );
+          } else if (metricName === 'totalTasks') {
+            data = await getTotalTask(ecsClient, cluster_name);
+          } else {
+            ws.send(JSON.stringify({ error: "We don't support this metric" }));
             ws.close();
             return;
+          }
+          ws.send(JSON.stringify(data));
+        } catch (err) {
+          ws.send(JSON.stringify({ error: 'Error fetching metric data' }));
+          ws.close();
+          return;
         }
+      };
+      sendData();
+      const intervalId = setInterval(sendData, 60 * 1000); // 每分钟更新一次
 
         const { access_key, secret_key, region, cluster_name } = rows[0];
         const cloudwatchClient = new CloudWatchClient({
@@ -200,5 +302,5 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
 }
 
 module.exports = {
-    handleMetricRequest
+  handleMetricRequest,
 };
