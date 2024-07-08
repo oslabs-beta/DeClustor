@@ -64,19 +64,19 @@ const Sidebar = ({
       icon: <HomeOutlined />,
     },
     {
-      text: 'ECS Overview',
-      icon: <SsidChartOutlinedIcon />,
+      text: 'Task Overview',
+      icon: <LanOutlinedIcon />,
     },
     {
-      text: 'Cluster Matics',
-      icon: <LanOutlinedIcon />,
+      text: 'Cluster Metics',
+      icon: <SsidChartOutlinedIcon />,
     },
     {
       text: 'Service',
       icon: <AssignmentOutlinedIcon />,
     },
     {
-      text: 'Calender',
+      text: 'Logs',
       icon: <CalendarMonthOutlined />,
     },
     {
@@ -175,7 +175,7 @@ const Sidebar = ({
                       sx={{
                         backgroundColor:
                           active === lowerCaseText
-                            ? theme.palette.secondary[300]
+                            ? theme.palette.secondary[400]
                             : 'transparent',
                         color:
                           active === lowerCaseText

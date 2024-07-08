@@ -11,6 +11,7 @@ import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import Search from "@mui/icons-material/Search";
 import { Menu as MenuIcon } from '@mui/icons-material'
+import Badge from '@mui/material/Badge';
 // import profileImage from '../assests/profile.png'
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
@@ -47,7 +48,9 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             {/* notification icon button */}
             <IconButton>
+            <Badge badgeContent={4} color="secondary">
                 <NotificationsOutlinedIcon sx={{ fontSize: '25px' }}/>
+                </Badge>
             </IconButton>
 
               {/* setting icon button */}
