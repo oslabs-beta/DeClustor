@@ -17,6 +17,7 @@
     "@aws-sdk/credential-provider-env": "^3.609.0",
     "aws-sdk": "^2.1654.0",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "express": "^4.19.2",
     "path": "^0.12.7",
     "sqlite3": "^5.1.7",
