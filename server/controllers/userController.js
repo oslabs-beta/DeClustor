@@ -48,6 +48,7 @@ userController.createUser = (req, res, next) => {
               }
 
               if (row) {
+                console.log(row.id);
                 res.locals.userId = row.id;
               }
             }
