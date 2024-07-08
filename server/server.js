@@ -3,14 +3,14 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const http= require('http');
 const WebSocket = require('ws');
-
+const cors = require('cors');
 const app = express();
 const userController = require('./controllers/userController');
 const listController = require('./controllers/listController');
 const metricController = require('./controllers/metricController');
 
 const PORT = 3000;
-
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);

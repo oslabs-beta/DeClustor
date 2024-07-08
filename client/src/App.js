@@ -16,6 +16,10 @@ import Login from './components/login.jsx';
 import Home from './components/home.jsx';
 import Info from './components/info.jsx';
 import Signup from './components/signup.jsx';
+import Overview from './pages/Overview';
+import ClusterMetrics from './pages/ClusterMetrics';
+
+
 
 const App = () => {
   // State for mode
@@ -50,6 +54,8 @@ const App = () => {
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard" element={<Overview />} />
+                <Route path="/dashboard" element={<ClusterMetrics />} />
               </Route>
             </Routes>
             
