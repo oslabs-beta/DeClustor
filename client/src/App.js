@@ -11,14 +11,16 @@ import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
 import Layout from './pages/Layout';
 import Dashboard from './pages/Dashboard';
-import Login from './components/Login';
+import Login from './pages/login';
 import Home from './pages/Home';
-import Info from './components/Info';
-import Signup from './components/Signup';
+import Info from './components/getstarted';
+import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
 import Overview from './pages/Overview';
 import ClusterMetrics from './pages/ClusterMetrics';
+import Credentials from './pages/credentials';
+import { GoogleLogin } from '@react-oauth/google';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode);
@@ -41,14 +43,12 @@ const App = () => {
               <Route path='/login' element={<Login />} />
               <Route path='/info' element={<Info />} />
               <Route path='/signup' element={<Signup />} />
+              <Route path='/credentials' element={<Credentials />} />
               <Route element={<Layout />}>
-                <Route
-                  path='/'
-                  element={<Navigate to='/dashboard' replace />}
-                />
-                <Route path='/dashboard' element={<Dashboard />} />
-                <Route path='/dashboard' element={<Overview />} />
-                <Route path='/dashboard' element={<ClusterMetrics />} />
+                <Route path='/dashboard' element={<Dashboard />}>
+                  <Route path='overview' element={<Overview />} />
+                  <Route path='cluster-metrics' element={<ClusterMetrics />} />
+                </Route>
               </Route>
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>
