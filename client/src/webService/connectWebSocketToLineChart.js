@@ -10,7 +10,6 @@ export function connectWebSocketToLineChart(userId, serviceName, metricNames, on
 
   ws.onmessage = (event) => {
     const data = JSON.parse(event.data);
-    // ตรวจสอบว่า data มี error หรือไม่
     if (data.error) {
       onError(new Error(data.error));
     } else {

@@ -80,4 +80,39 @@ userController.verifyUser = (req, res, next) => {
     }
   );
 };
+
+userController.googleLogin = (accessToken, refreshToken, profile, done) => {
+  const googleId = profile.id;
+  const username = profile.emails[0].value;
+  userdb.get(
+    'SELECT * FROM Users WHERE user_name = ?',
+    [username],
+    (err, row) => {
+      if (err) {
+        return done(err);
+      } else if (row) {
+        return done(null, row);
+      } else {
+        userdb.run(
+          'INSERT INTO Users (user_name, password) VALUES (?, ?)',
+          [username, googleId],
+          function (err) {
+            if (err) {
+              return done(err);
+            } else {
+              const newUser = {
+                id: this.lastID,
+                user_name: username,
+                password: googleId,
+              };
+              return done(null, newUser);
+            }
+          }
+        );
+      }
+    }
+  );
+  // db.close();
+};
+
 module.exports = userController;

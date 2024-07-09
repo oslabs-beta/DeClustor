@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.js';
-import { configureStore } from '@reduxjs/toolkit';
-import globalReducer from './state';
 import { Provider } from 'react-redux';
+import store from '../src/redux/store.js';
+
 import { GoogleOAuthProvider } from '@react-oauth/google';
 // import { setupListeners } from '@reduxjs/toolkit/query';
 // import { api } from 'state/api.js';

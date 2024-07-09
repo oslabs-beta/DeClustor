@@ -17,6 +17,8 @@ import Info from './components/getstarted';
 import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
+// import Overview from './pages/Overview';
+// import ClusterMetrics from './pages/ClusterMetrics';
 import Overview from './pages/Overview';
 import ClusterMetrics from './pages/ClusterMetrics';
 import Credentials from './pages/credentials';
@@ -45,6 +47,13 @@ const App = () => {
               <Route path='/signup' element={<Signup />} />
               <Route path='/credentials' element={<Credentials />} />
               <Route element={<Layout />}>
+                <Route
+                  path='/'
+                  element={<Navigate to='/dashboard' replace />}
+                />
+                <Route path='/dashboard' element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Overview />} /> */}
+                {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
                 <Route path='/dashboard' element={<Dashboard />}>
                   <Route path='overview' element={<Overview />} />
                   <Route path='cluster-metrics' element={<ClusterMetrics />} />

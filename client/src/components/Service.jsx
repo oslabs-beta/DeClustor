@@ -6,19 +6,19 @@ import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions, CircularProgress } from '@mui/material';
 import { useTheme } from '@emotion/react';
-
-// const options = ['Service 1', 'Service 2'];
+import { useDispatch } from 'react-redux';
+import { setServiceName } from '../redux/userSlice.js';
 
 const Service = ({ userId }) => {
   const theme = useTheme();
-  const [serviceName, setServiceName] = useState(null);
+  const [serviceName, setServiceNameLocal] = useState(null);
   const [serviceNames, setServiceNames] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [serviceStatus, setServiceStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const dispatch = useDispatch();
 
-  // set services
   useEffect(() => {
     if (userId) {
       setLoading(true);
@@ -27,10 +27,11 @@ const Service = ({ userId }) => {
       fetch(`http://localhost:3000/listAllService?userId=${userId}`)
         .then(response => response.json())
         .then(data => {
-          console.log('Fetched service names:', data);
+          console.log('Fetching service names -->', data);
           if (data && data.length > 0) {
             setServiceNames(data);
-            setServiceName(data[0]);
+            setServiceNameLocal(data[0]);
+            dispatch(setServiceName(data[0])); // Update Redux state
           } else {
             throw new Error('No services found');
           }
@@ -44,7 +45,6 @@ const Service = ({ userId }) => {
     }
   }, [userId]);
 
-  // set service status using WebSocket
   useEffect(() => {
     if (userId && serviceName) {
       setLoading(true);
@@ -57,7 +57,7 @@ const Service = ({ userId }) => {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        console.log('Fetched service status:', data);
+        console.log('Fetching service status -->', data);
         setServiceStatus(data[0] || 'UNKNOWN');
         setLoading(false);
       };
@@ -85,7 +85,8 @@ const Service = ({ userId }) => {
       <Autocomplete
         value={serviceName}
         onChange={(event, newValue) => {
-          setServiceName(newValue);
+          setServiceNameLocal(newValue);
+          dispatch(setServiceName(newValue)); // Update Redux state
         }}
         inputValue={inputValue}
         onInputChange={(event, newInputValue) => {
@@ -123,4 +124,3 @@ const Service = ({ userId }) => {
 };
 
 export default Service;
-
