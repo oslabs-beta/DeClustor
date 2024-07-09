@@ -17,13 +17,16 @@
     "@aws-sdk/credential-provider-env": "^3.609.0",
     "aws-sdk": "^2.1654.0",
     "cookie-parser": "^1.4.6",
+    "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "google-auth-library": "^9.11.0",
+    "nodemon": "^3.1.4",
+    "passport": "^0.5.3",
+    "passport-google-oauth20": "^2.0.0",
     "path": "^0.12.7",
     "sqlite3": "^5.1.7",
     "ws": "^8.18.0"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.4"
   }
 }
