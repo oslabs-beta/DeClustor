@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -11,12 +10,15 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { loginSuccess, loginFailure } from '../redux/userSlice';
+import { useDispatch } from 'react-redux';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,11 +35,12 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
-        console.log('Login successful');
+        console.log('Login successful, dispatching loginSuccess with data:', data);
+        dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
         navigate('/dashboard');
       } else {
+        dispatch(loginFailure(data.message));
         setError(data.message);
-        navigate('/signup');
       }
     } catch (error) {
       console.error('Error:', error);

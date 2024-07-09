@@ -19,30 +19,22 @@ import {
   CalendarMonthOutlined,
   AdminPanelSettingsOutlined,
   TrendingUpOutlined,
-} from '@mui/icons-material';
-import { useLocation, useNavigate } from 'react-router-dom';
-import FlexBetween from './FlexBetween';
-import profileImage from '../assets/profile.png';
-import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
-import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
-import logo from '../assets/logo.png';
+} from '@mui/icons-material'
+import { useLocation, useNavigate } from 'react-router-dom'
+import FlexBetween from './FlexBetween'
+import profileImage from '../assets/profile.png'
+import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined'
+import LanOutlinedIcon from '@mui/icons-material/LanOutlined'
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
+import logo from '../assets/logo.png' 
+import { useSelector } from 'react-redux';
 
-{
-  /* <Sidebar
-isNonMobile={isNonMobile}
-drawerWidth='250px'
-isSidebarOpen={isSidebarOpen}
-setIsSideBarOpen={setIsSideBarOpen}
-/> */
-}
 // passin props from Layout
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
   isSidebarOpen,
   setIsSidebarOpen,
-  // user
 }) => {
   // grap the path that we currently at
   const { pathname } = useLocation();
@@ -51,7 +43,8 @@ const Sidebar = ({
   const navigate = useNavigate();
   // from theme color
   const theme = useTheme();
-
+  const user = useSelector((state) => state.user);
+  console.log('user login -->' , user);
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
@@ -229,7 +222,7 @@ const Sidebar = ({
                   sx={{ color: theme.palette.secondary[100] }}
                 >
                   {/* change to user info !! call the api '/userProfile' ?*/}
-                  Ploy
+                  {user ? user.username : 'No User Data'}
                 </Typography>
               </Box>
               {/* <SettingsOutlined

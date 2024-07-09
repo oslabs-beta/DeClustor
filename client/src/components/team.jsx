@@ -9,7 +9,7 @@ const teamMembers = [
   { name: 'Grace Lo', img: grace },
   { name: 'Aria Liang', img: aria },
   { name: 'Will Di', img: will },
-  { name: 'Ploy Yang', img: ploy },
+  { name: 'Ploynapa Yang', img: ploy },
 ];
 
 const Team = () => {

@@ -1,12 +1,11 @@
 import React , { useMemo, useState , useEffect } from "react";
 import { ResponsiveLine } from "@nivo/line";
 import { useTheme } from "@mui/material";
-import { themeSettings } from "../theme";
-import { fetchMetrics } from '../state/api.js'
 import { connectWebSocketToLineChart } from '../webService/connectWebSocketToLineChart.js'; 
-// import { mockLineData as initialData } from "../data/mockData";
-
-// ฟังก์ชันเพื่อแปลงข้อมูลดิบให้เป็นข้อมูลที่สามารถใช้กับ Nivo Line Chart
+import { useSelector } from "react-redux";
+// import { themeSettings } from "../theme";
+// import { fetchMetrics } from '../state/api.js'
+// Function to transform raw data into a format suitable for Nivo Line Chart
 const transformData = (rawData) => {
     if (!Array.isArray(rawData)) {
         console.error("Expected rawData in the Line Chart components to be an array, but got:", rawData);
@@ -19,7 +18,7 @@ const transformData = (rawData) => {
             data: rawData.map(point => ({
                 x: point.Timestamp,
                 y: point.Average
-            })).filter(point => point.y >= 0) // กรองค่า y ที่น้อยกว่า 0
+            })).filter(point => point.y >= 0)
         },
         {
             id: 'Minimum',
@@ -38,35 +37,31 @@ const transformData = (rawData) => {
     ];
 
     console.log('Line Transformed data -->', transformedData);
-  
     return transformedData;
 };
 
-const LineChart = ({  userId, serviceName, metricNames }) => {
-    // if (!data) {
-    //     console.log("Using fallback data because prop 'data' is undefined");
-    //     data = initialData;
-    // }
-
-    // console.log('data -->' , data); // Check what data is now
+const LineChart = ({ metricNames }) => {
     const theme = useTheme();
-    // const colors = themeSettings(theme.palette.mode);
-    // dta state management with array of data
-    const [ data , setData ] = useState([]);
-    // loading state during waiting for the load
-    const [ loading , setLoading ] = useState(true);
-    // state of error // nulll
-    const [ error , setError ] = useState(null);
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    // call the function connectWebSocket 
-    // then setData with the tranformed raw data
+    const userId = useSelector((state) => state.user.userId);
+    const serviceName = useSelector((state) => state.user.serviceName);
+
     useEffect(() => {
+        if (!userId || !serviceName) {
+            console.error("userId or serviceName is undefined");
+            setLoading(false);
+            return;
+        }
+
         const ws = connectWebSocketToLineChart(
             userId,
             serviceName,
             metricNames,
             (rawData) => {
-                console.log('hi from line chart im received rawData -->', rawData);
+                console.log('Received rawData -->', rawData);
                 const transformedData = transformData(rawData);
                 setData(transformedData);
                 setLoading(false);
@@ -76,32 +71,34 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
                 setLoading(false);
             },
             () => {
-                console.log('WebSocket from Line closed');
+                console.log('WebSocket connection closed');
             }
         );
-        // Cleanup WebSocket connection when component unmounts
+
         return () => {
             ws.close();
         };
     }, [userId, serviceName, metricNames]);
-    
-    console.log('Line Data: [userId, serviceName, metricNames] --> ' , [userId, serviceName, metricNames])
 
-    // loading
+    console.log('Line Data: [userId, serviceName, metricNames] --> ', [userId, serviceName, metricNames]);
+
+    if (!userId || !serviceName) {
+        return <div>Please select a service to view the metrics.</div>;
+    }
+
     if (loading) {
         return <div>Loading...</div>;
     }
-    // error
+
     if (error) {
         return <div>Error: {error}</div>;
     }
 
-    // make a custom theme
     const customTheme = {
         axis: {
             ticks: {
                 text: {
-                    fill: theme.palette.text.primary,  
+                    fill: theme.palette.text.primary,
                 },
             },
             legend: {
@@ -112,13 +109,13 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
         },
         legends: {
             text: {
-                fill: theme.palette.text.primary,  
+                fill: theme.palette.text.primary,
             },
         },
         tooltip: {
             container: {
-                background: theme.palette.secondary[400],  // พื้นหลังของ tooltip
-                color: theme.palette.text.primary,  // สีของตัวหนังสือใน tooltip
+                background: theme.palette.secondary[400],
+                color: theme.palette.text.primary,
             },
         },
     };
@@ -127,14 +124,14 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
         <div style={{ height: "400px", width: "100%" }}>
             <ResponsiveLine
                 data={data}
-                theme={customTheme}  
+                theme={customTheme}
                 margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
                 xScale={{
                     type: 'time',
-                    format: '%Y-%m-%dT%H:%M:%S.%LZ',  // expects date objects
+                    format: '%Y-%m-%dT%H:%M:%S.%LZ',
                     precision: 'minute'
                 }}
-                xFormat="time:%Y-%m-%d %H:%M:%S"  // formats the tooltip date display
+                xFormat="time:%Y-%m-%d %H:%M:%S"
                 yScale={{
                     type: 'linear',
                     min: 'auto',
@@ -145,8 +142,8 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
                 axisTop={null}
                 axisRight={null}
                 axisBottom={{
-                    format: "%H:%M",  // Formats the axis tick labels
-                    tickValues: 'every 1 hour', // Show tick every hour
+                    format: "%H:%M",
+                    tickValues: 'every 1 hour',
                     tickSize: 5,
                     tickPadding: 5,
                     tickRotation: 0,
@@ -155,7 +152,7 @@ const LineChart = ({  userId, serviceName, metricNames }) => {
                     legendPosition: 'middle'
                 }}
                 axisLeft={{
-                    format: d => `${d}`,  // number in Y 
+                    format: d => `${d}`,
                     tickSize: 5,
                     tickPadding: 5,
                     tickRotation: 0,

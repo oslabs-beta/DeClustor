@@ -17,8 +17,8 @@ import Info from './components/Info';
 import Signup from './components/Signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
-import Overview from './pages/Overview';
-import ClusterMetrics from './pages/ClusterMetrics';
+// import Overview from './pages/Overview';
+// import ClusterMetrics from './pages/ClusterMetrics';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode);
@@ -42,13 +42,10 @@ const App = () => {
               <Route path='/info' element={<Info />} />
               <Route path='/signup' element={<Signup />} />
               <Route element={<Layout />}>
-                <Route
-                  path='/'
-                  element={<Navigate to='/dashboard' replace />}
-                />
-                <Route path='/dashboard' element={<Dashboard />} />
-                <Route path='/dashboard' element={<Overview />} />
-                <Route path='/dashboard' element={<ClusterMetrics />} />
+                <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Overview />} /> */}
+                {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
               </Route>
               <Route path='*' element={<Navigate to='/' replace />} />
             </Routes>

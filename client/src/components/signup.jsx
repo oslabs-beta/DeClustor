@@ -10,6 +10,8 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { signupSuccess , signupFailure } from '../redux/userSlice.js';
+import { useDispatch } from 'react-redux';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -19,6 +21,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,11 +40,13 @@ const Signup = () => {
 
       if (response.ok) {
         setSuccess('Signup successful!');
+        dispatch(signupSuccess({ userId: data.userId, username }));
         setTimeout(() => {
-          navigate('/login');
+          navigate('/dashboard');
         }, 2000);
       } else {
         setError(data.message);
+        dispatch(signupFailure(data.message));
       }
     } catch (error) {
       console.error('Error:', error);
