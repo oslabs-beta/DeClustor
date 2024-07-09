@@ -7,6 +7,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const cookieSession = require('cookie-session');
 const cors = require('cors');
+// const session = require('express-session');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 // const {OAuth2Client } = require('google-auth-library');
@@ -23,6 +24,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+
+// app.use(
+//   session({
+//     secret: 'cat',
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
 
 // Replace with your Google client ID and secret
 
@@ -41,8 +50,15 @@ passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser((obj, done) => {
-  done(null, obj);
+// passport.deserializeUser(function (id, done) {
+//   db.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
+//     if (err) return done(err);
+//     done(null, row);
+//   });
+// });
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
 });
 
 app.use(
