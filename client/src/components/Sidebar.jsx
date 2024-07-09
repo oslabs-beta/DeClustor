@@ -115,6 +115,9 @@ const Sidebar = ({
                   component='img'
                   alt='logo'
                   src={logo}
+                  onClick={() => {
+                    navigate('/')
+                  }}
                   height='100px'
                   width='100px'
                   borderRadius='28%'
@@ -125,6 +128,7 @@ const Sidebar = ({
                     borderWidth: 1,
                     marginLeft: '47px',
                     padding: '5px',
+                    cursor: 'pointer',
                   }}
                 />
                 {/* <Box display="flex" alignItems="center" gap="0.5rem">

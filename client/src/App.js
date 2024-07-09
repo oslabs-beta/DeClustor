@@ -17,6 +17,7 @@ import Info from './components/Info';
 import Signup from './components/Signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
+import UserProfile from './pages/UserProfile';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
 
@@ -48,7 +49,9 @@ const App = () => {
                 {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
               </Route>
               <Route path='*' element={<Navigate to='/' replace />} />
+              <Route path="/userprofile" element={<UserProfile />} /> 
             </Routes>
+            
           </Box>
           <Feedback />
           <Footer sx={{ mt: 'auto' }} />

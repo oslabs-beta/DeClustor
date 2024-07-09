@@ -1,6 +1,6 @@
 import React from "react";
 import { useTheme } from '@emotion/react';
-import { Box, IconButton, InputBase } from '@mui/material';
+import { Box, IconButton, InputBase , Typography , Tooltip } from '@mui/material';
 import FlexBetween from './FlexBetween'
 import { useDispatch } from 'react-redux'
 import { setMode } from '../redux/globalSlice.js'
@@ -13,30 +13,56 @@ import Search from "@mui/icons-material/Search";
 import { Menu as MenuIcon } from '@mui/icons-material'
 import Badge from '@mui/material/Badge';
 import { useNavigate } from "react-router-dom";
-// import profileImage from '../assests/profile.png'
+import LogoutIcon from '@mui/icons-material/Logout';
+import logo from '../assets/logo.png'
 
-const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSearch = true }) => {
     // theme setting 
     const dispatch = useDispatch()
     const theme = useTheme()
     const navigate = useNavigate();
-    // const [isSidebarOpen , setIsSideBarOpen] = useState(true);
+
     return (
        <Box display='flex' justifyContent='space-between' padding={2}>
         
         {/* hide the sidebar */}
+        {showSidebar ? (
         <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
           <MenuIcon />
         </IconButton>
+        ) : (
+          <Box
+                  component='img'
+                  alt='logo'
+                  src={logo}
+                  onClick={() => {
+                    navigate('/')
+                  }}
+                  height='100px'
+                  width='100px'
+                  borderRadius='28%'
+                  sx={{
+                    objectFit: 'cover',
+                    borderColor: theme.palette.primary[400],
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    marginLeft: '47px',
+                    padding: '5px',
+                    cursor: 'pointer',
+                  }}
+           />
+        )}
 
         {/* search bar */}
+        {showSearch && (
         <FlexBetween backgroundColor={theme.palette.background.alt} borderRadius="9px" gap="3rem" padding="0.1rem 1.5rem">
           <InputBase placeholder="Search..." />
           <IconButton>
             <Search />
           </IconButton>
         </FlexBetween>
-
+        )}
+        
         {/* dark/light mode , notification and profile icons */}
         <FlexBetween gap="1.5rem">
             {/* dark/light mode */}
@@ -61,9 +87,21 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             </IconButton>
 
             {/* profile icon button */}
+            <Tooltip title='Profile'>
             <IconButton onClick={() => navigate('/userprofile')}>
                 <PersonOutlinedIcon />
             </IconButton>
+            </Tooltip>
+
+            {/* logout icon button */}
+            <Tooltip title='Logout'>
+            <IconButton onClick={() => navigate('/')}>
+                <LogoutIcon />
+                <Typography variant='h6'>
+                </Typography>
+            </IconButton>
+            </Tooltip>
+            
         </FlexBetween>
 
        </Box>
