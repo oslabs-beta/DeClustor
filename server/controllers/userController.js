@@ -34,25 +34,25 @@ userController.createUser = (req, res, next) => {
           if (err) {
             return res.status(500).json({ message: 'Internal server error' });
           }
-          // res.locals.userId = this.lastID;
+           res.locals.userId = this.lastID;
           // console.log(res.locals.userId);
-          userdb.get(
-            'SELECT id FROM Users WHERE user_name = ?',
-            [username],
-            (err, row) => {
-              if (err) {
-                // userdb.close();
-                return res
-                  .status(500)
-                  .json({ message: 'Internal server error' });
-              }
+          // userdb.get(
+          //   'SELECT id FROM Users WHERE user_name = ?',
+          //   [username],
+          //   (err, row) => {
+          //     if (err) {
+          //       // userdb.close();
+          //       return res
+          //         .status(500)
+          //         .json({ message: 'Internal server error' });
+          //     }
 
-              if (row) {
-                console.log(row.id);
-                res.locals.userId = row.id;
-              }
-            }
-          );
+          //     if (row) {
+          //       console.log(row.id);
+          //       res.locals.userId = row.id;
+          //     }
+          //   }
+          // );
 
           next();
         }
@@ -76,8 +76,10 @@ userController.verifyUser = (req, res, next) => {
           .status(400)
           .json({ message: 'Incorrect username or password' });
       }
+      res.locals.userId = row.id; 
       next();
     }
   );
 };
+
 module.exports = userController;

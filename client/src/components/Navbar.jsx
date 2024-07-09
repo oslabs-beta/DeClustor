@@ -3,7 +3,7 @@ import { useTheme } from '@emotion/react';
 import { Box, IconButton, InputBase } from '@mui/material';
 import FlexBetween from './FlexBetween'
 import { useDispatch } from 'react-redux'
-import { setMode } from '../state/index.js'
+import { setMode } from '../redux/globalSlice.js'
 import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import NotificationsOutlinedIcon from "@mui/icons-material/NotificationsOutlined";
@@ -12,12 +12,14 @@ import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import Search from "@mui/icons-material/Search";
 import { Menu as MenuIcon } from '@mui/icons-material'
 import Badge from '@mui/material/Badge';
+import { useNavigate } from "react-router-dom";
 // import profileImage from '../assests/profile.png'
 
 const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     // theme setting 
     const dispatch = useDispatch()
     const theme = useTheme()
+    const navigate = useNavigate();
     // const [isSidebarOpen , setIsSideBarOpen] = useState(true);
     return (
        <Box display='flex' justifyContent='space-between' padding={2}>
@@ -59,7 +61,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             </IconButton>
 
             {/* profile icon button */}
-            <IconButton>
+            <IconButton onClick={() => navigate('/userprofile')}>
                 <PersonOutlinedIcon />
             </IconButton>
         </FlexBetween>

@@ -1,23 +1,19 @@
 import React , { useState , useEffect } from 'react';
 import LineChart from '../components/LineChart.jsx';
-//client/src/components/LineChart.jsx
-// import { mockLineData } from '../data/mockData'; 
 import { Box, useTheme , Typography , useMediaQuery } from "@mui/material";
 import { themeSettings as theme } from '../theme.js';
 //import FlexBetween from '../components/FlexBetween'
 import PieChart from '../components/PieChart.jsx';
-//import { mockPieData } from '../data/mockData'; 
-//import { fetchMetrics } from '../state/api.js'
 import Service from '../components/Service.jsx';
 import StatusCard from '../components/StatusCard.jsx';
+import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery("(min-width: 1200px)"); // Change to larger screens
   const isTabletScreen = useMediaQuery("(min-width: 600px) and (max-width: 1199px)"); // Change for tablet screens
-  const userId = '1'; // Replace with actual user ID
-  const serviceName = 'v1'; // Replace with actual service name
-  const metricNames = ['CPUUtilization', 'MemoryUtilization', 'NetworkRxBytes', 'NetworkTxBytes'];
+  const userId = useSelector((state) => state.user.userId); // Get userId from Redux store
+  const serviceName = useSelector((state) => state.user.serviceName); // Get serviceName from Redux store  const metricNames = ['CPUUtilization', 'MemoryUtilization', 'NetworkRxBytes', 'NetworkTxBytes'];
 
   return (
     <Box display="flex" flexDirection="column" gap="20px">
