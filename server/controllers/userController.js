@@ -34,25 +34,25 @@ userController.createUser = (req, res, next) => {
           if (err) {
             return res.status(500).json({ message: 'Internal server error' });
           }
-           res.locals.userId = this.lastID;
+          // res.locals.userId = this.lastID;
           // console.log(res.locals.userId);
-          // userdb.get(
-          //   'SELECT id FROM Users WHERE user_name = ?',
-          //   [username],
-          //   (err, row) => {
-          //     if (err) {
-          //       // userdb.close();
-          //       return res
-          //         .status(500)
-          //         .json({ message: 'Internal server error' });
-          //     }
+          userdb.get(
+            'SELECT id FROM Users WHERE user_name = ?',
+            [username],
+            (err, row) => {
+              if (err) {
+                // userdb.close();
+                return res
+                  .status(500)
+                  .json({ message: 'Internal server error' });
+              }
 
-          //     if (row) {
-          //       console.log(row.id);
-          //       res.locals.userId = row.id;
-          //     }
-          //   }
-          // );
+              if (row) {
+                console.log(row.id);
+                res.locals.userId = row.id;
+              }
+            }
+          );
 
           next();
         }
@@ -76,10 +76,43 @@ userController.verifyUser = (req, res, next) => {
           .status(400)
           .json({ message: 'Incorrect username or password' });
       }
-      res.locals.userId = row.id; 
       next();
     }
   );
+};
+
+userController.googleLogin = (accessToken, refreshToken, profile, done) => {
+  const googleId = profile.id;
+  const username = profile.emails[0].value;
+  userdb.get(
+    'SELECT * FROM Users WHERE user_name = ?',
+    [username],
+    (err, row) => {
+      if (err) {
+        return done(err);
+      } else if (row) {
+        return done(null, row);
+      } else {
+        userdb.run(
+          'INSERT INTO Users (user_name, password) VALUES (?, ?)',
+          [username, googleId],
+          function (err) {
+            if (err) {
+              return done(err);
+            } else {
+              const newUser = {
+                id: this.lastID,
+                user_name: username,
+                password: googleId,
+              };
+              return done(null, newUser);
+            }
+          }
+        );
+      }
+    }
+  );
+  // db.close();
 };
 
 module.exports = userController;
