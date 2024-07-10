@@ -42,28 +42,28 @@ const App = () => {
         >
           <Box sx={{ flex: 1 }}>
             <Routes>
-              <Route path='/' element={<Home />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/info' element={<Info />} />
-              <Route path='/signup' element={<Signup />} />
-              <Route path='/credentials' element={<Credentials />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/protected' element={<Dashboard />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/info" element={<Info />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/credentials" element={<Credentials />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/protected" element={<Dashboard />} />
               <Route element={<Layout />}>
                 <Route
-                  path='/'
-                  element={<Navigate to='/dashboard' replace />}
+                  path="/"
+                  element={<Navigate to="/dashboard" replace />}
                 />
-                <Route path='/dashboard' element={<Dashboard />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 {/* <Route path="/dashboard" element={<Overview />} /> */}
                 {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
-                <Route path='/dashboard' element={<Dashboard />}>
-                  <Route path='overview' element={<Overview />} />
-                  <Route path='cluster-metrics' element={<ClusterMetrics />} />
+                <Route path="/dashboard" element={<Dashboard />}>
+                  <Route path="overview" element={<Overview />} />
+                  <Route path="cluster-metrics" element={<ClusterMetrics />} />
                 </Route>
               </Route>
-              <Route path='*' element={<Navigate to='/' replace />} />
-              <Route path='/userprofile' element={<UserProfile />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route path="/userprofile" element={<UserProfile />} />
             </Routes>
           </Box>
           <Feedback />

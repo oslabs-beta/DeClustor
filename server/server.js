@@ -50,7 +50,8 @@ passport.deserializeUser((user, done) => {
 app.use(
   cookieSession({
     name: 'session',
-    keys: ['key1', 'key2'],
+    keys: ['lama'],
+    maxAge: 24 * 60 * 60 * 100,
   })
 );
 
@@ -113,9 +114,9 @@ wss.on('connection', async (ws, req) => {
   }
 });
 
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.sendStatus(401);
-}
+// function isLoggedIn(req, res, next) {
+//   req.user ? next() : res.sendStatus(401);
+// }
 
 app.get(
   '/auth/google',

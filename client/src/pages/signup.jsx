@@ -35,7 +35,12 @@ const Signup = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ firstname, lastname, username, password }),
+        body: JSON.stringify({
+          firstname: firstName,
+          lastname: lastName,
+          username,
+          password,
+        }),
       });
 
       const data = await response.json();
@@ -58,7 +63,7 @@ const Signup = () => {
   };
 
   return (
-    <Container maxWidth='sm'>
+    <Container maxWidth="sm">
       <Box
         sx={{
           display: 'flex',
@@ -70,16 +75,16 @@ const Signup = () => {
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component='h1' variant='h5'>
+        <Typography component="h1" variant="h5">
           Sign Up
         </Typography>
         {error && (
-          <Alert severity='error' sx={{ mt: 2, width: '100%' }}>
+          <Alert severity="error" sx={{ mt: 2, width: '100%' }}>
             {error}
           </Alert>
         )}
         {success && (
-          <Alert severity='success' sx={{ mt: 2, width: '100%' }}>
+          <Alert severity="success" sx={{ mt: 2, width: '100%' }}>
             {success}
           </Alert>
         )}
@@ -95,7 +100,7 @@ const Signup = () => {
           }}
         >
           <Box
-            component='form'
+            component="form"
             onSubmit={handleSubmit}
             sx={{
               display: 'flex',
@@ -104,8 +109,8 @@ const Signup = () => {
             }}
           >
             <TextField
-              variant='outlined'
-              label='First Name'
+              variant="outlined"
+              label="First Name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
@@ -118,8 +123,8 @@ const Signup = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Last Name'
+              variant="outlined"
+              label="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
@@ -132,8 +137,8 @@ const Signup = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Username'
+              variant="outlined"
+              label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -146,9 +151,9 @@ const Signup = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Password'
-              type='password'
+              variant="outlined"
+              label="Password"
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -161,9 +166,9 @@ const Signup = () => {
               }}
             />
             <Button
-              type='submit'
-              variant='contained'
-              color='secondary'
+              type="submit"
+              variant="contained"
+              color="secondary"
               fullWidth
               sx={{ padding: 1.5 }}
             >
@@ -171,7 +176,7 @@ const Signup = () => {
             </Button>
             <Button
               onClick={() => navigate('/login')}
-              color='secondary'
+              color="secondary"
               sx={{ mt: 0.5 }}
             >
               Already have an account? Log in!

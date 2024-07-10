@@ -1,7 +1,7 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const userdbPath = path.resolve(__dirname, '../database/Users.db');
+const userdbPath = path.resolve(__dirname, '../database/Users1.db');
 const userdb = new sqlite3.Database(userdbPath);
 
 const userController = {};
@@ -13,7 +13,7 @@ userController.createUser = (req, res, next) => {
   }
 
   userdb.get(
-    'SELECT user_name FROM Users WHERE user_name = ?',
+    'SELECT user_name FROM Users1 WHERE user_name = ?',
     [username],
     (err, row) => {
       if (err) {
@@ -28,7 +28,7 @@ userController.createUser = (req, res, next) => {
       }
 
       userdb.run(
-        'INSERT INTO Users (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
+        'INSERT INTO Users1 (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
         [firstname, lastname, username, password],
         (err) => {
           // userdb.close();
@@ -41,7 +41,7 @@ userController.createUser = (req, res, next) => {
           res.locals.userId = this.lastID;
           // console.log(res.locals.userId);
           userdb.get(
-            'SELECT id FROM Users WHERE user_name = ?',
+            'SELECT id FROM Users1 WHERE user_name = ?',
             [username],
             (err, row) => {
               if (err) {
@@ -69,7 +69,7 @@ userController.verifyUser = (req, res, next) => {
   const { username, password } = req.body;
 
   userdb.get(
-    'SELECT * FROM Users WHERE user_name = ? AND password = ?',
+    'SELECT * FROM Users1 WHERE user_name = ? AND password = ?',
     [username, password],
     (err, row) => {
       if (err) {
@@ -87,12 +87,13 @@ userController.verifyUser = (req, res, next) => {
 };
 
 userController.googleLogin = (accessToken, refreshToken, profile, done) => {
+  console.log(profile);
   const firstname = profile.given_name;
   const lastname = profile.lastname;
   const googleId = profile.id;
   const username = profile.emails[0].value;
   userdb.get(
-    'SELECT * FROM Users WHERE user_name = ?',
+    'SELECT * FROM Users1 WHERE user_name = ?',
     [username],
     (err, row) => {
       if (err) {
@@ -101,7 +102,7 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
         return done(null, row);
       } else {
         userdb.run(
-          'INSERT INTO Users (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
+          'INSERT INTO Users1 (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
           [firstname, lastname, username, googleId],
           function (err) {
             if (err) {
