@@ -244,6 +244,95 @@ function fillMissingData(dataPoints) {
     return result.reverse(); 
 }
 
+function checkMetricThreshold (user_id, metric_name , service_name = null, completeData) {
+    // go find the threshold and operator of that metric in specific cluster name and service name
+    const dbPathNotification = path.resolve(__dirname, '../database/Notifications.db');
+    const dbNotification = new sqlite3.Database(dbPathNotification, (err) => {
+        if (err) {
+            console.log('Fail to connect to Notifications database');
+        } else {
+            console.log('Connected to the Notifications database');
+        }
+    });
+    console.log("user_id", user_id);
+    console.log("metric_name", metric_name);
+    console.log("service_name", service_name);
+
+    let searchQuery;
+    let searchParams;
+
+    if (service_name == null) {
+        searchQuery = `
+        SELECT threshold, operator FROM Notifications 
+        WHERE user_id = ? AND metric_name = ? AND service_name IS NULL
+        `;
+        searchParams = [user_id, metric_name];
+    } else {
+        searchQuery = `
+        SELECT threshold, operator FROM Notifications 
+        WHERE user_id = ? AND metric_name = ? AND service_name = ?
+        `;
+        searchParams = [user_id, metric_name, service_name]
+    }
+    
+    dbNotification.get(searchQuery, searchParams, async (err, row) => {
+        if (err) {
+            console.error('Error occurred during search notification database in metricController:', err);
+            return;
+        }
+        console.log("check2");
+        console.log(row);
+        if (row) {
+            console.log("check3");
+            const { threshold, operator } = row;
+            console.log("threshold", threshold);
+            console.log("operator", operator)
+            // go thourgh completeData
+            completeData.forEach(dataPoint => {
+                const { Average, Timestamp } = dataPoint;
+                console.log("Avarage", Average);
+                console.log("Timestamp", Timestamp);
+                // if lastScanDate not null and Timestamp of completeData < lastScanData
+                if (notificationStore.lastScanDate && new Date(Timestamp) < new Date(notificationStore.lastScanDate)) {
+                    return
+                } else {
+                    let notify = false;
+                    switch(oprator) {
+                        case '>':
+                            notify = Average > threshold;
+                            break;
+                        case '>=': 
+                            notify = Average >= threshold;
+                        case '<':
+                            notify = Average < threshold;
+                        case '<=':
+                            notify = Average <= threshold;
+                        case '=':
+                            notify = Average == threshold;
+                        default:
+                            break;
+                    }
+                    if (notify) {
+                        notificationStore.notificationData.push({
+                            timestamp: Timestamp,
+                            metricName: metric_name,
+                            value: Average,
+                            threshold: threshold,
+                            serviceName: service_name,
+                        })
+                    }
+                }
+            })
+        }
+    })
+    
+       // if lastScanDate not null and Timestamp of completeData < lastScanData
+           // continue
+       //  else 
+           //check whether it is satisfied
+               // yes: add to notificationStore.notifications
+}
+
 async function handleMetricRequest(ws, userId, serviceName, metricName) {
     db.all(`SELECT access_key, secret_key, region, cluster_name FROM Credentials WHERE user_id = ?`, [userId], async(err, rows) => {
         if (err) {

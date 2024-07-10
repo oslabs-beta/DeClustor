@@ -7,6 +7,7 @@ const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const cookieSession = require('cookie-session');
 const cors = require('cors');
+// const session = require('express-session');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 // const {OAuth2Client } = require('google-auth-library');
@@ -20,12 +21,21 @@ const notificationController = require('./controllers/notificationController');
 
 const { access } = require('fs');
 
+
 const PORT = 3000;
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+
+// app.use(
+//   session({
+//     secret: 'cat',
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
 
 // Replace with your Google client ID and secret
 
@@ -44,8 +54,15 @@ passport.serializeUser((user, done) => {
   done(null, user);
 });
 
-passport.deserializeUser((obj, done) => {
-  done(null, obj);
+// passport.deserializeUser(function (id, done) {
+//   db.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
+//     if (err) return done(err);
+//     done(null, row);
+//   });
+// });
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
 });
 
 app.use(
@@ -60,6 +77,7 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
+// users authentication
 app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
@@ -75,10 +93,12 @@ app.post('/login', userController.verifyUser, (req, res) => {
   res.status(200).json({ userId, username, serviceName, message: 'logged in!' });
 });
 
+// saving credentials of aws
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
 });
 
+// get all service in users cluster
 app.get('/listAllService', listController.Service);
 
 // notification 
@@ -91,6 +111,7 @@ app.post('/setNotification', notificationController.setNotification, (req, res) 
 
 
 wss.on('connection', async (ws, req) => {
+  // get metric data controller
   // get metric data controller
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
@@ -122,7 +143,7 @@ wss.on('connection', async (ws, req) => {
     await notificationController.handleNotificationCheck(ws, userId);
 
   }else {
-    ws.close();
+    // check notification controller
   }
 });
 

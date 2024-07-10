@@ -82,7 +82,7 @@ const userController = {};
 // };
 
 userController.createUser = (req, res, next) => {
-  const { username, password } = req.body;
+  const { firstname, lastname, username, password } = req.body;
   if (!username || !password) {
     return res.status(400).send('Username or password is required');
   }
@@ -93,6 +93,7 @@ userController.createUser = (req, res, next) => {
     (err, row) => {
       if (err) {
         // userdb.close();
+        console.log(err);
         return res.status(500).json({ message: 'Internal server error' });
       }
 
@@ -102,12 +103,15 @@ userController.createUser = (req, res, next) => {
       }
 
       userdb.run(
-        'INSERT INTO Users (user_name, password) VALUES (?, ?)',
-        [username, password],
+        'INSERT INTO Users (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
+        [firstname, lastname, username, password],
         (err) => {
           // userdb.close();
           if (err) {
-            return res.status(500).json({ message: 'Internal server error' });
+            console.log(err);
+            return res
+              .status(500)
+              .json({ message: 'Internal server error here' });
           }
            res.locals.userId = this.lastID;
           // console.log(res.locals.userId);

@@ -13,7 +13,7 @@ import Layout from './pages/Layout';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/login';
 import Home from './pages/Home';
-import Info from './pages/info';
+import Info from './components/getstarted';
 import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
@@ -22,6 +22,10 @@ import Credentials from './pages/credentials';
 import { GoogleLogin } from '@react-oauth/google';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
+import Overview from './pages/Overview';
+import ClusterMetrics from './pages/ClusterMetrics';
+import Credentials from './pages/credentials';
+import { GoogleLogin } from '@react-oauth/google';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode);
@@ -48,10 +52,17 @@ const App = () => {
               <Route path='/login' element={<Login />} />
               <Route path='/protected' element={<Dashboard />} />
               <Route element={<Layout />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route
+                  path='/'
+                  element={<Navigate to='/dashboard' replace />}
+                />
+                <Route path='/dashboard' element={<Dashboard />} />
                 {/* <Route path="/dashboard" element={<Overview />} /> */}
                 {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
+                <Route path='/dashboard' element={<Dashboard />}>
+                  <Route path='overview' element={<Overview />} />
+                  <Route path='cluster-metrics' element={<ClusterMetrics />} />
+                </Route>
               </Route>
               <Route path='*' element={<Navigate to='/' replace />} />
               <Route path="/userprofile" element={<UserProfile />} /> 
