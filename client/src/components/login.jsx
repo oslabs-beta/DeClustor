@@ -35,6 +35,12 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Save data to local storage
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('password', password);
+        console.log('saved to local storage! -->' , data);
+        
         console.log('Login successful, dispatching loginSuccess with data:', data);
         dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
         navigate('/dashboard');
