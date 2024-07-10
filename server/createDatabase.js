@@ -1,8 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 
 const databases = {
-  Users: './database/Users.db',
+  Users: './database/Users1.db',
   Credentials: './database/Credentials.db',
+  Notifications: './database/Notifications.db',
 };
 
 function connectToDatabase(dbPath) {
@@ -28,39 +29,15 @@ async function createTables() {
     //   }
     // });
 
-    // dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
-    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //   first_name TEXT,
-    //   last_name TEXT,
-    //   user_name TEXT,
-    //   password TEXT
-    // )`);
-
-    dbConnections.Users.run(`CREATE TABLE Users (
+    dbConnections.Users.run(`CREATE TABLE Users1 (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      first_name TEXT,
+      last_name TEXT,
       first_name TEXT,
       last_name TEXT,
       user_name TEXT,
       password TEXT
     )`);
-
-    // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN first_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding first_name column:', err.message);
-    //     }
-    //   }
-    // );
-
-    // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN last_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding last_name column:', err.message);
-    //     }
-    //   }
-    // );
   });
 
   await dbConnections.Credentials.serialize(() => {
@@ -72,6 +49,32 @@ async function createTables() {
       secret_key TEXT,
       region TEXT,
       cluster_name TEXT,
+      FOREIGN KEY (user_id) REFERENCES Users(id)
+    )`);
+  });
+
+  await dbConnections.Notifications.serialize(() => {
+    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
+    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      metric_name TEXT,
+      service_name TEXT,
+      threshold REAL,
+      operator TEXT,
+      FOREIGN KEY (user_id) REFERENCES Users(id)
+    )`);
+  });
+
+  await dbConnections.Notifications.serialize(() => {
+    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
+    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      metric_name TEXT,
+      service_name TEXT,
+      threshold REAL,
+      operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
   });

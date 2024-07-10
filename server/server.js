@@ -10,30 +10,23 @@ const cors = require('cors');
 // const session = require('express-session');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-// const {OAuth2Client } = require('google-auth-library');
+// const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const userController = require('./controllers/userController');
 const listController = require('./controllers/listController');
 const metricController = require('./controllers/metricController');
 const credentialsController = require('./controllers/credentialsController');
+const notificationController = require('./controllers/notificationController');
+
 const { access } = require('fs');
+
 const PORT = 3000;
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-
-// app.use(
-//   session({
-//     secret: 'cat',
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
-
-// Replace with your Google client ID and secret
 
 passport.use(
   new GoogleStrategy(
@@ -49,13 +42,6 @@ passport.use(
 passport.serializeUser((user, done) => {
   done(null, user);
 });
-
-// passport.deserializeUser(function (id, done) {
-//   db.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
-//     if (err) return done(err);
-//     done(null, row);
-//   });
-// });
 
 passport.deserializeUser((user, done) => {
   done(null, user);
@@ -74,19 +60,36 @@ app.use(passport.session());
 
 app.use(express.static(path.join(__dirname, '../client/dist')));
 
+// users authentication
 app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
 
 app.post('/login', userController.verifyUser, (req, res) => {
-  res.status(200).json({ message: 'logged in!' });
+  const userId = res.locals.userId;
+  const username = req.body.username;
+  const serviceName = 'service1'; // default name
+  res
+    .status(200)
+    .json({ userId, username, serviceName, message: 'logged in!' });
 });
 
+// saving credentials of aws
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
 });
 
+// get all service in users cluster
 app.get('/listAllService', listController.Service);
+
+// notification
+app.post(
+  '/setNotification',
+  notificationController.setNotification,
+  (req, res) => {
+    res.status(200).json({ message: 'save notification settings!' });
+  }
+);
 
 wss.on('connection', async (ws, req) => {
   if (req.url.startsWith('/getMetricData')) {
@@ -142,6 +145,14 @@ app.get('/login/falied', (req, res) => {
     message: 'failure',
   });
 });
+
+app.get(
+  '/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/auth/failure',
+    successRedirect: '/protected',
+  })
+);
 
 app.get(
   '/auth/google/callback',

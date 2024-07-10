@@ -12,7 +12,7 @@ import nobglogo from '../assets/nobglogo.png';
 import LoginIcon from '@mui/icons-material/Login';
 import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
 import GettingStartedIcon from '@mui/icons-material/PlayCircleOutline';
-import Team from '../components/Team';
+import Team from './team';
 
 const Home = () => {
   const navigate = useNavigate();
