@@ -10,7 +10,7 @@ const cors = require('cors');
 // const session = require('express-session');
 
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-// const {OAuth2Client } = require('google-auth-library');
+// const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const userController = require('./controllers/userController');
@@ -21,7 +21,6 @@ const notificationController = require('./controllers/notificationController');
 
 const { access } = require('fs');
 
-
 const PORT = 3000;
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
@@ -29,22 +28,12 @@ app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// app.use(
-//   session({
-//     secret: 'cat',
-//     resave: false,
-//     saveUninitialized: true,
-//   })
-// );
-
-// Replace with your Google client ID and secret
-
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:3000/google/callback',
+      callbackURL: 'http://localhost:3000/auth/google/callback',
     },
     userController.googleLogin
   )
@@ -53,13 +42,6 @@ passport.use(
 passport.serializeUser((user, done) => {
   done(null, user);
 });
-
-// passport.deserializeUser(function (id, done) {
-//   db.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
-//     if (err) return done(err);
-//     done(null, row);
-//   });
-// });
 
 passport.deserializeUser((user, done) => {
   done(null, user);
@@ -82,15 +64,13 @@ app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
 
-// app.post('/login', userController.verifyUser, (req, res) => {
-//   res.status(200).json({ message: 'logged in!' });
-// });
-
 app.post('/login', userController.verifyUser, (req, res) => {
   const userId = res.locals.userId;
   const username = req.body.username;
-  const serviceName = "service1"; // default name
-  res.status(200).json({ userId, username, serviceName, message: 'logged in!' });
+  const serviceName = 'service1'; // default name
+  res
+    .status(200)
+    .json({ userId, username, serviceName, message: 'logged in!' });
 });
 
 // saving credentials of aws
@@ -101,18 +81,16 @@ app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
 // get all service in users cluster
 app.get('/listAllService', listController.Service);
 
-// notification 
-app.post('/setNotification', notificationController.setNotification, (req, res) => {
-  res.status(200).json({ message: 'save notification settings!' });
-});
-// app.delete('/removeNotification', notificationController.deleteNotification, (req, res) => {
-//   res.status(200).json({ message: 'remove notification settings!' });
-// })
-
+// notification
+app.post(
+  '/setNotification',
+  notificationController.setNotification,
+  (req, res) => {
+    res.status(200).json({ message: 'save notification settings!' });
+  }
+);
 
 wss.on('connection', async (ws, req) => {
-  // get metric data controller
-  // get metric data controller
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const userId = urlParams.get('userId');
@@ -130,20 +108,8 @@ wss.on('connection', async (ws, req) => {
       serviceName,
       metricName
     );
-    // check notification controller
-  } else if (req.url.startsWith('/checkNotifications')){
-    const urlParams = new URLSearchParams(req.url.split('?')[1]);
-    const userId = urlParams.get('userId');
-    
-    if (!userId) {
-      ws.send(JSON.stringify({ error: 'Missing required parameters' }));
-      ws.close();
-      return;
-    }
-    await notificationController.handleNotificationCheck(ws, userId);
-
-  }else {
-    // check notification controller
+  } else {
+    ws.close();
   }
 });
 
@@ -156,6 +122,29 @@ app.get(
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
+app.get('/login/success', (req, res) => {
+  if (req.user) {
+    res.status(200).json({
+      success: true,
+      message: 'success',
+      user: req.user,
+      cookies: req.cookies,
+    });
+  }
+});
+
+app.get('/logout', (req, res) => {
+  req.logout();
+  res.redirect('http://localhost:3000/');
+});
+
+app.get('/login/falied', (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: 'failure',
+  });
+});
+
 app.get(
   '/google/callback',
   passport.authenticate('google', {
@@ -164,46 +153,13 @@ app.get(
   })
 );
 
-app.get('/auth/failure', (req, res) => {
-  res.send('something went wrong');
-});
-
-app.get('/protected', isLoggedIn, (req, res) => {
-  res.send('Hello');
-});
-
-// app.get('/profile', (req, res) => {
-//   if (!req.user) {
-//     res.redirect('/');
-//   } else {
-//     res.send(`Hello ${req.user.displayName}`);
-//   }
-// });
-
-app.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-
-// app.post('/', async (req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
-//   res.header('Referrer-Policy', 'no-referrer-when-downgrade');
-//   const redirectUrl = 'http://127.0.0.1:3000/oauth';
-
-//   const OAuth2Client = new OAuth2Client(
-//     GOOGLE_CLIENT_ID,
-//     GOOGLE_CLIENT_SECRET,
-//     redirectUrl
-//   );
-
-//   const authorizeUrl = OAuth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: 'https://www.googleapis.com/auth/userinfo.profile openid',
-//     prompt: 'consent',
-//   });
-
-//   res.json({ url: authorizeUrl });
-// });
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login/falied',
+    successRedirect: 'http://localhost:8080/dashboard',
+  })
+);
 
 app.use((req, res) => res.sendStatus(404));
 
