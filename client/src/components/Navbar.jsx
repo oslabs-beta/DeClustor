@@ -36,7 +36,7 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSea
                   alt='logo'
                   src={logo}
                   onClick={() => {
-                    navigate('/')
+                    navigate('/dashboard')
                   }}
                   height='100px'
                   width='100px'

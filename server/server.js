@@ -17,10 +17,10 @@ const userController = require('./controllers/userController');
 const listController = require('./controllers/listController');
 const metricController = require('./controllers/metricController');
 const credentialsController = require('./controllers/credentialsController');
-
 const notificationController = require('./controllers/notificationController');
 
 const { access } = require('fs');
+
 
 const PORT = 3000;
 app.use(cors());
@@ -82,8 +82,15 @@ app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
 
+// app.post('/login', userController.verifyUser, (req, res) => {
+//   res.status(200).json({ message: 'logged in!' });
+// });
+
 app.post('/login', userController.verifyUser, (req, res) => {
-  res.status(200).json({ message: 'logged in!' });
+  const userId = res.locals.userId;
+  const username = req.body.username;
+  const serviceName = "service1"; // default name
+  res.status(200).json({ userId, username, serviceName, message: 'logged in!' });
 });
 
 // saving credentials of aws
@@ -102,7 +109,9 @@ app.post('/setNotification', notificationController.setNotification, (req, res) 
 //   res.status(200).json({ message: 'remove notification settings!' });
 // })
 
+
 wss.on('connection', async (ws, req) => {
+  // get metric data controller
   // get metric data controller
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
@@ -134,7 +143,7 @@ wss.on('connection', async (ws, req) => {
     await notificationController.handleNotificationCheck(ws, userId);
 
   }else {
-    ws.close();
+    // check notification controller
   }
 });
 

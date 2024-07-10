@@ -11,6 +11,8 @@ import {
   Paper,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { signupSuccess , signupFailure } from '../redux/userSlice.js';
+import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
 const Signup = () => {
@@ -21,6 +23,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const theme = useTheme();
 
   const handleSubmit = async (e) => {
@@ -40,11 +43,13 @@ const Signup = () => {
 
       if (response.ok) {
         setSuccess('Signup successful!');
+        dispatch(signupSuccess({ userId: data.userId, username }));
         setTimeout(() => {
           navigate('/credentials');
         }, 2000);
       } else {
         setError(data.message);
+        dispatch(signupFailure(data.message));
       }
     } catch (error) {
       console.error('Error:', error);

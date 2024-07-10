@@ -8,9 +8,10 @@ import {
   Avatar,
   Typography,
   Alert,
-  Paper,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { loginSuccess, loginFailure } from '../redux/userSlice';
+import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -19,6 +20,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const theme = useTheme();
 
   const handleSubmit = async (e) => {
@@ -34,14 +36,20 @@ const Login = () => {
       });
 
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
-        console.log('Login successful');
+        // Save data to local storage
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('password', password);
+        console.log('saved to local storage! -->' , data);
+        
+        console.log('Login successful, dispatching loginSuccess with data:', data);
+        dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
         navigate('/dashboard');
       } else {
+        dispatch(loginFailure(data.message));
         setError(data.message);
-        navigate('/signup');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -76,6 +84,7 @@ const Login = () => {
     }
   };
 
+
   return (
     <Container maxWidth='sm'>
       <Box
@@ -90,7 +99,7 @@ const Login = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
-          Login
+          Login In
         </Typography>
         {error && (
           <Alert
@@ -98,94 +107,70 @@ const Login = () => {
             sx={{
               mt: 2,
               width: '100%',
+              backgroundColor: 'primary',
+              color: 'white',
             }}
           >
             {error}
           </Alert>
         )}
-        <Paper
-          elevation={3}
+        <Box
+          component='form'
+          onSubmit={handleSubmit}
           sx={{
             mt: 1,
-            width: '100%',
-            padding: 4,
+            width: '80%',
+            maxWidth: '400px',
+            padding: 3,
+            border: '1px solid #ccc',
             borderRadius: 2,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
+            boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
           }}
         >
-          <Box
-            component='form'
-            onSubmit={handleSubmit}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 3,
-            }}
+          <TextField
+            variant='outlined'
+            label='Username'
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            fullWidth
+          />
+          <TextField
+            variant='outlined'
+            label='Password'
+            type='password'
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            fullWidth
+          />
+          <Button
+            type='submit'
+            variant='contained'
+            color='primary'
+            fullWidth
+            sx={{ mt: 2 }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => {
-                  console.log('Login Failed');
-                  setError('Google login failed. Please try again.');
-                }}
-              />
-            </Box>
-            <TextField
-              variant='outlined'
-              label='Username'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              fullWidth
-              InputLabelProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-              InputProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-            />
-            <TextField
-              variant='outlined'
-              label='Password'
-              type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              fullWidth
-              InputLabelProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-              InputProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-            />
-            <Button
-              type='submit'
-              variant='contained'
-              color='secondary'
-              fullWidth
-              sx={{ padding: 1.5 }}
-            >
-              Login
-            </Button>
-            <Button
-              onClick={() => alert('Redirect to forgot password page')}
-              color='secondary'
-              sx={{ mt: 0.5 }}
-            >
-              Forgot Password?
-            </Button>
-            <Button
-              onClick={() => navigate('/signup')}
-              color='secondary'
-              sx={{ mt: 0.5 }}
-            >
-              Don't have an account? Sign up!
-            </Button>
-          </Box>
-        </Paper>
+            Login
+          </Button>
+          <Button
+            onClick={() => alert('Redirect to forgot password page')}
+            color='secondary'
+            sx={{ mt: 0.5 }}
+          >
+            Forgot Password?
+          </Button>
+          <Button
+            onClick={() => navigate('/signup')}
+            color='secondary'
+            sx={{ mt: 0.5 }}
+          >
+            Don't have an account? Sign up!
+          </Button>
+        </Box>
       </Box>
     </Container>
   );
