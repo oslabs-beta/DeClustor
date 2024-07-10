@@ -12,6 +12,7 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
+import Google from '../assets/google.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -19,6 +20,10 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+
+  const google = () => {
+    window.open('http://localhost:3000/auth/google', '_self');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,10 +44,19 @@ const Login = () => {
         localStorage.setItem('username', data.username);
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('password', password);
-        console.log('saved to local storage! -->' , data);
-        
-        console.log('Login successful, dispatching loginSuccess with data:', data);
-        dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
+        console.log('saved to local storage! -->', data);
+
+        console.log(
+          'Login successful, dispatching loginSuccess with data:',
+          data
+        );
+        dispatch(
+          loginSuccess({
+            userId: data.userId,
+            username,
+            serviceName: data.serviceName,
+          })
+        );
         navigate('/dashboard');
       } else {
         dispatch(loginFailure(data.message));
@@ -55,7 +69,7 @@ const Login = () => {
   };
 
   return (
-    <Container maxWidth='sm'>
+    <Container maxWidth="sm">
       <Box
         sx={{
           display: 'flex',
@@ -67,12 +81,12 @@ const Login = () => {
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component='h1' variant='h5'>
+        <Typography component="h1" variant="h5">
           Login In
         </Typography>
         {error && (
           <Alert
-            severity='error'
+            severity="error"
             sx={{
               mt: 2,
               width: '100%',
@@ -84,7 +98,7 @@ const Login = () => {
           </Alert>
         )}
         <Box
-          component='form'
+          component="form"
           onSubmit={handleSubmit}
           sx={{
             mt: 1,
@@ -100,26 +114,26 @@ const Login = () => {
           }}
         >
           <TextField
-            variant='outlined'
-            label='Username'
+            variant="outlined"
+            label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
             fullWidth
           />
           <TextField
-            variant='outlined'
-            label='Password'
-            type='password'
+            variant="outlined"
+            label="Password"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             fullWidth
           />
           <Button
-            type='submit'
-            variant='contained'
-            color='primary'
+            type="submit"
+            variant="contained"
+            color="primary"
             fullWidth
             sx={{ mt: 2 }}
           >
@@ -127,17 +141,21 @@ const Login = () => {
           </Button>
           <Button
             onClick={() => alert('Redirect to forgot password page')}
-            color='secondary'
+            color="secondary"
             sx={{ mt: 0.5 }}
           >
             Forgot Password?
           </Button>
           <Button
             onClick={() => navigate('/signup')}
-            color='secondary'
+            color="secondary"
             sx={{ mt: 0.5 }}
           >
             Don't have an account? Sign up!
+          </Button>
+          <Button onClick={google}>
+            <img src={Google} />
+            Google
           </Button>
         </Box>
       </Box>
