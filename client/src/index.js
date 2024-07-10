@@ -8,17 +8,6 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 // import { setupListeners } from '@reduxjs/toolkit/query';
 // import { api } from 'state/api.js';
 
-// redux store
-const store = configureStore({
-  // call reducer
-  reducer: {
-    global: globalReducer,
-    // [api.reducerPath]: api.reducer,
-  },
-  // add middleware
-});
-// setupListener(stroe.dispatch)
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(

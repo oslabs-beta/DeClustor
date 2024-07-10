@@ -53,7 +53,7 @@ const Login = () => {
     console.log(credentialResponse);
 
     try {
-      const response = await fetch('http://localhost:3000/credentials', {
+      const response = await fetch('http://localhost:3000/auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
