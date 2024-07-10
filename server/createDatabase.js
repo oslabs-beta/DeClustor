@@ -3,6 +3,7 @@ const sqlite3 = require('sqlite3').verbose();
 const databases = {
   Users: './database/Users.db',
   Credentials: './database/Credentials.db',
+  Notifications: './database/Notifications.db'
 };
 
 function connectToDatabase(dbPath) {
@@ -42,6 +43,19 @@ async function createTables() {
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
   });
+
+  await dbConnections.Notifications.serialize(() => {
+    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
+    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      metric_name TEXT,
+      service_name TEXT,
+      threshold REAL,
+      operator TEXT,
+      FOREIGN KEY (user_id) REFERENCES Users(id)
+    )`);
+  })
 }
 
 // Call the function to create tables
