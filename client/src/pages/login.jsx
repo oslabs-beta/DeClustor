@@ -10,24 +10,24 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { signupSuccess , signupFailure } from '../redux/userSlice.js';
+import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
+import { useTheme } from '@mui/material/styles';
+import { GoogleLogin } from '@react-oauth/google';
 
-const Signup = () => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
+const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/signup', {
+      const response = await fetch('http://localhost:3000/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,23 +36,54 @@ const Signup = () => {
       });
 
       const data = await response.json();
-      console.log(data);
 
       if (response.ok) {
-        setSuccess('Signup successful!');
-        dispatch(signupSuccess({ userId: data.userId, username }));
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 2000);
+        // Save data to local storage
+        localStorage.setItem('username', data.username);
+        localStorage.setItem('userId', data.userId);
+        localStorage.setItem('password', password);
+        console.log('saved to local storage! -->' , data);
+        
+        console.log('Login successful, dispatching loginSuccess with data:', data);
+        dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
+        navigate('/dashboard');
       } else {
+        dispatch(loginFailure(data.message));
         setError(data.message);
-        dispatch(signupFailure(data.message));
       }
     } catch (error) {
       console.error('Error:', error);
       setError('An error occurred. Please try again.');
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    console.log(credentialResponse);
+
+    try {
+      const response = await fetch('http://localhost:3000/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      if (response.ok) {
+        console.log('Google login successful');
+        navigate('/dashboard');
+      } else {
+        setError(data.message);
+      }
+    } catch (error) {
+      console.error('Google login error:', error);
+      setError('An error occurred with Google login. Please try again.');
+    }
+  };
+
 
   return (
     <Container maxWidth='sm'>
@@ -68,16 +99,19 @@ const Signup = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component='h1' variant='h5'>
-          Sign Up
+          Login In
         </Typography>
         {error && (
-          <Alert severity='error' sx={{ mt: 2, width: '100%' }}>
+          <Alert
+            severity='error'
+            sx={{
+              mt: 2,
+              width: '100%',
+              backgroundColor: 'primary',
+              color: 'white',
+            }}
+          >
             {error}
-          </Alert>
-        )}
-        {success && (
-          <Alert severity='success' sx={{ mt: 2, width: '100%' }}>
-            {success}
           </Alert>
         )}
         <Box
@@ -96,22 +130,6 @@ const Signup = () => {
             gap: 2,
           }}
         >
-          <TextField
-            variant='outlined'
-            label='First Name'
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            required
-            fullWidth
-          />
-          <TextField
-            variant='outlined'
-            label='Last Name'
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            required
-            fullWidth
-          />
           <TextField
             variant='outlined'
             label='Username'
@@ -136,14 +154,21 @@ const Signup = () => {
             fullWidth
             sx={{ mt: 2 }}
           >
-            Sign Up
+            Login
           </Button>
           <Button
-            onClick={() => navigate('/login')}
+            onClick={() => alert('Redirect to forgot password page')}
             color='secondary'
             sx={{ mt: 0.5 }}
           >
-            Already have an account? Log in!
+            Forgot Password?
+          </Button>
+          <Button
+            onClick={() => navigate('/signup')}
+            color='secondary'
+            sx={{ mt: 0.5 }}
+          >
+            Don't have an account? Sign up!
           </Button>
         </Box>
       </Box>
@@ -151,4 +176,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;

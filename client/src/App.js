@@ -11,13 +11,15 @@ import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
 import Layout from './pages/Layout';
 import Dashboard from './pages/Dashboard';
-import Login from './components/Login';
+import Login from './pages/login';
 import Home from './pages/Home';
-import Info from './components/Info';
-import Signup from './components/Signup';
+import Info from './pages/info';
+import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
 import UserProfile from './pages/UserProfile';
+import Credentials from './pages/credentials';
+import { GoogleLogin } from '@react-oauth/google';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
 
@@ -42,6 +44,9 @@ const App = () => {
               <Route path='/login' element={<Login />} />
               <Route path='/info' element={<Info />} />
               <Route path='/signup' element={<Signup />} />
+              <Route path='/credentials' element={<Credentials />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/protected' element={<Dashboard />} />
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />

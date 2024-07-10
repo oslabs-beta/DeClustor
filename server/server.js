@@ -61,8 +61,15 @@ app.post('/signup', userController.createUser, (req, res) => {
   res.status(200).json({ message: 'user created' });
 });
 
+// app.post('/login', userController.verifyUser, (req, res) => {
+//   res.status(200).json({ message: 'logged in!' });
+// });
+
 app.post('/login', userController.verifyUser, (req, res) => {
-  res.status(200).json({ message: 'logged in!' });
+  const userId = res.locals.userId;
+  const username = req.body.username;
+  const serviceName = "service1"; // default name
+  res.status(200).json({ userId, username, serviceName, message: 'logged in!' });
 });
 
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
