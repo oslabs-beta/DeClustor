@@ -10,6 +10,8 @@ import {
   Alert,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import { signupSuccess , signupFailure } from '../redux/userSlice.js';
+import { useDispatch } from 'react-redux';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -19,6 +21,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,14 +36,17 @@ const Signup = () => {
       });
 
       const data = await response.json();
+      console.log(data);
 
       if (response.ok) {
         setSuccess('Signup successful!');
+        dispatch(signupSuccess({ userId: data.userId, username }));
         setTimeout(() => {
-          navigate('/login');
+          navigate('/dashboard');
         }, 2000);
       } else {
         setError(data.message);
+        dispatch(signupFailure(data.message));
       }
     } catch (error) {
       console.error('Error:', error);
@@ -65,28 +71,12 @@ const Signup = () => {
           Sign Up
         </Typography>
         {error && (
-          <Alert
-            severity='error'
-            sx={{
-              mt: 2,
-              width: '100%',
-              backgroundColor: 'primary',
-              color: 'white',
-            }}
-          >
+          <Alert severity='error' sx={{ mt: 2, width: '100%' }}>
             {error}
           </Alert>
         )}
         {success && (
-          <Alert
-            severity='success'
-            sx={{
-              mt: 2,
-              width: '100%',
-              backgroundColor: 'primary',
-              color: 'white',
-            }}
-          >
+          <Alert severity='success' sx={{ mt: 2, width: '100%' }}>
             {success}
           </Alert>
         )}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Divider,
@@ -11,7 +11,7 @@ import {
   ListItemText,
   Typography,
   useTheme,
-} from '@mui/material'
+} from '@mui/material';
 import {
   ChevronLeft,
   ChevronRightOutlined,
@@ -22,42 +22,34 @@ import {
 } from '@mui/icons-material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import FlexBetween from './FlexBetween'
-import profileImage from '../assests/profile.png'
+import profileImage from '../assets/profile.png'
 import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined'
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
-import logo from '../assests/logo.png' 
+import logo from '../assets/logo.png' 
+import { useSelector } from 'react-redux';
 
-
-{
-  /* <Sidebar
-isNonMobile={isNonMobile}
-drawerWidth='250px'
-isSidebarOpen={isSidebarOpen}
-setIsSideBarOpen={setIsSideBarOpen}
-/> */
-}
 // passin props from Layout
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
   isSidebarOpen,
   setIsSidebarOpen,
-  // user
 }) => {
   // grap the path that we currently at
-  const { pathname } = useLocation()
+  const { pathname } = useLocation();
   // state of currently page or track of which page is active right now
-  const [active, setActive] = useState('')
-  const navigate = useNavigate()
+  const [active, setActive] = useState('');
+  const navigate = useNavigate();
   // from theme color
-  const theme = useTheme()
-
+  const theme = useTheme();
+  const user = useSelector((state) => state.user);
+  console.log('user login -->' , user);
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
-    setActive(pathname.substring(1))
-  }, [pathname])
+    setActive(pathname.substring(1));
+  }, [pathname]);
 
   const navItems = [
     {
@@ -92,18 +84,18 @@ const Sidebar = ({
       text: 'Performance',
       icon: <TrendingUpOutlined />,
     },
-  ]
+  ];
 
   return (
     // react drawer from react dom
     // persistenr drawer
-    <Box component="nav">
+    <Box component='nav'>
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          variant="persistent"
-          anchor="left"
+          variant='persistent'
+          anchor='left'
           sx={{
             width: drawerWidth,
             // class name ที่ MUI ใช้กำหนดสำหรับส่วนของ Drawer component ที่ประพฤติเหมือนกระดาษ (paper), โดยปกติจะเป็นส่วนที่เลื่อนเข้าออกได้.
@@ -115,26 +107,30 @@ const Sidebar = ({
             },
           }}
         >
-          <Box width="230px">
+          <Box width='230px'>
             {/* t r b l */}
-            <Box margin="1.2rem 1.8rem 0.8rem 1rem" >
+            <Box margin='1.2rem 1.8rem 0.8rem 1rem'>
               <FlexBetween color={theme.palette.secondary.main}>
-              <Box
-                component="img"
-                alt="logo"
-                src={logo}
-                height="100px"
-                width="100px"
-                borderRadius="28%"
-                sx={{
-                  objectFit: 'cover',
-                  borderColor: theme.palette.primary[400],
-                  borderStyle: 'solid', 
-                  borderWidth: 1,
-                  marginLeft: '47px',
-                  padding: '5px'
-                }}
-              />
+                <Box
+                  component='img'
+                  alt='logo'
+                  src={logo}
+                  onClick={() => {
+                    navigate('/')
+                  }}
+                  height='100px'
+                  width='100px'
+                  borderRadius='28%'
+                  sx={{
+                    objectFit: 'cover',
+                    borderColor: theme.palette.primary[400],
+                    borderStyle: 'solid',
+                    borderWidth: 1,
+                    marginLeft: '47px',
+                    padding: '5px',
+                    cursor: 'pointer',
+                  }}
+                />
                 {/* <Box display="flex" alignItems="center" gap="0.5rem">
                   <Typography variant="h3" fontWeight="bold">
                     DeClustor
@@ -150,7 +146,7 @@ const Sidebar = ({
               </FlexBetween>
             </Box>
             {/* creating nav items // loop thru the navItems function
-                check if icon is not existed 
+                check if icon is not existed
                 then set key to text */}
             <List>
               {navItems.map(({ text, icon }) => {
@@ -159,10 +155,10 @@ const Sidebar = ({
                     <Typography key={text} sx={{ m: '2.25rem 0 1rem 3rem' }}>
                       {text}
                     </Typography>
-                  )
+                  );
                 }
-                
-                const lowerCaseText = text.toLowerCase()
+
+                const lowerCaseText = text.toLowerCase();
 
                 // set the navagat by following the {text} navItems name
                 // swich the colors follow by if it's active?
@@ -170,8 +166,8 @@ const Sidebar = ({
                   <ListItem key={text} disablePadding>
                     <ListItemButton
                       onClick={() => {
-                        navigate(`/${lowerCaseText}`)
-                        setActive(lowerCaseText)
+                        navigate(`/${lowerCaseText}`);
+                        setActive(lowerCaseText);
                       }}
                       sx={{
                         backgroundColor:
@@ -203,32 +199,34 @@ const Sidebar = ({
                       )}
                     </ListItemButton>
                   </ListItem>
-                )
+                );
               })}
             </List>
           </Box>
-        
+
           {/* user profile need an update!*/}
-          <Divider sx={{ width: '100%', maxWidth: '500px' , marginTop: '230px' }} />
-          <Box position="absolute" bottom="2rem">
-            <FlexBetween textTransform="none" gap="1rem" m="1.5rem 2rem 0 3rem">
+          <Divider
+            sx={{ width: '100%', maxWidth: '500px', marginTop: '230px' }}
+          />
+          <Box position='absolute' bottom='2rem'>
+            <FlexBetween textTransform='none' gap='1rem' m='1.5rem 2rem 0 3rem'>
               <Box
-                component="img"
-                alt="profile"
+                component='img'
+                alt='profile'
                 src={profileImage}
-                height="60px"
-                width="60px"
-                borderRadius="50%"
+                height='60px'
+                width='60px'
+                borderRadius='50%'
                 sx={{ objectFit: 'cover' }}
               />
-              <Box textAlign="left">
+              <Box textAlign='left'>
                 <Typography
-                  fontWeight="bold"
-                  fontSize="0.9rem"
+                  fontWeight='bold'
+                  fontSize='0.9rem'
                   sx={{ color: theme.palette.secondary[100] }}
                 >
                   {/* change to user info !! call the api '/userProfile' ?*/}
-                  Ploy
+                  {user ? user.username : 'No User Data'}
                 </Typography>
               </Box>
               {/* <SettingsOutlined
@@ -243,7 +241,7 @@ const Sidebar = ({
       )}
       ;
     </Box>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

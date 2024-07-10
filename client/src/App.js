@@ -4,64 +4,60 @@ import {
   Navigate,
   Route,
   Routes,
-  Link,
 } from 'react-router-dom';
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, Box } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { useSelector } from 'react-redux';
 import { themeSettings } from './theme';
-import Layout from './pages/Layout.jsx';
-import Dashboard from './pages/Dashboard.jsx';
-import Login from './components/login.jsx';
-import Home from './components/home.jsx';
-import Info from './components/info.jsx';
-import Signup from './components/signup.jsx';
-import Overview from './pages/Overview';
-import ClusterMetrics from './pages/ClusterMetrics';
-
-
+import Layout from './pages/Layout';
+import Dashboard from './pages/Dashboard';
+import Login from './components/Login';
+import Home from './pages/Home';
+import Info from './components/Info';
+import Signup from './components/Signup';
+import Feedback from './components/Feedback';
+import Footer from './components/Footer';
+import UserProfile from './pages/UserProfile';
+// import Overview from './pages/Overview';
+// import ClusterMetrics from './pages/ClusterMetrics';
 
 const App = () => {
-  // State for mode
   const mode = useSelector((state) => state.global.mode);
-  // Create a theme by using the themeSettings function then pass in the mode
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
 
   return (
-    <div>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
       <Router>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-        {/* <h1 className='header'>DeClustor</h1>
-        <nav>
-          <Link to='/'>Home</Link>
-          <br />
-          <Link to='/login'>Login</Link>
-          <br />
-          <Link to='/info'>Getting Started</Link>
-        </nav>
-
-          <Routes>
-            <Route path='/' element={<Home />} />
-            <Route path='/login' element={<Login />} />
-            <Route path='/info' element={<Info />} />
-            <Route path='/signup' element={<Signup />} />
-            <Route path='*' element={<Navigate to='/' replace />} />
-          </Routes> */}
-
-          {/* // testing Dashboard -- start here -- */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+          }}
+        >
+          <Box sx={{ flex: 1 }}>
             <Routes>
+              <Route path='/' element={<Home />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/info' element={<Info />} />
+              <Route path='/signup' element={<Signup />} />
               <Route element={<Layout />}>
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/dashboard" element={<Overview />} />
-                <Route path="/dashboard" element={<ClusterMetrics />} />
+                {/* <Route path="/dashboard" element={<Overview />} /> */}
+                {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
               </Route>
+              <Route path='*' element={<Navigate to='/' replace />} />
+              <Route path="/userprofile" element={<UserProfile />} /> 
             </Routes>
             
-        </ThemeProvider>
+          </Box>
+          <Feedback />
+          <Footer sx={{ mt: 'auto' }} />
+        </Box>
       </Router>
-    </div>
+    </ThemeProvider>
   );
 };
 
