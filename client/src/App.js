@@ -18,8 +18,6 @@ import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
 import UserProfile from './pages/UserProfile';
-import Credentials from './pages/credentials';
-import { GoogleLogin } from '@react-oauth/google';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
 import Overview from './pages/Overview';

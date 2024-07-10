@@ -170,6 +170,7 @@ const Login = () => {
           >
             Don't have an account? Sign up!
           </Button>
+          <a href="http://localhost:3000/auth/google" class="login-button">Login with Google</a>
         </Box>
       </Box>
     </Container>
