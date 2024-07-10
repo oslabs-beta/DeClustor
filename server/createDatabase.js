@@ -22,12 +22,45 @@ for (const [name, path] of Object.entries(databases)) {
 
 async function createTables() {
   await dbConnections.Users.serialize(() => {
-    dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
+    // dbConnections.Users.run(`DROP TABLE IF EXISTS Users`, (err) => {
+    //   if (err) {
+    //     console.error('Error dropping Users table:', err.message);
+    //   }
+    // });
+
+    // dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
+    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   first_name TEXT,
+    //   last_name TEXT,
+    //   user_name TEXT,
+    //   password TEXT
+    // )`);
+
+    dbConnections.Users.run(`CREATE TABLE Users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
+      first_name TEXT,
+      last_name TEXT,
       user_name TEXT,
       password TEXT
     )`);
 
+    // dbConnections.Users.run(
+    //   `ALTER TABLE Users ADD COLUMN first_name TEXT`,
+    //   (err) => {
+    //     if (err && !err.message.includes('duplicate column name')) {
+    //       console.error('Error adding first_name column:', err.message);
+    //     }
+    //   }
+    // );
+
+    // dbConnections.Users.run(
+    //   `ALTER TABLE Users ADD COLUMN last_name TEXT`,
+    //   (err) => {
+    //     if (err && !err.message.includes('duplicate column name')) {
+    //       console.error('Error adding last_name column:', err.message);
+    //     }
+    //   }
+    // );
   });
 
   await dbConnections.Credentials.serialize(() => {
