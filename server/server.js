@@ -40,7 +40,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:3000/google/callback',
+      callbackURL: 'http://localhost:3000/auth/google/callback',
     },
     userController.googleLogin
   )
@@ -64,7 +64,8 @@ passport.deserializeUser((user, done) => {
 app.use(
   cookieSession({
     name: 'session',
-    keys: ['key1', 'key2'],
+    keys: ['lama'],
+    maxAge: 24 * 60 * 60 * 100,
   })
 );
 
@@ -110,63 +111,45 @@ wss.on('connection', async (ws, req) => {
   }
 });
 
-function isLoggedIn(req, res, next) {
-  req.user ? next() : res.sendStatus(401);
-}
+// function isLoggedIn(req, res, next) {
+//   req.user ? next() : res.sendStatus(401);
+// }
 
 app.get(
   '/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
-app.get(
-  '/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/auth/failure',
-    successRedirect: '/protected',
-  })
-);
-
-app.get('/auth/failure', (req, res) => {
-  res.send('something went wrong');
+app.get('/login/success', (req, res) => {
+  if (req.user) {
+    res.status(200).json({
+      success: true,
+      message: 'success',
+      user: req.user,
+      cookies: req.cookies,
+    });
+  }
 });
-
-app.get('/protected', isLoggedIn, (req, res) => {
-  res.send('Hello');
-});
-
-// app.get('/profile', (req, res) => {
-//   if (!req.user) {
-//     res.redirect('/');
-//   } else {
-//     res.send(`Hello ${req.user.displayName}`);
-//   }
-// });
 
 app.get('/logout', (req, res) => {
   req.logout();
-  res.redirect('/');
+  res.redirect('http://localhost:3000/');
 });
 
-// app.post('/', async (req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
-//   res.header('Referrer-Policy', 'no-referrer-when-downgrade');
-//   const redirectUrl = 'http://127.0.0.1:3000/oauth';
+app.get('/login/falied', (req, res) => {
+  res.status(401).json({
+    success: false,
+    message: 'failure',
+  });
+});
 
-//   const OAuth2Client = new OAuth2Client(
-//     GOOGLE_CLIENT_ID,
-//     GOOGLE_CLIENT_SECRET,
-//     redirectUrl
-//   );
-
-//   const authorizeUrl = OAuth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: 'https://www.googleapis.com/auth/userinfo.profile openid',
-//     prompt: 'consent',
-//   });
-
-//   res.json({ url: authorizeUrl });
-// });
+app.get(
+  '/auth/google/callback',
+  passport.authenticate('google', {
+    failureRedirect: '/login/falied',
+    successRedirect: 'http://localhost:8080/dashboard',
+  })
+);
 
 app.use((req, res) => res.sendStatus(404));
 
