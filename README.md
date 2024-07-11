@@ -1,4 +1,3 @@
-# DeClustor
 ![DeClustor Logo](https://github.com/oslabs-beta/DeClustor/blob/dev/client/src/assets/nobglogo.png?raw=true)
 
 - [What is DeClustor?](#introduce)
