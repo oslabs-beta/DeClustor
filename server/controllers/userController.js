@@ -54,11 +54,12 @@ userController.createUser = (req, res, next) => {
               if (row) {
                 console.log(row.id);
                 res.locals.userId = row.id;
+                next();
               }
             }
           );
 
-          next();
+          // next();
         }
       );
     }
@@ -104,6 +105,7 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
         userdb.run(
           'INSERT INTO Users1 (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
           [firstname, lastname, username, googleId],
+
           function (err) {
             if (err) {
               return done(err);
