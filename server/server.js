@@ -8,7 +8,6 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const cookieSession = require('cookie-session');
 const cors = require('cors');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-// const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const userController = require('./controllers/userController');
@@ -19,22 +18,16 @@ const notificationController = require('./controllers/notificationController');
 
 const { access } = require('fs');
 const PORT = 3000;
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:8080', 
+  credentials: true, 
+};
+app.use(cors(corsOptions));
+// app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-// Replace with your Google client ID and secret
-// passport.use(
-//   new GoogleStrategy(
-//     {
-//       clientID: process.env.GOOGLE_CLIENT_ID,
-//       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-//       callbackURL: 'http://localhost:3000/google/callback',
-//     },
-//     userController.googleLogin
-//   )
-// );
 const crypto = require('crypto');
 const secret = crypto.randomBytes(16).toString('hex');
 
@@ -59,35 +52,41 @@ passport.use(new GoogleStrategy({
   clientID: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
   callbackURL: "http://localhost:3000/auth/google/callback"
-},
-function(accessToken, refreshToken, profile, done) {
-  userdb.get("SELECT * FROM GoogleUsers WHERE google_id = ?", [profile.id], function(err, row) {
-    if (err) {
-      return done(err);
-    }
-    if (row) {
-      return done(null, row);
-    } else {
-      const insert = "INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)";
-      userdb.run(insert, [profile.id, profile.displayName], function(err) {
-        if (err) {
-          return done(err);
-        }
-        return done(null, {
-          google_id: profile.id,
-          user_name: profile.displayName,
+  },
+  function(accessToken, refreshToken, profile, done) {
+    userdb.get("SELECT * FROM GoogleUsers WHERE google_id = ?", [profile.id], function(err, row) {
+      if (err) {
+        return done(err);
+      }
+      if (row) {
+        console.log('already exist in GoogleUsers');
+        return done(null, row);
+      } else {
+        const insert = "INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)";
+        userdb.run(insert, [profile.id, profile.displayName], function(err) {
+          if (err) {
+            return done(err);
+          }
+          console.log("insert into googleUser database");
+          console.log("this.lastId", this.lastID);
+          return done(null, {
+            google_id: profile.id,
+            user_name: profile.displayName,
+            user_id: this.lastID,
+            isNewUser: true
+          });
         });
-      });
-    }
-  });
-}
-));
+      }
+    });
+  })
+);
 passport.serializeUser((user, done) => {
-  done(null, user.google_id);
+  console.log("user.id", user.id);
+  done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
-  userdb.get("SELECT * FROM GoogleUsers WHERE google_id = ?", [id], function(err, row) {
+  userdb.get("SELECT * FROM GoogleUsers WHERE id = ?", [id], function(err, row) {
     if (err) {
       return done(err);
     }
@@ -100,36 +99,32 @@ app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'em
 app.get('/auth/google/callback', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
-    res.redirect('http://localhost:8080/dashboard');
+    if (req.user.isNewUser) {
+      res.redirect('http://localhost:8080/credentials');
+    } else {
+      res.redirect('http://localhost:8080/dashboard');
+    }
   });
 
 app.get('/login', (req, res) => {
   res.send('Login Failed');
 });
 
-// passport.serializeUser((user, done) => {
-//   done(null, user);
-// });
-// passport.deserializeUser((obj, done) => {
-//   done(null, obj);
-// });
-// app.use(
-//   cookieSession({
-//     name: 'session',
-//     keys: ['key1', 'key2'],
-//   })
-// );
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.get('/api/current_user', (req, res) => {
+  if (req.isAuthenticated()) {
+    console.log('req.user', req.user);
+      res.json({ user: req.user });
+  } else {
+      res.status(401).json({ error: 'User not authenticated' });
+  }
+});
+
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.post('/signup', userController.createUser, (req, res) => {
   const userId = res.locals.userId;
   res.status(200).json({ userId: userId, message: 'user created' });
 });
 
-// app.post('/login', userController.verifyUser, (req, res) => {
-//   res.status(200).json({ message: 'logged in!' });
-// });
 app.post('/login', userController.verifyUser, (req, res) => {
   const userId = res.locals.userId;
   const username = req.body.username;
@@ -146,9 +141,7 @@ app.get('/listAllService', listController.Service);
 app.post('/setNotification', notificationController.setNotification, (req, res) => {
   res.status(200).json({ message: 'save notification settings!' });
 });
-// app.delete('/removeNotification', notificationController.deleteNotification, (req, res) => {
-//   res.status(200).json({ message: 'remove notification settings!' });
-// })
+
 wss.on('connection', async (ws, req) => {
   // get metric data controller
   if (req.url.startsWith('/getMetricData')) {
@@ -181,53 +174,7 @@ wss.on('connection', async (ws, req) => {
     ws.close();
   }
 });
-// function isLoggedIn(req, res, next) {
-//   req.user ? next() : res.sendStatus(401);
-// }
-// app.get(
-//   '/auth/google',
-//   passport.authenticate('google', { scope: ['profile', 'email'] })
-// );
-// app.get(
-//   '/google/callback',
-//   passport.authenticate('google', {
-//     failureRedirect: '/auth/failure',
-//     successRedirect: '/protected',
-//   })
-// );
-// app.get('/auth/failure', (req, res) => {
-//   res.send('something went wrong');
-// });
-// app.get('/protected', isLoggedIn, (req, res) => {
-//   res.send('Hello');
-// });
-// app.get('/profile', (req, res) => {
-//   if (!req.user) {
-//     res.redirect('/');
-//   } else {
-//     res.send(`Hello ${req.user.displayName}`);
-//   }
-// });
-app.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
-});
-// app.post('/', async (req, res, next) => {
-//   res.header('Access-Control-Allow-Origin', 'http://localhost:8080');
-//   res.header('Referrer-Policy', 'no-referrer-when-downgrade');
-//   const redirectUrl = 'http://127.0.0.1:3000/oauth';
-//   const OAuth2Client = new OAuth2Client(
-//     GOOGLE_CLIENT_ID,
-//     GOOGLE_CLIENT_SECRET,
-//     redirectUrl
-//   );
-//   const authorizeUrl = OAuth2Client.generateAuthUrl({
-//     access_type: 'offline',
-//     scope: 'https://www.googleapis.com/auth/userinfo.profile openid',
-//     prompt: 'consent',
-//   });
-//   res.json({ url: authorizeUrl });
-// });
+
 app.use((req, res) => res.sendStatus(404));
 app.use((err, req, res, next) => {
   const defaultErr = {

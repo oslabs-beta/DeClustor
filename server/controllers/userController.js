@@ -86,6 +86,7 @@ userController.verifyUser = (req, res, next) => {
 };
 
 userController.googleLogin = (accessToken, refreshToken, profile, done) => {
+  console.log(profile);
   const firstname = profile.given_name;
   const lastname = profile.lastname;
   const googleId = profile.id;
@@ -102,6 +103,7 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
         userdb.run(
           'INSERT INTO GoogleUsers (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
           [firstname, lastname, username, googleId],
+
           function (err) {
             if (err) {
               return done(err);

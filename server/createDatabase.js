@@ -56,24 +56,6 @@ async function createTables() {
       user_name TEXT,
       password TEXT
     )`);
-
-   // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN first_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding first_name column:', err.message);
-    //     }
-    //   }
-    // );
-
-    // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN last_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding last_name column:', err.message);
-    //     }
-    //   }
-    // );
   });
 
   await dbConnections.Credentials.serialize(() => {
@@ -100,7 +82,7 @@ async function createTables() {
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
-  })
+  });
 
   await dbConnections.Notifications.serialize(() => {
     dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
@@ -113,7 +95,7 @@ async function createTables() {
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
-  })
+  });
 }
 
 // Call the function to create tables

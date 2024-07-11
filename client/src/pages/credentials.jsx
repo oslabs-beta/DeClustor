@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCurrentUser } from '../redux/userSlice';
+
 import {
   Container,
   TextField,
@@ -20,8 +22,14 @@ const Credentials = () => {
   const theme = useTheme();
 
   // from redux store
+  const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.userId);
-  console.log('userId'. userId);
+
+  useEffect(() => {
+    if (!userId) {
+      dispatch(fetchCurrentUser());  
+    }
+  }, [dispatch, userId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +62,7 @@ const Credentials = () => {
   };
 
   return (
-    <Container maxWidth='sm'>
+    <Container maxWidth="sm">
       <Box
         sx={{
           display: 'flex',
@@ -63,7 +71,7 @@ const Credentials = () => {
           marginTop: 8,
         }}
       >
-        <Typography component='h1' variant='h4' gutterBottom>
+        <Typography component="h1" variant="h4" gutterBottom>
           Enter AWS Credentials
         </Typography>
         <Paper
@@ -77,7 +85,7 @@ const Credentials = () => {
           }}
         >
           <Box
-            component='form'
+            component="form"
             onSubmit={handleSubmit}
             sx={{
               display: 'flex',
@@ -86,8 +94,8 @@ const Credentials = () => {
             }}
           >
             <TextField
-              variant='outlined'
-              label='Access Key'
+              variant="outlined"
+              label="Access Key"
               value={accessKey}
               onChange={(e) => setAccessKey(e.target.value)}
               required
@@ -100,8 +108,8 @@ const Credentials = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Secret Key'
+              variant="outlined"
+              label="Secret Key"
               value={secretKey}
               onChange={(e) => setSecretKey(e.target.value)}
               required
@@ -114,8 +122,8 @@ const Credentials = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Region'
+              variant="outlined"
+              label="Region"
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               required
@@ -128,8 +136,8 @@ const Credentials = () => {
               }}
             />
             <TextField
-              variant='outlined'
-              label='Cluster Name'
+              variant="outlined"
+              label="Cluster Name"
               value={clusterName}
               onChange={(e) => setClusterName(e.target.value)}
               required
@@ -142,21 +150,21 @@ const Credentials = () => {
               }}
             />
             <Button
-              type='submit'
-              variant='contained'
-              color='secondary'
+              type="submit"
+              variant="contained"
+              color="secondary"
               fullWidth
               sx={{ padding: 1.5 }}
             >
               Submit
             </Button>
-            <Typography variant='body2' align='center'>
+            <Typography variant="body2" align="center">
               Can't find it? Return to home and read our Get Started to access
               these information.
             </Typography>
             <Button
-              variant='outlined'
-              color='secondary'
+              variant="outlined"
+              color="secondary"
               fullWidth
               onClick={() => navigate('/')}
               sx={{ padding: 1.5 }}
