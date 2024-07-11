@@ -62,7 +62,9 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // users authentication
 app.post('/signup', userController.createUser, (req, res) => {
-  res.status(200).json({ message: 'user created' });
+  const userId = res.locals.userId;
+  console.log(userId);
+  res.status(200).json({ userId, message: 'user created' });
 });
 
 app.post('/login', userController.verifyUser, (req, res) => {
