@@ -1,13 +1,21 @@
 # DeClustor
-![DeClustor Logo](https://github.com/oslabs-beta/DeClustor/blob/dev/client/src/assets/logo.png?raw=true)
+![DeClustor Logo](https://github.com/oslabs-beta/DeClustor/blob/dev/client/src/assets/nobglogo.png?raw=true)
 
-- [Summary](#summary)
-- [Key Features](#key-features)
-- [Setup for Docker Image Version](#setup-for-docker-image-version)
-- [Setup for Source Version](#setup-for-source-version)
+- [What is DeClustor?](#introduce)
+- [Features](#key-features)
+- [Getting Started](#getstart)
 - [Meet the Team](#meet-the-team)
 
+## What is DeClustor?
 
+Managing AWS ECS environments can be challenging due to fragmented metrics and real-time performance monitoring across clusters. AWS's dashboard can be confusing and lacks a unified interface.
+
+DeClustor offers a centralized solution for seamless ECS monitoring and management, enabling effortless tracking of metrics and real-time performance across multiple services within a single ECS cluster.
+
+
+## Features
+
+## Getting Started
 
 ## Meet the Team
 
