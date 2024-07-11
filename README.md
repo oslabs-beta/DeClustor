@@ -1,4 +1,5 @@
 # DeClustor
+![DeClustor Logo](https://github.com/oslabs-beta/DeClustor/blob/dev/client/src/assets/logo.png?raw=true)
 
 - [Summary](#summary)
 - [Key Features](#key-features)
@@ -6,7 +7,7 @@
 - [Setup for Source Version](#setup-for-source-version)
 - [Meet the Team](#meet-the-team)
 
-![DeClustor Logo](https://github.com/oslabs-beta/DeClustor/blob/dev/client/src/assets/logo.png?raw=true)
+
 
 ## Meet the Team
 
