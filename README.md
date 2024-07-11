@@ -1,6 +1,5 @@
 # DeClustor
 
-## Table of Contents
 - [Summary](#summary)
 - [Key Features](#key-features)
 - [Setup for Docker Image Version](#setup-for-docker-image-version)
