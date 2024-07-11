@@ -14,6 +14,7 @@ import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import { GoogleLogin } from '@react-oauth/google';
+import Google from '../assets/google.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -22,6 +23,10 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
+
+  const google = () => {
+    window.open('http://localhost:3000/auth/google', '_self');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,10 +47,19 @@ const Login = () => {
         localStorage.setItem('username', data.username);
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('password', password);
-        console.log('saved to local storage! -->' , data);
-        
-        console.log('Login successful, dispatching loginSuccess with data:', data);
-        dispatch(loginSuccess({ userId: data.userId, username, serviceName: data.serviceName })); 
+        console.log('saved to local storage! -->', data);
+
+        console.log(
+          'Login successful, dispatching loginSuccess with data:',
+          data
+        );
+        dispatch(
+          loginSuccess({
+            userId: data.userId,
+            username,
+            serviceName: data.serviceName,
+          })
+        );
         navigate('/dashboard');
       } else {
         dispatch(loginFailure(data.message));
@@ -83,7 +97,6 @@ const Login = () => {
       setError('An error occurred with Google login. Please try again.');
     }
   };
-
 
   return (
     <Container maxWidth='sm'>
@@ -170,7 +183,10 @@ const Login = () => {
           >
             Don't have an account? Sign up!
           </Button>
-          <a href="http://localhost:3000/auth/google" class="login-button">Login with Google</a>
+          <Button onClick={google}>
+            <img src={Google} />
+            oogle
+          </Button>
         </Box>
       </Box>
     </Container>

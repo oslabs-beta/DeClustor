@@ -4,8 +4,6 @@ import { createSlice } from '@reduxjs/toolkit'
 const initialState = {
   // set initial mode to dark
   mode: 'dark',
-  // add userId from database
-  userId: '123', // <= change this later
 }
 
 // global state

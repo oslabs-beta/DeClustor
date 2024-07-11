@@ -8,7 +8,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const cookieSession = require('cookie-session');
 const cors = require('cors');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-// const {OAuth2Client } = require('google-auth-library');
+// const { OAuth2Client } = require('google-auth-library');
 
 const app = express();
 const userController = require('./controllers/userController');
@@ -123,16 +123,20 @@ app.get('/login', (req, res) => {
 // app.use(passport.session());
 app.use(express.static(path.join(__dirname, '../client/dist')));
 app.post('/signup', userController.createUser, (req, res) => {
-  res.status(200).json({ message: 'user created' });
+  const userId = res.locals.userId;
+  res.status(200).json({ userId: userId, message: 'user created' });
 });
+
 // app.post('/login', userController.verifyUser, (req, res) => {
 //   res.status(200).json({ message: 'logged in!' });
 // });
 app.post('/login', userController.verifyUser, (req, res) => {
   const userId = res.locals.userId;
   const username = req.body.username;
-  const serviceName = "service1"; // default name
-  res.status(200).json({ userId, username, serviceName, message: 'logged in!' });
+  const serviceName = 'service1'; // default name
+  res
+    .status(200)
+    .json({ userId, username, serviceName, message: 'logged in!' });
 });
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });

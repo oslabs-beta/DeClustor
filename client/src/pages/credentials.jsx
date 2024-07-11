@@ -20,7 +20,8 @@ const Credentials = () => {
   const theme = useTheme();
 
   // from redux store
-  const userId = useSelector((state) => state.global.userId);
+  const userId = useSelector((state) => state.user.userId);
+  console.log('userId'. userId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

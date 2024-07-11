@@ -63,9 +63,8 @@ const App = () => {
                 </Route>
               </Route>
               <Route path='*' element={<Navigate to='/' replace />} />
-              <Route path="/userprofile" element={<UserProfile />} /> 
+              <Route path='/userprofile' element={<UserProfile />} />
             </Routes>
-            
           </Box>
           <Feedback />
           <Footer sx={{ mt: 'auto' }} />

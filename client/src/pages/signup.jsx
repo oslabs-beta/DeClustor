@@ -11,7 +11,7 @@ import {
   Paper,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { signupSuccess , signupFailure } from '../redux/userSlice.js';
+import { signupSuccess, signupFailure } from '../redux/userSlice.js';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 
@@ -35,7 +35,7 @@ const Signup = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ firstname: firstName, lastname: lastName, username, password }),
       });
 
       const data = await response.json();
