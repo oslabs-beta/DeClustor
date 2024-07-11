@@ -19,8 +19,8 @@ const notificationController = require('./controllers/notificationController');
 const { access } = require('fs');
 const PORT = 3000;
 const corsOptions = {
-  origin: 'http://localhost:8080', 
-  credentials: true, 
+  origin: 'http://localhost:8080',
+  credentials: true,
 };
 app.use(cors(corsOptions));
 // app.use(cors());
@@ -34,11 +34,13 @@ const secret = crypto.randomBytes(16).toString('hex');
 //test passport.use:
 const session = require('express-session');
 
-app.use(session({
-  secret: secret,  
-  resave: false,
-  saveUninitialized: false
-}));
+app.use(
+  session({
+    secret: secret,
+    resave: false,
+    saveUninitialized: false,
+  })
+);
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -48,63 +50,84 @@ const sqlite3 = require('sqlite3').verbose();
 const userdbPath = path.resolve(__dirname, './database/GoogleUsers.db');
 const userdb = new sqlite3.Database(userdbPath);
 
-passport.use(new GoogleStrategy({
-  clientID: process.env.GOOGLE_CLIENT_ID,
-  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  callbackURL: "http://localhost:3000/auth/google/callback"
-  },
-  function(accessToken, refreshToken, profile, done) {
-    userdb.get("SELECT * FROM GoogleUsers WHERE google_id = ?", [profile.id], function(err, row) {
-      if (err) {
-        return done(err);
-      }
-      if (row) {
-        console.log('already exist in GoogleUsers');
-        return done(null, row);
-      } else {
-        const insert = "INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)";
-        userdb.run(insert, [profile.id, profile.displayName], function(err) {
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: 'http://localhost:3000/auth/google/callback',
+    },
+    function (accessToken, refreshToken, profile, done) {
+      userdb.get(
+        'SELECT * FROM GoogleUsers WHERE google_id = ?',
+        [profile.id],
+        function (err, row) {
           if (err) {
             return done(err);
           }
-          console.log("insert into googleUser database");
-          console.log("this.lastId", this.lastID);
-          return done(null, {
-            google_id: profile.id,
-            user_name: profile.displayName,
-            user_id: this.lastID,
-            isNewUser: true
-          });
-        });
-      }
-    });
-  })
+          if (row) {
+            console.log('already exist in GoogleUsers');
+            return done(null, row);
+          } else {
+            const insert =
+              'INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)';
+            userdb.run(
+              insert,
+              [profile.id, profile.displayName],
+              function (err) {
+                if (err) {
+                  return done(err);
+                }
+                console.log('insert into googleUser database');
+                console.log('this.lastId', this.lastID);
+                return done(null, {
+                  google_id: profile.id,
+                  user_name: profile.displayName,
+                  id: this.lastID,
+                  isNewUser: true,
+                });
+              }
+            );
+          }
+        }
+      );
+    }
+  )
 );
 passport.serializeUser((user, done) => {
-  console.log("user.id", user.id);
+  console.log('user.id', user.id);
   done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
-  userdb.get("SELECT * FROM GoogleUsers WHERE id = ?", [id], function(err, row) {
-    if (err) {
-      return done(err);
+  userdb.get(
+    'SELECT * FROM GoogleUsers WHERE id = ?',
+    [id],
+    function (err, row) {
+      if (err) {
+        return done(err);
+      }
+      done(null, row);
     }
-    done(null, row);
-  });
+  );
 });
 
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get(
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
+);
 
-app.get('/auth/google/callback', 
+app.get(
+  '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
-  function(req, res) {
+  function (req, res) {
     if (req.user.isNewUser) {
       res.redirect('http://localhost:8080/credentials');
     } else {
       res.redirect('http://localhost:8080/dashboard');
     }
-  });
+  }
+);
 
 app.get('/login', (req, res) => {
   res.send('Login Failed');
@@ -113,9 +136,9 @@ app.get('/login', (req, res) => {
 app.get('/api/current_user', (req, res) => {
   if (req.isAuthenticated()) {
     console.log('req.user', req.user);
-      res.json({ user: req.user });
+    res.json({ user: req.user });
   } else {
-      res.status(401).json({ error: 'User not authenticated' });
+    res.status(401).json({ error: 'User not authenticated' });
   }
 });
 
@@ -138,9 +161,13 @@ app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
 });
 app.get('/listAllService', listController.Service);
 // notification
-app.post('/setNotification', notificationController.setNotification, (req, res) => {
-  res.status(200).json({ message: 'save notification settings!' });
-});
+app.post(
+  '/setNotification',
+  notificationController.setNotification,
+  (req, res) => {
+    res.status(200).json({ message: 'save notification settings!' });
+  }
+);
 
 wss.on('connection', async (ws, req) => {
   // get metric data controller
@@ -161,7 +188,7 @@ wss.on('connection', async (ws, req) => {
       metricName
     );
     // check notification controller
-  } else if (req.url.startsWith('/checkNotifications')){
+  } else if (req.url.startsWith('/checkNotifications')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const userId = urlParams.get('userId');
     if (!userId) {
@@ -170,7 +197,7 @@ wss.on('connection', async (ws, req) => {
       return;
     }
     await notificationController.handleNotificationCheck(ws, userId);
-  }else {
+  } else {
     ws.close();
   }
 });
