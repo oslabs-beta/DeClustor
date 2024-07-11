@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCurrentUser } from '../redux/userSlice';
+
 import {
   Container,
   TextField,
@@ -20,7 +22,14 @@ const Credentials = () => {
   const theme = useTheme();
 
   // from redux store
+  const dispatch = useDispatch();
   const userId = useSelector((state) => state.user.userId);
+
+  useEffect(() => {
+    if (!userId) {
+      dispatch(fetchCurrentUser());  
+    }
+  }, [dispatch, userId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

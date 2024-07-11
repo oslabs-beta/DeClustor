@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const initialState = {
   userId: '',
@@ -9,6 +9,35 @@ const initialState = {
   serviceName: '',
   error: null,
 };
+
+// Async thunk for fetching current user data
+export const fetchCurrentUser = createAsyncThunk(
+  'user/fetchCurrentUser',
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/current_user', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Could not fetch user data');
+      }
+      const data = await response.json();
+      const user = data.user; 
+      dispatch(loginSuccess({
+        userId: user.id,
+        username: user.user_name,
+        firstName: user.first_name || '',
+        lastName: user.last_name || '',
+        email: user.email || '',
+        serviceName: user.service_name || '',
+      }));
+      return user;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 
 const userSlice = createSlice({
   name: 'user',

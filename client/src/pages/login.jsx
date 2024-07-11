@@ -13,8 +13,8 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import { GoogleLogin } from '@react-oauth/google';
-import Google from '../assets/google.png';
+// import { GoogleLogin } from '@react-oauth/google';
+import Google from '../assets/logingoogle.png';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -71,32 +71,32 @@ const Login = () => {
     }
   };
 
-  const handleGoogleSuccess = async (credentialResponse) => {
-    console.log(credentialResponse);
+  // const handleGoogleSuccess = async (credentialResponse) => {
+  //   console.log(credentialResponse);
 
-    try {
-      const response = await fetch('http://localhost:3000/auth/google', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token: credentialResponse.credential }),
-      });
+  //   try {
+  //     const response = await fetch('http://localhost:3000/auth/google', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ token: credentialResponse.credential }),
+  //     });
 
-      const data = await response.json();
-      console.log(data);
+  //     const data = await response.json();
+  //     console.log(data);
 
-      if (response.ok) {
-        console.log('Google login successful');
-        navigate('/dashboard');
-      } else {
-        setError(data.message);
-      }
-    } catch (error) {
-      console.error('Google login error:', error);
-      setError('An error occurred with Google login. Please try again.');
-    }
-  };
+  //     if (response.ok) {
+  //       console.log('Google login successful');
+  //       navigate('/dashboard');
+  //     } else {
+  //       setError(data.message);
+  //     }
+  //   } catch (error) {
+  //     console.error('Google login error:', error);
+  //     setError('An error occurred with Google login. Please try again.');
+  //   }
+  // };
 
   return (
     <Container maxWidth="sm">
@@ -184,8 +184,7 @@ const Login = () => {
             Don't have an account? Sign up!
           </Button>
           <Button onClick={google}>
-            <img src={Google} />
-            oogle
+            <img src={Google} alt="Google" style={{ width: '60%' }}/>
           </Button>
         </Box>
       </Box>
