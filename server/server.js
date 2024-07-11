@@ -72,7 +72,7 @@ passport.use(new GoogleStrategy({
           return done(null, {
             google_id: profile.id,
             user_name: profile.displayName,
-            user_id: this.lastID,
+            id: this.lastID,
             isNewUser: true
           });
         });
