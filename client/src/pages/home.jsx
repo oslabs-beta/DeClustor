@@ -6,7 +6,6 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import nobglogo from '../assets/nobglogo.png';
@@ -17,11 +16,10 @@ import Team from './team';
 
 const Home = () => {
   const navigate = useNavigate();
-  const theme = useTheme();
 
   return (
     <>
-      <AppBar position='static' sx={{ backgroundColor: theme.palette.primary[700] }} >
+      <AppBar position='static'>
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <img
@@ -38,21 +36,19 @@ const Home = () => {
                 fontSize: '1rem',
                 border: '1px solid rgba(0, 0, 0, 0.2)',
                 borderRadius: '4px',
-                color: theme.palette.secondary[100]
               }}
             >
               Home
             </Button>
             <Button
               color='inherit'
-              onClick={() => navigate('/getting-started')}
+              onClick={() => navigate('/get-started')}
               startIcon={<GettingStartedIcon sx={{ fontSize: '1.8rem' }} />}
               sx={{
                 textTransform: 'none',
                 fontSize: '1rem',
                 border: '1px solid rgba(0, 0, 0, 0.2)',
                 borderRadius: '4px',
-                color: theme.palette.secondary[100]
               }}
             >
               Get Started
@@ -67,7 +63,6 @@ const Home = () => {
               fontSize: '1rem',
               border: '1px solid rgba(0, 0, 0, 0.2)',
               borderRadius: '4px',
-              color: theme.palette.secondary[100]
             }}
           >
             Login/Signup
@@ -75,10 +70,10 @@ const Home = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth='md' sx={{ mt: 8, textAlign: 'center' }}>
-        <Typography variant='h2' gutterBottom color={theme.palette.secondary.main} >
+        <Typography variant='h2' gutterBottom>
           DeClustor
         </Typography>
-        <Typography variant='body1' gutterBottom color={theme.palette.secondary[100]} >
+        <Typography variant='body1' gutterBottom>
           Welcome to DeClustor, your centralized solution for monitoring and
           managing ECS environments on AWS. Track metrics and monitor real-time
           performance across multiple ECS clusters effortlessly.
@@ -87,8 +82,8 @@ const Home = () => {
           variant='contained'
           color='primary'
           size='large'
-          onClick={() => navigate('/signup')}
-          sx={{ mt: 4 , color: theme.palette.secondary[100] }}
+          onClick={() => navigate('/get-started')}
+          sx={{ mt: 4 }}
         >
           Get Started
         </Button>
