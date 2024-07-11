@@ -15,6 +15,7 @@ import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 // import { GoogleLogin } from '@react-oauth/google';
 import Google from '../assets/logingoogle.png';
+import Navbar from '../components/Navbar';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -99,6 +100,8 @@ const Login = () => {
   // };
 
   return (
+    <div>
+    <Navbar showSidebar={false} showSearch={false} showNotification={false} showUser={false} />
     <Container maxWidth="sm">
       <Box
         sx={{
@@ -189,6 +192,7 @@ const Login = () => {
         </Box>
       </Box>
     </Container>
+    </div>
   );
 };
 
