@@ -42,7 +42,7 @@ const Home = () => {
             </Button>
             <Button
               color='inherit'
-              onClick={() => navigate('/getting-started')}
+              onClick={() => navigate('/get-started')}
               startIcon={<GettingStartedIcon sx={{ fontSize: '1.8rem' }} />}
               sx={{
                 textTransform: 'none',
@@ -82,7 +82,7 @@ const Home = () => {
           variant='contained'
           color='primary'
           size='large'
-          onClick={() => navigate('/signup')}
+          onClick={() => navigate('/get-started')}
           sx={{ mt: 4 }}
         >
           Get Started

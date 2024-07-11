@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Box } from '@mui/material';
-import example from '../assets/example.gif';
+import DashDemo from '../assets/dashboard.gif';
 
 const Tutorial = () => {
   return (
@@ -13,7 +13,7 @@ const Tutorial = () => {
           marginTop: 8,
         }}
       >
-        <img src={example} alt='Tutorial' width='100%' height='auto' />
+        <img src={DashDemo} alt='Tutorial' width='100%' height='auto' />
       </Box>
     </Container>
   );

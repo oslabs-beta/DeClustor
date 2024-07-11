@@ -137,9 +137,9 @@ function checkMetricThreshold (user_id, metric_name , service_name = null, compl
             console.log('Connected to the Notifications database');
         }
     });
-    console.log("user_id", user_id);
-    console.log("metric_name", metric_name);
-    console.log("service_name", service_name);
+    // console.log("user_id", user_id);
+    // console.log("metric_name", metric_name);
+    // console.log("service_name", service_name);
 
     let searchQuery;
     let searchParams;
@@ -163,18 +163,18 @@ function checkMetricThreshold (user_id, metric_name , service_name = null, compl
             console.error('Error occurred during search notification database in metricController:', err);
             return;
         }
-        console.log("check2");
-        console.log(row);
+        // console.log("check2");
+        // console.log(row);
         if (row) {
-            console.log("check3");
+            // console.log("check3");
             const { threshold, operator } = row;
-            console.log("threshold", threshold);
-            console.log("operator", operator)
+            // console.log("threshold", threshold);
+            // console.log("operator", operator)
             // go thourgh completeData
             completeData.forEach(dataPoint => {
                 const { Average, Timestamp } = dataPoint;
-                console.log("Avarage", Average);
-                console.log("Timestamp", Timestamp);
+                // console.log("Avarage", Average);
+                // console.log("Timestamp", Timestamp);
                 // if lastScanDate not null and Timestamp of completeData < lastScanData
                 if (notificationStore.lastScanDate && new Date(Timestamp) < new Date(notificationStore.lastScanDate)) {
                     return
@@ -254,9 +254,9 @@ function checkMetricThreshold (user_id, metric_name , service_name = null, compl
             console.log('Connected to the Notifications database');
         }
     });
-    console.log("user_id", user_id);
-    console.log("metric_name", metric_name);
-    console.log("service_name", service_name);
+    // console.log("user_id", user_id);
+    // console.log("metric_name", metric_name);
+    // console.log("service_name", service_name);
 
     let searchQuery;
     let searchParams;
@@ -280,18 +280,18 @@ function checkMetricThreshold (user_id, metric_name , service_name = null, compl
             console.error('Error occurred during search notification database in metricController:', err);
             return;
         }
-        console.log("check2");
-        console.log(row);
+        // console.log("check2");
+        // console.log(row);
         if (row) {
-            console.log("check3");
+            // console.log("check3");
             const { threshold, operator } = row;
-            console.log("threshold", threshold);
-            console.log("operator", operator)
+            // console.log("threshold", threshold);
+            // console.log("operator", operator)
             // go thourgh completeData
             completeData.forEach(dataPoint => {
                 const { Average, Timestamp } = dataPoint;
-                console.log("Avarage", Average);
-                console.log("Timestamp", Timestamp);
+                // console.log("Avarage", Average);
+                // console.log("Timestamp", Timestamp);
                 // if lastScanDate not null and Timestamp of completeData < lastScanData
                 if (notificationStore.lastScanDate && new Date(Timestamp) < new Date(notificationStore.lastScanDate)) {
                     return

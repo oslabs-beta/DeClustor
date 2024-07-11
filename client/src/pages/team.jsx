@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Avatar } from '@mui/material';
+import { Box, Container, Typography, Grid, Avatar , useTheme } from '@mui/material';
 import grace from '../assets/grace.png';
 import aria from '../assets/aria.png';
 import will from '../assets/will.png';
@@ -13,6 +13,8 @@ const teamMembers = [
 ];
 
 const Team = () => {
+  const theme = useTheme();
+
   return (
     <Box
       sx={{
@@ -22,10 +24,10 @@ const Team = () => {
       }}
     >
       <Container maxWidth='lg'>
-        <Typography variant='h2' gutterBottom>
+        <Typography variant='h2' gutterBottom color={theme.palette.secondary.main}>
           Meet Our Team
         </Typography>
-        <Typography variant='body1' gutterBottom>
+        <Typography variant='body1' gutterBottom color={theme.palette.secondary[100]}>
           If you have any questions about our open source project, feel free to
           reach out to us!
         </Typography>
@@ -37,8 +39,8 @@ const Team = () => {
                 alt={member.name}
                 sx={{ width: 120, height: 120, mx: 'auto', mb: 2 }}
               />
-              <Typography variant='h6'>{member.name}</Typography>
-              <Typography variant='body2' color='textSecondary'>
+              <Typography variant='h5' sx= {{ color: theme.palette.secondary[100] }} >{member.name}</Typography>
+              <Typography variant='body2'>
                 {member.role}
               </Typography>
             </Grid>

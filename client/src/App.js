@@ -18,14 +18,10 @@ import Signup from './pages/signup';
 import Feedback from './components/Feedback';
 import Footer from './components/Footer';
 import UserProfile from './pages/UserProfile';
-import Credentials from './pages/credentials';
-import { GoogleLogin } from '@react-oauth/google';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
-import Overview from './pages/Overview';
-import ClusterMetrics from './pages/ClusterMetrics';
 import Credentials from './pages/credentials';
-import { GoogleLogin } from '@react-oauth/google';
+import GetStarted from './pages/getstarted';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode);
@@ -51,23 +47,13 @@ const App = () => {
               <Route path='/credentials' element={<Credentials />} />
               <Route path='/login' element={<Login />} />
               <Route path='/protected' element={<Dashboard />} />
+              <Route path='/get-started' element={<GetStarted />} />
               <Route element={<Layout />}>
-                <Route
-                  path='/'
-                  element={<Navigate to='/dashboard' replace />}
-                />
                 <Route path='/dashboard' element={<Dashboard />} />
-                {/* <Route path="/dashboard" element={<Overview />} /> */}
-                {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
-                <Route path='/dashboard' element={<Dashboard />}>
-                  <Route path='overview' element={<Overview />} />
-                  <Route path='cluster-metrics' element={<ClusterMetrics />} />
-                </Route>
+                <Route path='*' element={<Navigate to='/' replace />} />
               </Route>
-              <Route path='*' element={<Navigate to='/' replace />} />
-              <Route path="/userprofile" element={<UserProfile />} /> 
+              <Route path='/userprofile' element={<UserProfile />} />
             </Routes>
-            
           </Box>
           <Feedback />
           <Footer sx={{ mt: 'auto' }} />

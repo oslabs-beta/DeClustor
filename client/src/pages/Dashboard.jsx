@@ -6,13 +6,20 @@ import { themeSettings as theme } from '../theme.js';
 import PieChart from '../components/PieChart.jsx';
 import Service from '../components/Service.jsx';
 import StatusCard from '../components/StatusCard.jsx';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchCurrentUser } from '../redux/userSlice';
 
 const Dashboard = () => {
   const theme = useTheme();
   const isLargeScreen = useMediaQuery("(min-width: 1200px)"); // Change to larger screens
   const isTabletScreen = useMediaQuery("(min-width: 600px) and (max-width: 1199px)"); // Change for tablet screens
   const userId = useSelector((state) => state.user.userId); // Get userId from Redux store
+  const dispatch = useDispatch();
+  useEffect(() => {
+    if (!userId) {
+      dispatch(fetchCurrentUser());  
+    }
+  }, [dispatch, userId]);
   const serviceName = useSelector((state) => state.user.serviceName); // Get serviceName from Redux store  const metricNames = ['CPUUtilization', 'MemoryUtilization', 'NetworkRxBytes', 'NetworkTxBytes'];
 
   return (

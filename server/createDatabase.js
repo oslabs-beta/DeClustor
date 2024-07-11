@@ -1,9 +1,10 @@
 const sqlite3 = require('sqlite3').verbose();
 
 const databases = {
-  Users: './database/Users1.db',
+  //Users: './database/Users1.db',
   Credentials: './database/Credentials.db',
-  Notifications: './database/Notifications.db'
+  Notifications: './database/Notifications.db',
+  GoogleUsers: './database/GoogleUsers.db'
 };
 
 function connectToDatabase(dbPath) {
@@ -22,7 +23,7 @@ for (const [name, path] of Object.entries(databases)) {
 }
 
 async function createTables() {
-  await dbConnections.Users.serialize(() => {
+  await dbConnections.GoogleUsers.serialize(() => {
     // dbConnections.Users.run(`DROP TABLE IF EXISTS Users`, (err) => {
     //   if (err) {
     //     console.error('Error dropping Users table:', err.message);
@@ -37,33 +38,24 @@ async function createTables() {
     //   password TEXT
     // )`);
 
-    dbConnections.Users.run(`CREATE TABLE Users1 (
+    // dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users1 (
+    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
+    //   first_name TEXT,
+    //   last_name TEXT,
+    //   first_name TEXT,
+    //   last_name TEXT,
+    //   user_name TEXT,
+    //   password TEXT
+    // )`);
+
+    dbConnections.GoogleUsers.run(`CREATE TABLE IF NOT EXISTS GoogleUsers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      first_name TEXT,
-      last_name TEXT,
+      google_id TEXT,
       first_name TEXT,
       last_name TEXT,
       user_name TEXT,
       password TEXT
     )`);
-
-   // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN first_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding first_name column:', err.message);
-    //     }
-    //   }
-    // );
-
-    // dbConnections.Users.run(
-    //   `ALTER TABLE Users ADD COLUMN last_name TEXT`,
-    //   (err) => {
-    //     if (err && !err.message.includes('duplicate column name')) {
-    //       console.error('Error adding last_name column:', err.message);
-    //     }
-    //   }
-    // );
   });
 
   await dbConnections.Credentials.serialize(() => {
@@ -90,7 +82,7 @@ async function createTables() {
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
-  })
+  });
 
   await dbConnections.Notifications.serialize(() => {
     dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
@@ -103,7 +95,7 @@ async function createTables() {
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
-  })
+  });
 }
 
 // Call the function to create tables
