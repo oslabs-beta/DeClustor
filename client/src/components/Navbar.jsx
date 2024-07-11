@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 import LogoutIcon from '@mui/icons-material/Logout';
 import logo from '../assets/logo.png'
 
-const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSearch = true }) => {
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSearch = true , showNotification = true , showUser = true }) => {
     // theme setting 
     const dispatch = useDispatch()
     const theme = useTheme()
@@ -75,11 +75,13 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSea
             </IconButton>
 
             {/* notification icon button */}
+            {showNotification && (
             <IconButton>
             <Badge badgeContent={4} color="secondary">
                 <NotificationsOutlinedIcon sx={{ fontSize: '25px' }}/>
                 </Badge>
             </IconButton>
+             )}
 
               {/* setting icon button */}
             <IconButton>
@@ -87,11 +89,13 @@ const Navbar = ({ isSidebarOpen, setIsSidebarOpen , showSidebar = true , showSea
             </IconButton>
 
             {/* profile icon button */}
+            {showUser && (
             <Tooltip title='Profile'>
             <IconButton onClick={() => navigate('/userprofile')}>
                 <PersonOutlinedIcon />
             </IconButton>
             </Tooltip>
+          )}
 
             {/* logout icon button */}
             <Tooltip title='Logout'>

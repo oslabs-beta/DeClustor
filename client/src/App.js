@@ -20,8 +20,6 @@ import Footer from './components/Footer';
 import UserProfile from './pages/UserProfile';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
-import Overview from './pages/Overview';
-import ClusterMetrics from './pages/ClusterMetrics';
 import Credentials from './pages/credentials';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -57,12 +55,12 @@ const App = () => {
                 <Route path="/dashboard" element={<Dashboard />} />
                 {/* <Route path="/dashboard" element={<Overview />} /> */}
                 {/* <Route path="/clustermetics" element={<ClusterMetrics />} /> */}
-                <Route path="/dashboard" element={<Dashboard />}>
-                  <Route path="overview" element={<Overview />} />
-                  <Route path="cluster-metrics" element={<ClusterMetrics />} />
-                </Route>
-              </Route>
+                {/* <Route path="/dashboard" element={<Dashboard />}> */}
+                  {/* <Route path="overview" element={<Overview />} />
+                  <Route path="cluster-metrics" element={<ClusterMetrics />} /> */}
+                {/* </Route> */}
               <Route path="*" element={<Navigate to="/" replace />} />
+              </Route>
               <Route path="/userprofile" element={<UserProfile />} />
             </Routes>
           </Box>

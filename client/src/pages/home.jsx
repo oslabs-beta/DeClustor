@@ -6,6 +6,7 @@ import {
   AppBar,
   Toolbar,
   Typography,
+  useTheme
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import nobglogo from '../assets/nobglogo.png';
@@ -16,10 +17,11 @@ import Team from './team';
 
 const Home = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
     <>
-      <AppBar position='static'>
+      <AppBar position='static' sx={{ backgroundColor: theme.palette.primary[700] }} >
         <Toolbar>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
             <img
@@ -36,6 +38,7 @@ const Home = () => {
                 fontSize: '1rem',
                 border: '1px solid rgba(0, 0, 0, 0.2)',
                 borderRadius: '4px',
+                color: theme.palette.secondary[100]
               }}
             >
               Home
@@ -49,6 +52,7 @@ const Home = () => {
                 fontSize: '1rem',
                 border: '1px solid rgba(0, 0, 0, 0.2)',
                 borderRadius: '4px',
+                color: theme.palette.secondary[100]
               }}
             >
               Get Started
@@ -63,6 +67,7 @@ const Home = () => {
               fontSize: '1rem',
               border: '1px solid rgba(0, 0, 0, 0.2)',
               borderRadius: '4px',
+              color: theme.palette.secondary[100]
             }}
           >
             Login/Signup
@@ -70,10 +75,10 @@ const Home = () => {
         </Toolbar>
       </AppBar>
       <Container maxWidth='md' sx={{ mt: 8, textAlign: 'center' }}>
-        <Typography variant='h2' gutterBottom>
+        <Typography variant='h2' gutterBottom color={theme.palette.secondary.main} >
           DeClustor
         </Typography>
-        <Typography variant='body1' gutterBottom>
+        <Typography variant='body1' gutterBottom color={theme.palette.secondary[100]} >
           Welcome to DeClustor, your centralized solution for monitoring and
           managing ECS environments on AWS. Track metrics and monitor real-time
           performance across multiple ECS clusters effortlessly.
@@ -83,7 +88,7 @@ const Home = () => {
           color='primary'
           size='large'
           onClick={() => navigate('/signup')}
-          sx={{ mt: 4 }}
+          sx={{ mt: 4 , color: theme.palette.secondary[100] }}
         >
           Get Started
         </Button>
