@@ -8,46 +8,33 @@ const notificationController = {};
 // test data:
 // [
 //     {
-//       "metric": "networkRxBytes",
-//       "threshold": 0.5,
-//       "operator": "<="
+//       "metric": "NetworkRxBytes",
+//       "threshold": 20,
+//       "operator": ">="
 //     },
 //     {
-//       "metric": "networkTxBytes",
-//       "threshold": 0.5,
-//       "operator": "<="
+//       "metric": "NetworkTxBytes",
+//       "threshold": 20,
+//       "operator": ">="
 //     },
 //     {
-//       "metric": "cpuUtilization",
+//       "metric": "CPUUtilization",
 //       "services": {
-//         "service1": {
-//           "threshold": 0.5,
-//           "operator": "<="
+//         "v1": {
+//           "threshold": 0,
+//           "operator": ">="
 //         },
-//         "service2": {
-//           "threshold": 0.5,
-//           "operator": "<="
+//         "TEST4": {
+//           "threshold": 0,
+//           "operator": ">="
 //         }
 //       }
 //     },
 //     {
-//       "metric": "memoryUtilization",
-//       "services": {
-//         "service1": {
-//           "threshold": 0.5,
-//           "operator": "<="
-//         },
-//         "service2": {
-//           "threshold": 0.5,
-//           "operator": "<="
-//         }
-//       }
-//     },
-//     {
-//       "metric": "serviceStatus",
+//       "metric": "MemoryUtilization",
 //       "applyToAllServices": {
-//         "threshold": 1,
-//         "operator": "="
+//         "threshold": 0,
+//         "operator": ">="
 //       }
 //     }
 // ]
@@ -66,178 +53,104 @@ notificationController.setNotification = (req, res, next ) => {
             },
         });
     }
-
-    //user_id INTEGER, metric_name TEXT, service_name TEXT, threshold REAL, operator TEXT,
     try {
-        for (const setting of body) {
-            const { metric } = setting;
-            if (metric == 'networkRxBytes' || metric == 'networkTxBytes') {
-                //save user_id, metric_name, threshold, operator into Notification.db   (leave service_name to be null)
-                const { threshold, operator } = setting;
-                if (!metric || threshold === undefined || !operator) {
-                    return next({
-                        log: 'Missing required parameters',
-                        status: 400,
-                        message: {
-                          err: 'Missing required parameters'
-                        },
-                    });
-                }
-
-                // check whether the threshold is exist
-                db.get(`SELECT threshold FROM Notifications WHERE user_id = ? AND metric_name = ?`, 
-                [user_id, metric], 
-                (err, row) => {
-                    if (err) {
-                        return next({
-                            log: 'Error occurred during query notification database',
-                            status: 400,
-                            message: {
-                              err: 'Error occurred during query notification database'
-                            },
-                        });
-                    }
-                    if (row) {
-                        // yes: modify existing threshold
-                        const updateQuery = `
-                            UPDATE Notifications SET threshold = ?, operator = ? 
-                            WHERE user_id = ? AND metric_name = ?;
-                        `
-                        db.run(updateQuery, [threshold, operator, user_id, metric], (err) => {
-                            if (err) {
-                                return next({
-                                    log: 'Error occurred during update notification database',
-                                    status: 400,
-                                    message: {
-                                      err: 'Error occurred during update notification database'
-                                    },
-                                });
-                            }
-                        });
-                    } else {
-                        // no: add new
-                        const insertQuery = `
-                            INSERT INTO Notifications (user_id, metric_name, threshold, operator) VALUES (?, ?, ?, ?);
-                        `;
-                        db.run(insertQuery, [user_id, metric, threshold, operator], (err) => {
-                            if (err) {
-                                return next({
-                                    log: 'Error occurred during insert notification database',
-                                    status: 400,
-                                    message: {
-                                      err: 'Error occurred during insert notification database'
-                                    },
-                                });
-                            }
-                        })
-                    }
-                })   
-            } else if (setting.hasOwnProperty('applyToAllServices')){
-                //save user_id, metric_name, service_name, threshold, operator into Notification.db   (leave service_name to be all)
-                const { applyToAllServices: { threshold, operator }} = setting;
-                if (!threshold || !operator) {
-                    return next({
-                        log: 'Missing required information for applyToAllServices metric',
-                        status: 400,
-                        message: {
-                          err: 'Missing required information for applyToAllServices metric'
-                        },
-                    });
-                }
-                const deletequery = `
-                    DELETE FROM Notifications WHERE user_id = ? AND metric_name = ?;
-                `;
-                db.run(deletequery, [user_id, metric], (err) => {
-                    if (err) {
-                        return next({
-                            log: 'Error occurred during delete notification database',
-                            status: 400,
-                            message: {
-                              err: 'Error occurred during delete notification database'
-                            },
-                        });
-                    } 
-
-                    const insertquery = `
-                    INSERT INTO Notifications (user_id, metric_name, service_name, threshold, operator) VALUES (?, ?, ?, ?, ?);
-                    `;
-                    db.run(insertquery, [user_id, metric, 'all', threshold, operator], (err) => {
-                        if (err) {
-                            return next({
-                                log: 'Error occurred during insert notification database',
-                                status: 400,
-                                message: {
-                                  err: 'Error occurred during insert notification database'
-                                },
-                            });
-                        }
-                    });
+        // clear all existing notification for a user
+        const deletequery = `DELETE FROM Notifications WHERE user_id = ?`;
+        db.run(deletequery, [user_id], (err) => {
+            if (err) {
+                return next({
+                    log: 'Error occurred during clearing notification database',
+                    status: 400,
+                    message: {
+                        err: 'Error occurred during clearing notification database',
+                    },
                 });
-            } else if (setting.hasOwnProperty('services')) {
-                for (const [service_name, service] of Object.entries(setting.services)) {
-                    const { threshold, operator } = service;
-                    //save user_id, metric_name, service_name, threshold, operator into Notification.db   (leave service_name to be service_name)
-                    if (!metric || threshold === undefined || !operator || !service_name) {
+            }
+            // insert new notification settings
+            const insertQueries = [];
+            for (const setting of body) {
+                const { metric } = setting;
+                if (metric == 'NetworkRxBytes' || metric == 'NetworkTxBytes') {
+                    const { threshold, operator } = setting;
+                    if (!metric || threshold === undefined || !operator) {
+                        return next({
+                            log: 'Missing required parameters',
+                            status: 400,
+                            message: {
+                                err: 'Missing required parameters'
+                            },
+                        });
+                    }
+                    insertQueries.push({
+                        query: `INSERT INTO Notifications (user_id, metric_name, threshold, operator) VALUES (?, ?, ?, ?)`,
+                        params: [user_id, metric, threshold, operator]
+                    })
+                } else if (setting.hasOwnProperty('applyToAllServices')) {
+                    const { applyToAllServices: { threshold, operator } } = setting;
+                    if (threshold == undefined || !operator) {
                         return next({
                             log: 'Missing required information for applyToAllServices metric',
                             status: 400,
                             message: {
-                              err: 'Missing required information for applyToAllServices metric'
+                                err: 'Missing required information for applyToAllServices metric',
                             },
                         });
                     }
-
-                    // delete rows (user_id, metric_name, service_name == service_name||all)
-                    const deletequery = `
-                    DELETE FROM Notifications WHERE user_id = ? AND metric_name = ? AND (service_name = ? OR service_name = 'all') ;
-                    `;
-                    db.run(deletequery, [user_id, metric, service_name], (err) => {
-                        if (err) {
+                    insertQueries.push({
+                        query: `INSERT INTO Notifications (user_id, metric_name, service_name, threshold, operator) VALUES (?, ?, ?, ?, ?)`,
+                        params: [user_id, metric, 'all', threshold, operator]
+                    });
+                } else if (setting.hasOwnProperty('services')) {
+                    for (const [service_name, service] of Object.entries(setting.services)) {
+                        const { threshold, operator } = service;
+                        if (!metric || threshold === undefined || !operator || !service_name) {
                             return next({
-                                log: 'Error occurred during delete notification database',
+                                log: 'Missing required information for applyToAllServices metric',
                                 status: 400,
                                 message: {
-                                  err: 'Error occurred during delete notification database'
+                                    err: 'Missing required information for applyToAllServices metric',
                                 },
                             });
                         }
-                        const insertquery = `
-                        INSERT INTO Notifications (user_id, metric_name, service_name, threshold, operator) VALUES (?, ?, ?, ?, ?);
-                        `;
-                        db.run(insertquery, [user_id, metric, service_name, threshold, operator], (err) => {
-                            if (err) {
-                                return next({
-                                    log: 'Error occurred during insert notification database',
-                                    status: 400,
-                                    message: {
-                                    err: 'Error occurred during insert notification database'
-                                    },
-                                });
-                            }
+                        insertQueries.push({
+                            query: `INSERT INTO Notifications (user_id, metric_name, service_name, threshold, operator) VALUES (?, ?, ?, ?, ?)`,
+                            params: [user_id, metric, service_name, threshold, operator]
                         });
-                        
-                    })
+                    }
+                } else {
+                    return next({
+                        log: 'Error metric setting',
+                        status: 400,
+                        message: {
+                            err: 'Error metric setting',
+                        },
+                    });
                 }
-            } else {
-                return next({
-                    log: 'Error metric setting',
-                    status: 400,
-                    message: {
-                      err: 'Error metric setting'
-                    },
-                });
             }
-        }
-        return next();
-    } catch(err) {
+            insertQueries.forEach(({ query, params }) => {
+                db.run(query, params, (err) => {
+                    if (err) {
+                        return next({
+                            log: 'Error occurred during insert notification database',
+                            status: 400,
+                            message: {
+                                err: 'Error occurred during insert notification database',
+                            },
+                        });
+                    }
+                })
+            }) 
+            return next();    
+        })
+    } catch (err) {
         return next({
             log: 'Error saving notification settings',
             status: 400,
             message: {
-              err: 'Error saving notification settings'
+                err: 'Error saving notification settings',
             },
         });
-    } 
+    }
 }
 
 notificationController.handleNotificationCheck = async(ws, userId) => {
@@ -245,15 +158,9 @@ notificationController.handleNotificationCheck = async(ws, userId) => {
     const sendNotification = async() => {
         try {
             const notificationData = userNotifications.notificationData;
-            console.log(notificationData);
-            if (notificationData.length > 0) {
-                notificationData.forEach(notification => {
-                    const message = `${notification.timestamp} -- Notification for ${notification.metricName}: Current Value is ${notification.value}, threshold is ${notification.threshold}.` + 
-                            (notification.service_name ? `Service: ${notification.serviceName}` : '');
-                    ws.send(JSON.stringify({message}));
-                });
-                userNotifications.notificationData = [];
-            };
+            console.log("notificationData",notificationData);
+            ws.send(JSON.stringify({notificationData}));
+            userNotifications.notificationData = [];
         } catch(err) {
             ws.send(JSON.stringify({ error: 'Error getting notification data' }));
             ws.close();
