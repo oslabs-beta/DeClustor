@@ -1,24 +1,24 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const credentialsdbPath = path.resolve(__dirname, '../database/Credentials.db');
-const credentialsdb = new sqlite3.Database(credentialsdbPath);
+const dbPath = path.resolve(__dirname, '../database/Accounts.db');
+const db = new sqlite3.Database(dbPath);
 
 const credentialsController = {};
 
 credentialsController.saveCredentials = (req, res, next) => {
-  const { userId, accessKey, secretKey, region, clusterName } = req.body;
-  // user_id, access_key, secret_key, region, clusterNmae
-  if (!accessKey || !secretKey || !region || !clusterName) {
+  const { userId, accessKey, secretKey, accountName } = req.body;
+  // user_id, access_key, secret_key, accountName
+  if (!accessKey || !secretKey || !accountName) {
     return res.status(400).send('missing information');
   }
-  credentialsdb.get(
-    'SELECT access_key FROM Credentials WHERE access_key = ?',
+  db.get(
+    'SELECT access_key FROM Accounts WHERE access_key = ?',
     [accessKey],
     (err, row) => {
       if (err) {
         // userdb.close();
-        return res.status(500).json({ message: 'Internal server error' });
+        return res.status(500).json({ message: '1.Internal server error' });
       }
 
       if (row) {
@@ -26,14 +26,14 @@ credentialsController.saveCredentials = (req, res, next) => {
         return res.status(400).json({ message: 'AccessKey already exists' });
       }
 
-      credentialsdb.run(
-        'INSERT INTO Credentials (user_id, access_key, secret_key, region, cluster_name) VALUES (?, ?, ?, ?, ?)',
-        [userId, accessKey, secretKey, region, clusterName],
+      db.run(
+        'INSERT INTO Accounts (user_id, access_key, secret_key, account_name ) VALUES (?, ?, ?, ?)',
+        [userId, accessKey, secretKey, accountName],
         (err) => {
           // userdb.close();
           console.log(err);
           if (err) {
-            return res.status(500).json({ message: 'Internal server error' });
+            return res.status(500).json({ message: '2.Internal server error' });
           }
           next();
         }

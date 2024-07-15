@@ -14,6 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.609.0",
     "@aws-sdk/client-ecs": "^3.609.0",
+    "@aws-sdk/client-organizations": "^3.614.0",
     "@aws-sdk/credential-provider-env": "^3.609.0",
     "@reduxjs/toolkit": "^2.2.6",
     "aws-sdk": "^2.1654.0",

@@ -4,7 +4,7 @@ const {CloudWatchClient, GetMetricStatisticsCommand} = require('@aws-sdk/client-
 const { ECSClient, ListServicesCommand, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand} = require('@aws-sdk/client-ecs');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
-const dbPath = path.resolve(__dirname, '../database/Credentials.db');
+const dbPath = path.resolve(__dirname, '../database/Accounts.db');
 const notificationStore = require('../database/notificationStore');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
