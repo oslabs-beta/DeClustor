@@ -108,7 +108,6 @@ const Login = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          marginTop: 8,
         }}
       >
         <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -144,6 +143,7 @@ const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
+            backgroundColor: 'transparent'
           }}
         >
           <TextField

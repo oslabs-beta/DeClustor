@@ -73,11 +73,11 @@ const Sidebar = ({
       icon: <CalendarMonthOutlined />,
     },
     {
-      text: 'Management',
+      text: 'Account Management',
       icon: null,
     },
     {
-      text: 'Admin',
+      text: 'Setting',
       icon: <AdminPanelSettingsOutlined />,
     },
     {
