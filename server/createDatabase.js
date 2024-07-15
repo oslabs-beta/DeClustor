@@ -40,6 +40,7 @@ async function createTables() {
       account_name TEXT,
       access_key TEXT,
       secret_key TEXT,
+      account_type TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
     )`);
   });
