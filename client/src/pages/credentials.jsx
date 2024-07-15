@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCurrentUser } from '../redux/userSlice';
-
 import {
   Container,
   TextField,
@@ -10,8 +9,16 @@ import {
   Box,
   Typography,
   Paper,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+
+// added button to add another credential // done
+// add redux , to passin user's credential info 
+
+
 
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
@@ -80,10 +87,26 @@ const Credentials = () => {
             width: '100%',
             padding: 4,
             borderRadius: 2,
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: 'transparent',
             color: theme.palette.primary.contrastText,
           }}
         >
+          {/* add more credential from  */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              mb: 3,
+              justifyContent: 'flex-end',
+            }}
+          >
+            <Tooltip title="Add more credential">
+              <IconButton>
+                <AddCircleIcon style={{ color: theme.palette.secondary[300] , justifyContent: 'flex-end' }} />
+              </IconButton>
+            </Tooltip>
+            </Box>
+
           <Box
             component="form"
             onSubmit={handleSubmit}
