@@ -1,13 +1,14 @@
 import React , { useState , useEffect } from 'react'
 import { useSelector , useDispatch } from 'react-redux';
 import { Box , Container, Typography ,Avatar , Alert , TextField , IconButton ,Tooltip  } from '@mui/material'
-// import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { updateProfile } from '../redux/userSlice';
 import EditIcon from '@mui/icons-material/Edit';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import Navbar from '../components/Navbar';
 import { useTheme } from '@emotion/react';
+import Credentials from './credentials';
 
 const UserProfile = () => {
   const user = useSelector((state) => state.user);
@@ -112,7 +113,13 @@ const UserProfile = () => {
             {success}
           </Alert>
         )}
-        
+        <Typography
+          component={Link}
+          to='/credentials'
+          sx={{ color: theme.palette.secondary[100] }}
+        >
+          Credentials
+        </Typography>
           {/* first name // unable to change */}
           <TextField
             variant='outlined'

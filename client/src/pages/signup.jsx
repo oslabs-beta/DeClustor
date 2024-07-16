@@ -105,7 +105,7 @@ const Signup = () => {
             width: '100%',
             padding: 4,
             borderRadius: 2,
-            backgroundColor: theme.palette.primary.main,
+            backgroundColor: 'transparent',
             color: theme.palette.primary.contrastText,
           }}
         >
