@@ -14,12 +14,9 @@ const Alerts = ({ open }) => {
   return (
 
     <Stack sx={{ width: '100%' }} spacing={2}>
-      {/* <Alert severity="success">This is a success Alert.</Alert> */}
       <Link to="/logs" style={{ textDecoration: 'none' }}>
       <Alert severity="info">You have notifications!</Alert>
       </Link>
-      {/* <Alert severity="warning">This is a warning Alert.</Alert> */}
-      {/* <Alert severity="error">This is an error Alert.</Alert> */}
     </Stack>
   );
 }
