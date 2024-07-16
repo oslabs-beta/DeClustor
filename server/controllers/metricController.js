@@ -226,8 +226,8 @@ function checkMetricThreshold (user_id, metric_name , service_name = null, compl
     })
 }
 
-async function handleMetricRequest(ws, userId, serviceName, metricName) {
-    db.all(`SELECT access_key, secret_key, region, cluster_name FROM Credentials WHERE user_id = ?`, [userId], async(err, rows) => {
+async function handleMetricRequest(ws, userId, accountName, region, clusterName, serviceName, metricName) {
+    db.all(`SELECT access_key, secret_key FROM Accounts WHERE user_id = ? AND account_name = ?`, [userId, accountName], async(err, rows) => {
         if (err) {
             console.log('Error querying the database:', err.message);
             ws.send(JSON.stringify({ error: 'Error querying the database' }));
@@ -241,7 +241,7 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
             return;
         }
 
-        const { access_key, secret_key, region, cluster_name } = rows[0];
+        const { access_key, secret_key } = rows[0];
         const cloudwatchClient = new CloudWatchClient({
             region: region,
             credentials: {
@@ -258,11 +258,11 @@ async function handleMetricRequest(ws, userId, serviceName, metricName) {
         });
 
         const dimensionsEcs = [
-            { Name: 'ClusterName', Value: cluster_name },
+            { Name: 'ClusterName', Value: clusterName },
             { Name: 'ServiceName', Value: serviceName }
         ];
         const dimensionsContainerInsights = [
-            { Name: 'ClusterName', Value: cluster_name }
+            { Name: 'ClusterName', Value: clusterName }
         ];
 
         const sendData = async () => {

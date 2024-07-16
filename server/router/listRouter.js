@@ -4,7 +4,7 @@ const listController = require('../controllers/listController');
 
 router.get('/AllAccounts', listController.Accounts);
 router.get('/AllSubAccounts', listController.SubAccounts);
-router.get('/AllCluster', listController.Clusters);
-router.get('/AllService', listController.Services);
+router.get('/AllClusters', listController.Clusters);
+router.get('/AllServices', listController.Services);
 
 module.exports = router;

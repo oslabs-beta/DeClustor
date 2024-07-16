@@ -50,8 +50,11 @@ async function createTables() {
     dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER,
-      metric_name TEXT,
+      account_name TEXT,
+      region TEXT,
+      cluster_name TEXT,
       service_name TEXT,
+      metric_name TEXT,
       threshold REAL,
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)

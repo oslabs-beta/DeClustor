@@ -180,9 +180,12 @@ wss.on('connection', async (ws, req) => {
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const userId = urlParams.get('userId');
+    const accountName = urlParams.get('accountName');
+    const region = urlParams.get('region');
+    const clusterName = urlParams.get('clusterName');
     const serviceName = urlParams.get('serviceName');
     const metricName = urlParams.get('metricName');
-    if (!userId || !metricName) {
+    if (!userId || !metricName || !accountName || !clusterName || !region) {
       ws.send(JSON.stringify({ error: 'Missing required parameters' }));
       ws.close();
       return;
@@ -190,6 +193,9 @@ wss.on('connection', async (ws, req) => {
     await metricController.handleMetricRequest(
       ws,
       userId,
+      accountName,
+      region,
+      clusterName,
       serviceName,
       metricName
     );

@@ -15,14 +15,22 @@ listController.Accounts = (req, res) => {
     return res.status(400).json({error: 'missing required parameter: userId'})
   }
   try {
-    const searchQuery = `SELECT account_name FROM Accounts WHERE user_id = ?`;
-    db.all(searchQuery, [userId], (err, row) => {
+    const searchRoot = `SELECT account_name FROM Accounts WHERE user_id = ? AND account_type = "root"`;
+    const searchSubaccount = `SELECT account_name FROM Accounts WHERE user_id = ? AND account_type = "subaccount"`;
+    db.all(searchRoot, [userId], (err, rootRows) => {
       if (err) {
         return res
           .status(500)
-          .json({ error: 'Error occurred during query the database on listAccount controller' });
+          .json({ error: '1.Error occurred during query the database on listAccount controller' });
       }
-      return res.status(200).json(row);
+      db.all(searchSubaccount, [userId], (err, subRows) => {
+        if (err) {
+          return res
+          .status(500)
+          .json({ error: '2.Error occurred during query the database on listAccount controller' });
+        }
+        return res.status(200).json({root: rootRows, subaccount: subRows});
+      })
     })
   } catch(err) {
     console.error('Error listing Accounts:', err);
@@ -31,21 +39,19 @@ listController.Accounts = (req, res) => {
 }
 
 listController.SubAccounts = (req, res) => {
-  const accountId = req.query.accountId;
-  if (!accountId) {
-    return res.status(400).json({error: 'missing required parameter: accountId'})
+  const { userId, accountName} = req.query;
+  if (!accountName || !userId) {
+    return res.status(400).json({error: 'missing required parameter'})
   }
   try {
-    const searchQuery = `SELECT access_key, secret_key FROM Accounts WHERE id = ?`;
-    db.get(searchQuery, [accountId], (err, row) => {
+    const searchQuery = `SELECT access_key, secret_key FROM Accounts WHERE account_name = ? AND user_id = ?`;
+    db.get(searchQuery, [accountName, userId], (err, row) => {
       if (err) {
         return res
           .status(500)
           .json({ error: 'Error occurred during query the database on listSubAccounts controller' });
       }
       const {access_key, secret_key } = row;
-      console.log(access_key);
-      console.log(secret_key);
 
       const client = new OrganizationsClient({
         region: 'us-east-1',
@@ -61,7 +67,6 @@ listController.SubAccounts = (req, res) => {
         try {
           let command = new ListAccountsCommand({});
           let response = await client.send(command);
-          console.log('response', response);
           accounts = accounts.concat(response.Accounts);
           nextToken = response.NextToken;
   
@@ -101,13 +106,13 @@ listController.Clusters = (req, res) => {
     "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-south-2", "eu-north-1", 
     "me-central-1", "me-south-1", "sa-east-1"
   ];
-  const accountName = req.query.account_name;
-  if (!accountName) {
-    return res.status(400).json({ error: 'missing required parameter: account_name' });
+  const {userId, accountName} = req.query;
+  if (!accountName || !userId) {
+    return res.status(400).json({ error: 'missing required parameter' });
   }
   try {
-    const getAccountQuery = `SELECT access_key, secret_key FROM Accounts WHERE account_name = ?`;
-    db.get(getAccountQuery, [accountName], async (err, account) => {
+    const getAccountQuery = `SELECT access_key, secret_key FROM Accounts WHERE account_name = ? AND user_id = ?`;
+    db.get(getAccountQuery, [accountName, userId], async (err, account) => {
       if (err) {
         return res.status(500).json({ error: 'Error occurred during query the database for account' });
       }
@@ -170,11 +175,11 @@ async function listClustersForRegion(client, region) {
 }
 
 listController.Services = (req, res) => {
-  const userId = req.query.userId;
+  const {userId, accountName, clusterName, region} = req.query;
   // get access_key, secret_key, region, and clusterName from Credential Database
   db.all(
-    `SELECT access_key, secret_key, region, cluster_name FROM Accounts WHERE user_id = ?`,
-    [userId],
+    `SELECT access_key, secret_key FROM Accounts WHERE user_id = ? AND account_name = ?`,
+    [userId, accountName],
     async (err, rows) => {
       if (err) {
         return res
@@ -187,7 +192,9 @@ listController.Services = (req, res) => {
               'No credentials found for the use, configure Credentials first',
           });
         }
-        const { access_key, secret_key, region, cluster_name } = rows[0];
+        const { access_key, secret_key } = rows[0];
+        console.log(access_key);
+        console.log(secret_key);
 
         // use SDK to get list of services in that user’s cluster
         const client = new ECSClient({
@@ -200,7 +207,7 @@ listController.Services = (req, res) => {
 
         try {
           // get list of serviceArns for cluster
-          const command = new ListServicesCommand({ cluster: cluster_name });
+          const command = new ListServicesCommand({ cluster: clusterName });
           const listServiceData = await client.send(command);
           if (listServiceData.serviceArns.length === 0) {
             return res
@@ -209,7 +216,7 @@ listController.Services = (req, res) => {
           }
           // get the name of services by serviceArns
           const describeServicesCommand = new DescribeServicesCommand({
-            cluster: cluster_name,
+            cluster: clusterName,
             services: listServiceData.serviceArns,
           });
           const describeServiceData = await client.send(
