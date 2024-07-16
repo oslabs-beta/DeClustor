@@ -4,7 +4,7 @@ const databases = {
   //Users: './database/Users1.db',
   Credentials: './database/Credentials.db',
   Notifications: './database/Notifications.db',
-  GoogleUsers: './database/GoogleUsers.db'
+  GoogleUsers: './database/GoogleUsers.db',
 };
 
 function connectToDatabase(dbPath) {
@@ -54,7 +54,10 @@ async function createTables() {
       first_name TEXT,
       last_name TEXT,
       user_name TEXT,
-      password TEXT
+      password TEXT,
+      email TEXT NOT NULL UNIQUE,
+      verification_code TEXT,
+      verified INTEGER DEFAULT 0
     )`);
   });
 

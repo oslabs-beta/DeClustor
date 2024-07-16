@@ -1,13 +1,25 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
-
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const userdbPath = path.resolve(__dirname, '../database/GoogleUsers.db');
 const userdb = new sqlite3.Database(userdbPath);
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.GMAIL_ACCOUNT,
+    pass: process.env.GMAIL_PASSWORD,
+  },
+});
 
 const userController = {};
 
 userController.createUser = (req, res, next) => {
-  const { firstname, lastname, username, password } = req.body;
+  const { firstname, lastname, username, password, email } = req.body;
+  const verificationCode = crypto.randomBytes(3).toString('hex');
+
   if (!username || !password) {
     return res.status(400).send('Username or password is required');
   }
@@ -28,8 +40,8 @@ userController.createUser = (req, res, next) => {
       }
 
       userdb.run(
-        'INSERT INTO GoogleUsers (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
-        [firstname, lastname, username, password],
+        'INSERT INTO GoogleUsers (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [firstname, lastname, username, password, email],
         (err) => {
           // userdb.close();
           if (err) {
@@ -54,7 +66,20 @@ userController.createUser = (req, res, next) => {
               if (row) {
                 console.log(row.id);
                 res.locals.userId = row.id;
-                next();
+                const mailOptions = {
+                  from: 'diweizhi@gmail.com',
+                  to: email,
+                  subject: 'Email Verification',
+                  text: `Your verification code is: ${verificationCode}`,
+                };
+                transporter.sendMail(mailOptions, (error, info) => {
+                  if (error) {
+                    res.status(500).json({ error: error.message });
+                  } else {
+                    console.log('Email sent: ' + info.response);
+                    next();
+                  }
+                });
               }
             }
           );
@@ -65,12 +90,13 @@ userController.createUser = (req, res, next) => {
 };
 
 userController.verifyUser = (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE user_name = ? AND password = ?',
-    [username, password],
+    'SELECT * FROM GoogleUsers WHERE email = ? AND password = ?',
+    [email, password],
     (err, row) => {
+      console.log(row);
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
@@ -81,6 +107,36 @@ userController.verifyUser = (req, res, next) => {
       }
       res.locals.userId = row.id;
       next();
+    }
+  );
+};
+
+userController.verifyEmail = (req, res) => {
+  const { email, code } = req.body;
+  console.log(email, code);
+
+  userdb.get(
+    'SELECT * FROM GoogleUsers WHERE email = ? AND verification_code = ?',
+    [email, code],
+    (err, row) => {
+      console.log(row);
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else if (!row) {
+        res.status(400).json({ error: 'Invalid verification code' });
+      } else {
+        userdb.run(
+          'UPDATE GoogleUsers SET verified = 1 WHERE email = ?',
+          [email],
+          (err) => {
+            if (err) {
+              res.status(500).json({ error: err.message });
+            } else {
+              res.status(200).json({ message: 'Email verified successfully' });
+            }
+          }
+        );
+      }
     }
   );
 };
@@ -101,10 +157,11 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
         return done(null, row);
       } else {
         userdb.run(
-          'INSERT INTO GoogleUsers (first_name, last_name, user_name, password) VALUES (?, ?, ?, ?)',
+          'INSERT INTO GoogleUsers (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
           [firstname, lastname, username, googleId],
 
           function (err) {
+            console.log(err);
             if (err) {
               return done(err);
             } else {
