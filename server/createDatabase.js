@@ -24,30 +24,6 @@ for (const [name, path] of Object.entries(databases)) {
 
 async function createTables() {
   await dbConnections.GoogleUsers.serialize(() => {
-    // dbConnections.Users.run(`DROP TABLE IF EXISTS Users`, (err) => {
-    //   if (err) {
-    //     console.error('Error dropping Users table:', err.message);
-    //   }
-    // });
-
-    // dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
-    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //   first_name TEXT,
-    //   last_name TEXT,
-    //   user_name TEXT,
-    //   password TEXT
-    // )`);
-
-    // dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users1 (
-    //   id INTEGER PRIMARY KEY AUTOINCREMENT,
-    //   first_name TEXT,
-    //   last_name TEXT,
-    //   first_name TEXT,
-    //   last_name TEXT,
-    //   user_name TEXT,
-    //   password TEXT
-    // )`);
-
     dbConnections.GoogleUsers.run(`CREATE TABLE IF NOT EXISTS GoogleUsers (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       google_id TEXT,
@@ -57,7 +33,9 @@ async function createTables() {
       password TEXT,
       email TEXT NOT NULL UNIQUE,
       verification_code TEXT,
-      verified INTEGER DEFAULT 0
+      verified INTEGER DEFAULT 0,
+      reset_token TEXT,
+      reset_token_expiry INTEGER
     )`);
   });
 

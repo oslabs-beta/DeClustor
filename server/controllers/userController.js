@@ -41,7 +41,7 @@ userController.createUser = (req, res, next) => {
 
       userdb.run(
         'INSERT INTO GoogleUsers (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [firstname, lastname, username, password, email],
+        [firstname, lastname, username, password, email, verificationCode],
         (err) => {
           // userdb.close();
           if (err) {
@@ -119,7 +119,7 @@ userController.verifyEmail = (req, res) => {
     'SELECT * FROM GoogleUsers WHERE email = ? AND verification_code = ?',
     [email, code],
     (err, row) => {
-      console.log(row);
+      console.log(email);
       if (err) {
         res.status(500).json({ error: err.message });
       } else if (!row) {
@@ -133,6 +133,72 @@ userController.verifyEmail = (req, res) => {
               res.status(500).json({ error: err.message });
             } else {
               res.status(200).json({ message: 'Email verified successfully' });
+            }
+          }
+        );
+      }
+    }
+  );
+};
+
+userController.requestPasswordReset = (req, res) => {
+  const { email } = req.body;
+  const resetToken = crypto.randomBytes(20).toString('hex');
+  const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
+
+  userdb.run(
+    'UPDATE GoogleUsers SET reset_token = ?, reset_token_expiry = ? WHERE email = ?',
+    [resetToken, resetTokenExpiry, email],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else if (this.changes === 0) {
+        res.status(400).json({ error: 'Email not found' });
+      } else {
+        // Send reset password email
+        const resetLink = `http://localhost:3000/reset-password?token=${resetToken}&email=${email}`;
+        const mailOptions = {
+          from: 'diweizhi@gmail.com',
+          to: email,
+          subject: 'Password Reset',
+          text: `You requested a password reset. Click the link to reset your password: ${resetLink}`,
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+          if (error) {
+            res.status(500).json({ error: error.message });
+          } else {
+            console.log('Email sent: ' + info.response);
+            res
+              .status(200)
+              .json({ message: 'Password reset link sent to your email' });
+          }
+        });
+      }
+    }
+  );
+};
+
+userController.resetPassword = (req, res) => {
+  const { email, token, newPassword } = req.body;
+
+  userdb.get(
+    'SELECT * FROM GoogleUsers WHERE email = ? AND reset_token = ? AND reset_token_expiry > ?',
+    [email, token, Date.now()],
+    (err, row) => {
+      if (err) {
+        res.status(500).json({ error: err.message });
+      } else if (!row) {
+        res.status(400).json({ error: 'Invalid or expired reset token' });
+      } else {
+        userdb.run(
+          'UPDATE GoogleUsers SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?',
+          [newPassword, email],
+          (err) => {
+            if (err) {
+              res.status(500).json({ error: err.message });
+            } else {
+              res.status(200).json({ message: 'Password reset successfully' });
             }
           }
         );

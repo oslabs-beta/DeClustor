@@ -72,11 +72,12 @@ passport.use(
             return done(null, row);
           } else {
             const insert =
-              'INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)';
+              'INSERT INTO GoogleUsers (google_id, user_name, email) VALUES (?, ?, ?)';
             userdb.run(
               insert,
-              [profile.id, profile.displayName],
+              [profile.id, profile.displayName, profile.emails[0].value],
               function (err) {
+                console.log('2 ', err);
                 if (err) {
                   return done(err);
                 }
@@ -152,11 +153,12 @@ passport.use(
             return done(null, row);
           } else {
             const insert =
-              'INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)';
+              'INSERT INTO GoogleUsers (google_id, user_name, email) VALUES (?, ?, ?)';
             userdb.run(
               insert,
-              [profile.id, profile.displayName],
+              [profile.id, profile.username, profile.emails[0].value],
               function (err) {
+                console.log(err);
                 if (err) {
                   return done(err);
                 }
@@ -223,6 +225,10 @@ app.post('/login', userController.verifyUser, (req, res) => {
 });
 
 app.post('/verify-email', userController.verifyEmail);
+
+app.post('/request-password-reset', userController.requestPasswordReset);
+
+app.post('/reset-password', userController.resetPassword);
 
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
