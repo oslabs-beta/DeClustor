@@ -180,7 +180,7 @@ userController.requestPasswordReset = (req, res) => {
 };
 
 userController.resetPassword = (req, res) => {
-  const { email, token, newPassword } = req.body;
+  const { email, token, newPassword } = req.query;
 
   userdb.get(
     'SELECT * FROM GoogleUsers WHERE email = ? AND reset_token = ? AND reset_token_expiry > ?',
