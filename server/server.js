@@ -16,6 +16,8 @@ const metricController = require('./controllers/metricController');
 const credentialsController = require('./controllers/credentialsController');
 const notificationController = require('./controllers/notificationController');
 
+const listRouter = require('./router/listRouter');
+
 const { access } = require('fs');
 const PORT = 3000;
 const corsOptions = {
@@ -30,6 +32,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const crypto = require('crypto');
 const secret = crypto.randomBytes(16).toString('hex');
+
+//list Router: including list all accounts, subaccounts, region, cluster, service
+app.use('/list', listRouter);
 
 //test passport.use:
 const session = require('express-session');
@@ -47,7 +52,7 @@ app.use(passport.session());
 
 const sqlite3 = require('sqlite3').verbose();
 
-const userdbPath = path.resolve(__dirname, './database/GoogleUsers.db');
+const userdbPath = path.resolve(__dirname, './database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 
 passport.use(
@@ -59,18 +64,18 @@ passport.use(
     },
     function (accessToken, refreshToken, profile, done) {
       userdb.get(
-        'SELECT * FROM GoogleUsers WHERE google_id = ?',
+        'SELECT * FROM Users WHERE google_id = ?',
         [profile.id],
         function (err, row) {
           if (err) {
             return done(err);
           }
           if (row) {
-            console.log('already exist in GoogleUsers');
+            console.log('already exist in Users');
             return done(null, row);
           } else {
             const insert =
-              'INSERT INTO GoogleUsers (google_id, user_name) VALUES (?, ?)';
+              'INSERT INTO Users (google_id, user_name) VALUES (?, ?)';
             userdb.run(
               insert,
               [profile.id, profile.displayName],
@@ -78,7 +83,7 @@ passport.use(
                 if (err) {
                   return done(err);
                 }
-                console.log('insert into googleUser database');
+                console.log('insert into User database');
                 console.log('this.lastId', this.lastID);
                 return done(null, {
                   google_id: profile.id,
@@ -101,7 +106,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE id = ?',
+    'SELECT * FROM Users WHERE id = ?',
     [id],
     function (err, row) {
       if (err) {
@@ -156,10 +161,12 @@ app.post('/login', userController.verifyUser, (req, res) => {
     .status(200)
     .json({ userId, username, serviceName, message: 'logged in!' });
 });
+
+// RETURN Accounts_id   (change later)
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
 });
-app.get('/listAllService', listController.Service);
+
 // notification
 app.post(
   '/setNotification',
@@ -174,9 +181,12 @@ wss.on('connection', async (ws, req) => {
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const userId = urlParams.get('userId');
+    const accountName = urlParams.get('accountName');
+    const region = urlParams.get('region');
+    const clusterName = urlParams.get('clusterName');
     const serviceName = urlParams.get('serviceName');
     const metricName = urlParams.get('metricName');
-    if (!userId || !metricName) {
+    if (!userId || !metricName || !accountName || !clusterName || !region) {
       ws.send(JSON.stringify({ error: 'Missing required parameters' }));
       ws.close();
       return;
@@ -184,6 +194,9 @@ wss.on('connection', async (ws, req) => {
     await metricController.handleMetricRequest(
       ws,
       userId,
+      accountName,
+      region,
+      clusterName,
       serviceName,
       metricName
     );
@@ -210,7 +223,7 @@ app.use((err, req, res, next) => {
     message: { err: 'An error occurred' },
   };
   const errorObj = Object.assign({}, defaultErr, err);
-  console.log(errorObj.log);
+  //console.log(errorObj.log);
   console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });

@@ -1,92 +1,33 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-
-const notificationData = [
-  {
-    timestamp: "2024-07-13T03:53:00.000Z",
-    metricName: "NetworkRxBytes",
-    value: 20.48,
-    threshold: 20,
-    operator: ">=",
-    serviceName: null
-  },
-  {
-    timestamp: "2024-07-13T03:53:00.000Z",
-    metricName: "NetworkTxBytes",
-    value: 320.9,
-    threshold: 20,
-    operator: ">=",
-    serviceName: null
-  },
-  {
-    timestamp: "2024-07-13T03:53:00.000Z",
-    metricName: "NetworkTxBytes",
-    value: 320.9,
-    threshold: 20,
-    operator: ">=",
-    serviceName: null
-  },
-  {
-    timestamp: "2024-07-13T03:53:00.000Z",
-    metricName: "NetworkRxBytes",
-    value: 20.48,
-    threshold: 20,
-    operator: ">=",
-    serviceName: null
-  }
-];
-
+import connectWebSocketToNotification from '../webService/connectWebSocketToNotification';
+import { useSelector } from 'react-redux';
 
 const columns = [
-  { field: 'time', headerName: 'Time', width: 120 },
-  {
-    field: 'clusters',
-    headerName: 'Cluster',
-    width: 170,
-    // editable: true,
-  },
-  {
-    field: 'service',
-    headerName: 'Service',
-    width: 170,
-    // editable: true,
-  },
-  {
-    field: 'metric',
-    headerName: 'Metric Name',
-    width: 170,
-    // editable: true,
-  },
-  {
-    field: 'value',
-    headerName: 'Value',
-    type: 'number',
-    width: 110,
-    // editable: true,
-  },
-  {
-    field: 'logs',
-    headerName: 'Logs',
-    // description: 'This column has a value getter and is not sortable.',
-    sortable: false,
-    width: 200,
-    // valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
-  },
+  { field: 'time', headerName: 'Time', flex: 1 },
+  { field: 'clusters', headerName: 'Cluster', flex: 1 },
+  { field: 'service', headerName: 'Service', flex: 1 },
+  { field: 'metric', headerName: 'Metric Name', flex: 1 },
+  { field: 'value', headerName: 'Value', type: 'number', flex: 1 },
+  { field: 'logs', headerName: 'Logs', sortable: false, flex: 4 },
 ];
-const rows = notificationData.map((data, index) => ({
-  id: index + 1,
-  time: new Date(data.timestamp).toLocaleTimeString(),
-  clusters: data.clusterName || 'no data', // You can replace with actual data if available
-  service: data.serviceName || 'no data',
-  metric: data.metricName,
-  value: data.value,
-  logs: data.message || 'no data'
-}));
 
 const LogsNotification = () => {
+  connectWebSocketToNotification();
+  const receivedNotifications = useSelector((state) => state.notification.receivedNotifications);
+  const rows = receivedNotifications.map((data, index) => ({
+    id: index + 1,
+    time: new Date(data.timestamp).toLocaleTimeString(),
+    clusters: data.clusterName || 'no data',
+    service: data.serviceName || 'no data',
+    metric: data.metricName,
+    value: data.value,
+    logs: data.Logs || 'no data',
+  }));
+
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ height: 400, width: '100%', pr: 4 }}>
       <DataGrid
         rows={rows}
         columns={columns}
@@ -100,9 +41,32 @@ const LogsNotification = () => {
         pageSizeOptions={[5]}
         checkboxSelection
         disableRowSelectionOnClick
+        sx={{
+          '& .MuiDataGrid-cell': {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+          },
+          '& .MuiDataGrid-columnHeaderTitleContainer': {
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            textAlign: 'center',
+          },
+          '& .MuiDataGrid-columnHeaders': {
+            textAlign: 'center',
+          },
+          '& .MuiDataGrid-columnHeaderTitle': {
+            textAlign: 'center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          },
+        }}
       />
     </Box>
   );
-}
+};
 
 export default LogsNotification;

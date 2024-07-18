@@ -5,52 +5,46 @@ const userNotifications = require('../database/notificationStore');
 const db = new sqlite3.Database(dbPath);
 
 const notificationController = {};
-// test data:
-// [
-//     {
-//       "metric": "NetworkRxBytes",
-//       "threshold": 20,
-//       "operator": ">="
-//     },
-//     {
-//       "metric": "NetworkTxBytes",
-//       "threshold": 20,
-//       "operator": ">="
-//     },
-//     {
-//       "metric": "CPUUtilization",
-//       "services": {
-//         "v1": {
-//           "threshold": 0,
-//           "operator": ">="
-//         },
-//         "TEST4": {
-//           "threshold": 0,
-//           "operator": ">="
-//         }
-//       }
-//     },
-//     {
-//       "metric": "MemoryUtilization",
-//       "applyToAllServices": {
-//         "threshold": 0,
-//         "operator": ">="
-//       }
+// {
+//     "notifications":
+//         [
+//             {
+//                 "metric":"CPUUtilization",
+//                 "applyToAllServices":
+//                     {
+//                         "threshold":"",
+//                         "operator":"greaterThan"
+//                     }
+//             },
+//             {
+//                 "metric":"MemoryUtilization",
+//                 "services":
+//                     {
+//                         "v1":
+//                             {
+//                                 "threshold":"0",
+//                                 "operator":"greaterThan"
+//                             }
+//                     }
+//             },
+//             {
+//                 "metric":"NetworkRxBytes",
+//                 "threshold":"20",
+//                 "operator":"greaterThan"
+//             },
+//             {
+//                 "metric":"NetworkTxBytes",
+//                 "threshold":"20",
+//                 "operator":"greaterThan"
+//             }
+//         ]
 //     }
-// ]
 
-// test url: http://localhost:3000/setNotification?userId=1
+// test http://localhost:3000/setNotification?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}
 
 notificationController.setNotification = (req, res, next) => {
-    const user_id = req.query.userId;
-    const { clusters, services, notifications } = req.body;
-
-    console.log('Received user_id:', user_id);
-    console.log('Received clusters:', clusters);
-    console.log('Received services:', services);
-    console.log('Received notifications:', JSON.stringify(notifications, null, 2));
-
-    if (!user_id) {
+    const {userId, accountName, clusterName, region } = req.query;
+    if (!userId || !accountName || !clusterName || !region) {
         return next({
             log: 'Missing required parameters',
             status: 400,
@@ -58,17 +52,11 @@ notificationController.setNotification = (req, res, next) => {
         });
     }
 
-    if (!Array.isArray(notifications)) {
-        return next({
-            log: 'Expected an array of notifications',
-            status: 400,
-            message: { err: 'Expected an array of notifications' },
-        });
-    }
-
+    const notifications = req.body.notifications;
+    // user_id INTEGER, account_name TEXT, region TEXT, cluster_name TEXT, service_name TEXT, metric_name TEXT, threshold REAL, operator TEXT,
     try {
-        const deletequery = `DELETE FROM Notifications WHERE user_id = ?`;
-        db.run(deletequery, [user_id], (err) => {
+        const deletequery = `DELETE FROM Notifications WHERE user_id = ? AND account_name = ? AND cluster_name = ? AND region = ?`;
+        db.run(deletequery, [userId, accountName, clusterName, region], (err) => {
             if (err) {
                 return next({
                     log: 'Error occurred during clearing notification database',
@@ -76,58 +64,72 @@ notificationController.setNotification = (req, res, next) => {
                     message: { err: 'Error occurred during clearing notification database' },
                 });
             }
-
+            // insert new notification settings
             const insertQueries = [];
             for (const setting of notifications) {
-                console.log('Processing setting:', setting);
-                const { metric, threshold, operator } = setting;
-
-                if (!metric) {
-                    return next({
-                        log: 'Missing required metric parameter',
-                        status: 400,
-                        message: { err: 'Missing required metric parameter' },
-                    });
-                }
-
-                const effectiveOperator = operator || 'greaterThan'; // Assign a default operator if missing
-
-                if (metric == 'NetworkRxBytes' || metric == 'NetworkTxBytes' || metric == 'CPUUtilization' || metric == 'MemoryUtilization') {
-                    if (threshold === undefined) {
+                const { metric } = setting;
+                if (metric == 'NetworkRxBytes' || metric == 'NetworkTxBytes') {
+                    const { threshold, operator } = setting;
+                    insertQueries.push({
+                        query: `INSERT INTO Notifications (user_id, account_name, cluster_name, region, metric_name, threshold, operator) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                        params: [userId, accountName, clusterName, region, metric, threshold, operator]
+                    })
+                } else if (setting.hasOwnProperty('applyToAllServices')) {
+                    const { applyToAllServices: { threshold, operator } } = setting;
+                    if (threshold == undefined || !operator) {
                         return next({
-                            log: 'Missing required parameters for metric',
+                            log: 'Missing required information for applyToAllServices metric',
                             status: 400,
-                            message: { err: 'Missing required parameters for metric' },
+                            message: {
+                                err: 'Missing required information for applyToAllServices metric',
+                            },
                         });
                     }
                     insertQueries.push({
-                        query: `INSERT INTO Notifications (user_id, metric_name, threshold, operator) VALUES (?, ?, ?, ?)`,
-                        params: [user_id, metric, threshold, effectiveOperator]
+                        query: `INSERT INTO Notifications (user_id, account_name, cluster_name, region, service_name, metric_name, threshold, operator) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                        params: [userId, accountName, clusterName, region, 'all', metric, threshold, operator]
                     });
+                } else if (setting.hasOwnProperty('services')) {
+                    for (const [service_name, service] of Object.entries(setting.services)) {
+                        const { threshold, operator } = service;
+                        if (!metric || threshold === undefined || !operator || !service_name) {
+                            return next({
+                                log: 'Missing required information for applyToAllServices metric',
+                                status: 400,
+                                message: {
+                                    err: 'Missing required information for applyToAllServices metric',
+                                },
+                            });
+                        }
+                        insertQueries.push({
+                            query: `INSERT INTO Notifications (user_id, account_name, cluster_name, region, service_name, metric_name, threshold, operator) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                            params: [userId, accountName, clusterName, region, service_name, metric, threshold, operator]
+                        });
+                    }
                 } else {
                     return next({
-                        log: 'Error metric setting: Invalid metric configuration',
+                        log: 'Error metric setting',
                         status: 400,
-                        message: { err: 'Error metric setting: Invalid metric configuration' },
+                        message: {
+                            err: 'Error metric setting',
+                        },
                     });
                 }
             }
-
-            console.log('Insert queries:', insertQueries);
-
             insertQueries.forEach(({ query, params }) => {
                 db.run(query, params, (err) => {
                     if (err) {
                         return next({
                             log: 'Error occurred during insert notification database',
                             status: 400,
-                            message: { err: 'Error occurred during insert notification database' },
+                            message: {
+                                err: 'Error occurred during insert notification database',
+                            },
                         });
                     }
-                });
-            });
-
-            return res.status(200).json({ message: 'Notification settings saved successfully!' });
+                })
+            }) 
+            return next();    
         });
     } catch (err) {
         return next({
@@ -143,7 +145,7 @@ notificationController.handleNotificationCheck = async(ws, userId) => {
     const sendNotification = async() => {
         try {
             const notificationData = userNotifications.notificationData;
-            console.log("notificationData",notificationData);
+            //console.log(notificationData);
             ws.send(JSON.stringify({notificationData}));
             userNotifications.notificationData = [];
         } catch(err) {
