@@ -5,6 +5,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GithubStrategy = require('passport-github2').Strategy;
 const cookieSession = require('cookie-session');
 const cors = require('cors');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
@@ -63,6 +64,7 @@ passport.use(
       callbackURL: 'http://localhost:3000/auth/google/callback',
     },
     function (accessToken, refreshToken, profile, done) {
+      // console.log(profile);
       userdb.get(
         'SELECT * FROM Users WHERE google_id = ?',
         [profile.id],
@@ -71,20 +73,21 @@ passport.use(
             return done(err);
           }
           if (row) {
-            console.log('already exist in Users');
+            // console.log('already exist in Users');
             return done(null, row);
           } else {
             const insert =
-              'INSERT INTO Users (google_id, user_name) VALUES (?, ?)';
+              'INSERT INTO Users (google_id, user_name, email) VALUES (?, ?, ?)';
             userdb.run(
               insert,
-              [profile.id, profile.displayName],
+              [profile.id, profile.displayName, profile.emails[0].value],
               function (err) {
+                console.log('2 ', err);
                 if (err) {
                   return done(err);
                 }
-                console.log('insert into User database');
-                console.log('this.lastId', this.lastID);
+                // console.log('insert into googleUser database');
+                // console.log('this.lastId', this.lastID);
                 return done(null, {
                   google_id: profile.id,
                   user_name: profile.displayName,
@@ -100,21 +103,17 @@ passport.use(
   )
 );
 passport.serializeUser((user, done) => {
-  console.log('user.id', user.id);
+  // console.log('user.id', user.id);
   done(null, user.id);
 });
 
 passport.deserializeUser((id, done) => {
-  userdb.get(
-    'SELECT * FROM Users WHERE id = ?',
-    [id],
-    function (err, row) {
-      if (err) {
-        return done(err);
-      }
-      done(null, row);
+  userdb.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
+    if (err) {
+      return done(err);
     }
-  );
+    done(null, row);
+  });
 });
 
 app.get(
@@ -134,13 +133,77 @@ app.get(
   }
 );
 
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: 'http://localhost:3000/auth/github/callback',
+    },
+    function (accessToken, refreshToken, profile, done) {
+      console.log(profile);
+      userdb.get(
+        'SELECT * FROM Users WHERE google_id = ?',
+        [profile.id],
+        function (err, row) {
+          if (err) {
+            return done(err);
+          }
+          if (row) {
+            // console.log('already exist in Users');
+            return done(null, row);
+          } else {
+            const insert =
+              'INSERT INTO Users (google_id, user_name, email) VALUES (?, ?, ?)';
+            userdb.run(
+              insert,
+              [profile.id, profile.username, profile.emails[0].value],
+              function (err) {
+                console.log(err);
+                if (err) {
+                  return done(err);
+                }
+                // console.log('insert into googleUser database');
+                // console.log('this.lastId', this.lastID);
+                return done(null, {
+                  google_id: profile.id,
+                  user_name: profile.displayName,
+                  id: this.lastID,
+                  isNewUser: true,
+                });
+              }
+            );
+          }
+        }
+      );
+    }
+  )
+);
+
+app.get(
+  '/auth/github',
+  passport.authenticate('github', { scope: ['profile', 'email'] })
+);
+
+app.get(
+  '/auth/github/callback',
+  passport.authenticate('github', { failureRedirect: '/login' }),
+  function (req, res) {
+    if (req.user.isNewUser) {
+      res.redirect('http://localhost:8080/credentials');
+    } else {
+      res.redirect('http://localhost:8080/dashboard');
+    }
+  }
+);
+
 app.get('/login', (req, res) => {
   res.send('Login Failed');
 });
 
 app.get('/api/current_user', (req, res) => {
   if (req.isAuthenticated()) {
-    console.log('req.user', req.user);
+    // console.log('req.user', req.user);
     res.json({ user: req.user });
   } else {
     res.status(401).json({ error: 'User not authenticated' });
@@ -162,7 +225,12 @@ app.post('/login', userController.verifyUser, (req, res) => {
     .json({ userId, username, serviceName, message: 'logged in!' });
 });
 
-// RETURN Accounts_id   (change later)
+app.post('/verify-email', userController.verifyEmail);
+
+app.post('/request-password-reset', userController.requestPasswordReset);
+
+app.post('/reset-password', userController.resetPassword);
+
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
 });
@@ -223,8 +291,8 @@ app.use((err, req, res, next) => {
     message: { err: 'An error occurred' },
   };
   const errorObj = Object.assign({}, defaultErr, err);
-  //console.log(errorObj.log);
-  console.log(err);
+  // console.log(errorObj.log);
+  // console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });
 server.listen(PORT, () => {
