@@ -1,28 +1,9 @@
-import ascending from "./ascending";
-import number from "./number";
-import quantile from "./quantile";
+import quantile, {quantileIndex} from "./quantile.js";
 
-export default function(values, valueof) {
-  var n = values.length,
-      i = -1,
-      value,
-      numbers = [];
+export default function median(values, valueof) {
+  return quantile(values, 0.5, valueof);
+}
 
-  if (valueof == null) {
-    while (++i < n) {
-      if (!isNaN(value = number(values[i]))) {
-        numbers.push(value);
-      }
-    }
-  }
-
-  else {
-    while (++i < n) {
-      if (!isNaN(value = number(valueof(values[i], i, values)))) {
-        numbers.push(value);
-      }
-    }
-  }
-
-  return quantile(numbers.sort(ascending), 0.5);
+export function medianIndex(values, valueof) {
+  return quantileIndex(values, 0.5, valueof);
 }

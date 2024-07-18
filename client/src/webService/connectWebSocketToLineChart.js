@@ -1,9 +1,10 @@
 // connet web socket to the Line chart
 
 export function connectWebSocketToLineChart(userId, serviceName, metricNames, onMessage, onError, onClose) {
-  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&serviceName=${serviceName}&metricName=${metricNames.join(',')}`);
-  //ws://localhost:3000/getMetricData?userId=1&serviceName=v1&metricName=CPUUtilization
-  
+  // change with redux 
+  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=${metricNames.join(',')}`);
+  //ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization
+
   ws.onopen = () => {
     console.log('WebSocket connection opened');
   };

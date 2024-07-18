@@ -17,8 +17,6 @@ const credentialsController = require('./controllers/credentialsController');
 const notificationController = require('./controllers/notificationController');
 
 const listRouter = require('./router/listRouter');
-//list Router: including list all accounts, subaccounts, region, cluster, service
-app.use('/list', listRouter);
 
 const { access } = require('fs');
 const PORT = 3000;
@@ -34,6 +32,9 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const crypto = require('crypto');
 const secret = crypto.randomBytes(16).toString('hex');
+
+//list Router: including list all accounts, subaccounts, region, cluster, service
+app.use('/list', listRouter);
 
 //test passport.use:
 const session = require('express-session');
@@ -222,7 +223,7 @@ app.use((err, req, res, next) => {
     message: { err: 'An error occurred' },
   };
   const errorObj = Object.assign({}, defaultErr, err);
-  console.log(errorObj.log);
+  //console.log(errorObj.log);
   console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });

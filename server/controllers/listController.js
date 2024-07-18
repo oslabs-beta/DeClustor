@@ -193,8 +193,6 @@ listController.Services = (req, res) => {
           });
         }
         const { access_key, secret_key } = rows[0];
-        console.log(access_key);
-        console.log(secret_key);
 
         // use SDK to get list of services in that user’s cluster
         const client = new ECSClient({

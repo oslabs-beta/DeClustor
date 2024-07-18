@@ -21,7 +21,8 @@ import Badge from '@mui/material/Badge'
 import { useNavigate } from 'react-router-dom'
 import LogoutIcon from '@mui/icons-material/Logout'
 import logo from '../assets/logo.png'
-import Setting from './Setting'
+// import Setting from './Setting'
+import Setting from './setting1'
 import Alerts from './Alerts'
 
 const Navbar = ({
