@@ -2,7 +2,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const userdbPath = path.resolve(__dirname, '../database/GoogleUsers.db');
+const userdbPath = path.resolve(__dirname, '../database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -25,7 +25,7 @@ userController.createUser = (req, res, next) => {
   }
 
   userdb.get(
-    'SELECT user_name FROM GoogleUsers WHERE user_name = ?',
+    'SELECT user_name FROM Users WHERE user_name = ?',
     [username],
     (err, row) => {
       if (err) {
@@ -40,7 +40,7 @@ userController.createUser = (req, res, next) => {
       }
 
       userdb.run(
-        'INSERT INTO GoogleUsers (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [firstname, lastname, username, password, email, verificationCode],
         (err) => {
           // userdb.close();
@@ -53,7 +53,7 @@ userController.createUser = (req, res, next) => {
           // res.locals.userId = this.lastID;
           // console.log(res.locals.userId);
           userdb.get(
-            'SELECT id FROM GoogleUsers WHERE user_name = ?',
+            'SELECT id FROM Users WHERE user_name = ?',
             [username],
             (err, row) => {
               if (err) {
@@ -91,9 +91,9 @@ userController.createUser = (req, res, next) => {
 
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
-
+  console.log(email, password);
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE email = ? AND password = ?',
+    'SELECT * FROM Users WHERE email = ? AND password = ?',
     [email, password],
     (err, row) => {
       console.log(row);
@@ -116,7 +116,7 @@ userController.verifyEmail = (req, res) => {
   console.log(email, code);
 
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE email = ? AND verification_code = ?',
+    'SELECT * FROM Users WHERE email = ? AND verification_code = ?',
     [email, code],
     (err, row) => {
       console.log(email);
@@ -126,7 +126,7 @@ userController.verifyEmail = (req, res) => {
         res.status(400).json({ error: 'Invalid verification code' });
       } else {
         userdb.run(
-          'UPDATE GoogleUsers SET verified = 1 WHERE email = ?',
+          'UPDATE Users SET verified = 1 WHERE email = ?',
           [email],
           (err) => {
             if (err) {
@@ -147,7 +147,7 @@ userController.requestPasswordReset = (req, res) => {
   const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
 
   userdb.run(
-    'UPDATE GoogleUsers SET reset_token = ?, reset_token_expiry = ? WHERE email = ?',
+    'UPDATE Users SET reset_token = ?, reset_token_expiry = ? WHERE email = ?',
     [resetToken, resetTokenExpiry, email],
     function (err) {
       if (err) {
@@ -183,7 +183,7 @@ userController.resetPassword = (req, res) => {
   const { email, token, newPassword } = req.query;
 
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE email = ? AND reset_token = ? AND reset_token_expiry > ?',
+    'SELECT * FROM Users WHERE email = ? AND reset_token = ? AND reset_token_expiry > ?',
     [email, token, Date.now()],
     (err, row) => {
       if (err) {
@@ -192,7 +192,7 @@ userController.resetPassword = (req, res) => {
         res.status(400).json({ error: 'Invalid or expired reset token' });
       } else {
         userdb.run(
-          'UPDATE GoogleUsers SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?',
+          'UPDATE Users SET password = ?, reset_token = NULL, reset_token_expiry = NULL WHERE email = ?',
           [newPassword, email],
           (err) => {
             if (err) {
@@ -214,7 +214,7 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
   const googleId = profile.id;
   const username = profile.emails[0].value;
   userdb.get(
-    'SELECT * FROM GoogleUsers WHERE user_name = ?',
+    'SELECT * FROM Users WHERE user_name = ?',
     [username],
     (err, row) => {
       if (err) {
@@ -223,7 +223,7 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
         return done(null, row);
       } else {
         userdb.run(
-          'INSERT INTO GoogleUsers (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
           [firstname, lastname, username, googleId],
 
           function (err) {

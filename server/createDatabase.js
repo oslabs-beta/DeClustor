@@ -1,10 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 
 const databases = {
-  //Users: './database/Users1.db',
-  Credentials: './database/Credentials.db',
+  Accounts: './database/Accounts.db',
   Notifications: './database/Notifications.db',
-  GoogleUsers: './database/GoogleUsers.db',
+  Users: './database/Users.db',
 };
 
 function connectToDatabase(dbPath) {
@@ -23,8 +22,8 @@ for (const [name, path] of Object.entries(databases)) {
 }
 
 async function createTables() {
-  await dbConnections.GoogleUsers.serialize(() => {
-    dbConnections.GoogleUsers.run(`CREATE TABLE IF NOT EXISTS GoogleUsers (
+  await dbConnections.Users.serialize(() => {
+    dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       google_id TEXT,
       first_name TEXT,
@@ -39,39 +38,29 @@ async function createTables() {
     )`);
   });
 
-  await dbConnections.Credentials.serialize(() => {
-    dbConnections.Credentials.run(`PRAGMA foreign_keys = ON;`);
-    dbConnections.Credentials.run(`CREATE TABLE IF NOT EXISTS Credentials (
+  await dbConnections.Accounts.serialize(() => {
+    dbConnections.Accounts.run(`PRAGMA foreign_keys = ON;`);
+    dbConnections.Accounts.run(`CREATE TABLE IF NOT EXISTS Accounts (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER,
+      account_name TEXT,
       access_key TEXT,
       secret_key TEXT,
+      account_type TEXT,
+      FOREIGN KEY (user_id) REFERENCES Users(id)
+    )`);
+  });
+
+  await dbConnections.Notifications.serialize(() => {
+    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
+    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER,
+      account_name TEXT,
       region TEXT,
       cluster_name TEXT,
-      FOREIGN KEY (user_id) REFERENCES Users(id)
-    )`);
-  });
-
-  await dbConnections.Notifications.serialize(() => {
-    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
-    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
-      metric_name TEXT,
       service_name TEXT,
-      threshold REAL,
-      operator TEXT,
-      FOREIGN KEY (user_id) REFERENCES Users(id)
-    )`);
-  });
-
-  await dbConnections.Notifications.serialize(() => {
-    dbConnections.Notifications.run(`PRAGMA foreign_keys = ON;`);
-    dbConnections.Notifications.run(`CREATE TABLE IF NOT EXISTS Notifications (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER,
       metric_name TEXT,
-      service_name TEXT,
       threshold REAL,
       operator TEXT,
       FOREIGN KEY (user_id) REFERENCES Users(id)
