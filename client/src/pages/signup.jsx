@@ -11,10 +11,11 @@ import {
   Paper,
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { signupSuccess, signupFailure} from '../redux/userSlice.js';
+import { signupSuccess, signupFailure } from '../redux/userSlice.js';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
 import Google from '../assets/signupgoogle.png';
+import GitHub from '../assets/signupgithub.png';
 
 const Signup = () => {
   const [firstName, setFirstName] = useState('');
@@ -29,6 +30,10 @@ const Signup = () => {
 
   const google = () => {
     window.open('http://localhost:3000/auth/google', '_self');
+  };
+
+  const github = () => {
+    window.open('http://localhost:3000/auth/github', '_self');
   };
 
   const handleSubmit = async (e) => {
@@ -187,7 +192,10 @@ const Signup = () => {
               Already have an account? Log in!
             </Button>
             <Button onClick={google} style={{ paddingBottom: '15px' }}>
-              <img src={Google} alt="Google" style={{ width: '45%' }}/>
+              <img src={Google} alt="Google" style={{ width: '45%' }} />
+            </Button>
+            <Button onClick={github} style={{ paddingBottom: '15px' }}>
+              <img src={GitHub} alt="GitHub" style={{ width: '45%' }} />
             </Button>
           </Box>
         </Paper>

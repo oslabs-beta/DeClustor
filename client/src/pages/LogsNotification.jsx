@@ -1,8 +1,8 @@
-import * as React from 'react';
+import React, { useEffect, useState, useCallback  } from 'react';
 import Box from '@mui/material/Box';
 import { DataGrid } from '@mui/x-data-grid';
-import connectWebSocketToNotification from '../webService/connectWebSocketToNotification';
-import { useSelector } from 'react-redux';
+import useWebSocketNotifications from '../webService/useWebSocketNotifications';
+import { useSelector, useDispatch } from 'react-redux';
 
 const columns = [
   { field: 'time', headerName: 'Time', flex: 1 },
@@ -14,31 +14,40 @@ const columns = [
 ];
 
 const LogsNotification = () => {
-  connectWebSocketToNotification();
+  useWebSocketNotifications(webSocketKey);
+  const [webSocketKey, setWebSocketKey] = useState(0);
+  useEffect(() => {
+    setWebSocketKey((prevKey) => prevKey + 1);
+  }, []);
+  
+
   const receivedNotifications = useSelector((state) => state.notification.receivedNotifications);
-  const rows = receivedNotifications.map((data, index) => ({
+  
+  const rows = receivedNotifications
+    .map((data, index) => ({
     id: index + 1,
     time: new Date(data.timestamp).toLocaleTimeString(),
-    clusters: data.clusterName || 'no data',
-    service: data.serviceName || 'no data',
+    clusters: data.clusterName,
+    service: data.serviceName || 'not applicable',
     metric: data.metricName,
     value: data.value,
-    logs: data.Logs || 'no data',
+    logs: data.Logs,
   }));
 
+
   return (
-    <Box sx={{ height: 400, width: '100%', pr: 4 }}>
+    <Box sx={{ height: 700, width: '100%', pr: 4 }}>
       <DataGrid
         rows={rows}
         columns={columns}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 5,
+              pageSize: 10,
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[10]}
         checkboxSelection
         disableRowSelectionOnClick
         sx={{

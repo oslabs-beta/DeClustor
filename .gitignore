@@ -1,4 +1,5 @@
 client/node_modules
 node_modules
 .env
-database
+server/database/Credentials.db
+server/database/Users.db

@@ -1,11 +1,12 @@
 const {CloudWatchClient, GetMetricStatisticsCommand} = require('@aws-sdk/client-cloudwatch');
 // const { ECSClient, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand } = require("@aws-sdk/client-ecs");
 
+const client = require('./redisClient');
+
 const { ECSClient, ListServicesCommand, DescribeServicesCommand, ListTasksCommand, DescribeTasksCommand} = require('@aws-sdk/client-ecs');
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const dbPath = path.resolve(__dirname, '../database/Accounts.db');
-const notificationStore = require('../database/notificationStore');
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
         console.log('Fail to connect to Credential database');
@@ -156,85 +157,94 @@ function fillMissingData(dataPoints) {
 }
 
 //userId, accountName, region, clusterName, metricName , serviceName, completeData
-function checkMetricThreshold(user_id, account_name, region, cluster_name, metric_name, service_name = null, completeData) {
-    return new Promise((resolve, reject) => {
-      const dbPathNotification = path.resolve(__dirname, '../database/Notifications.db');
-      const dbNotification = new sqlite3.Database(dbPathNotification, (err) => {
-        if (err) {
-          console.log('Fail to connect to Notifications database');
-          return reject('Fail to connect to Notifications database');
-        }
-      });
+async function checkMetricThreshold(user_id, account_name, region, cluster_name, metric_name, service_name = null, completeData) {
+  const dbPathNotification = path.resolve(__dirname, '../database/Notifications.db');
+  const dbNotification = new sqlite3.Database(dbPathNotification, (err) => {
+  if (err) {
+      console.log('Fail to connect to Notifications database');
+      return reject('Fail to connect to Notifications database');
+    }
+  });
   
-      let searchQuery;
-      let searchParams;
+  let searchQuery;
+  let searchParams;
   
-      if (service_name == null) {
-        searchQuery = `
-          SELECT threshold, operator FROM Notifications 
-          WHERE user_id = ? AND account_name = ? AND region = ? AND cluster_name = ? AND metric_name = ?
-        `;
-        searchParams = [user_id, account_name, region, cluster_name, metric_name];
-      } else {
-        searchQuery = `
-          SELECT threshold, operator FROM Notifications 
-          WHERE user_id = ? AND account_name = ? AND region = ? AND cluster_name = ? AND metric_name = ? AND (service_name = ? OR service_name = 'all')
-        `;
-        searchParams = [user_id, account_name, region, cluster_name, metric_name, service_name];
+  if (service_name == null) {
+    searchQuery = `
+      SELECT threshold, operator FROM Notifications 
+      WHERE user_id = ? AND account_name = ? AND region = ? AND cluster_name = ? AND metric_name = ?
+    `;
+    searchParams = [user_id, account_name, region, cluster_name, metric_name];
+  } else {
+    searchQuery = `
+      SELECT threshold, operator FROM Notifications 
+      WHERE user_id = ? AND account_name = ? AND region = ? AND cluster_name = ? AND metric_name = ? AND (service_name = ? OR service_name = 'all')
+    `;
+    searchParams = [user_id, account_name, region, cluster_name, metric_name, service_name];
+  }
+  
+  const row = await new Promise((resolve, reject) => {
+    dbNotification.get(searchQuery, searchParams, (err, row) => {
+      if (err) {
+        console.error('Error occurred during search notification database in metricController:', err);
+        return reject('Error occurred during search notification database');
       }
-  
-      dbNotification.get(searchQuery, searchParams, (err, row) => {
-        if (err) {
-          console.error('Error occurred during search notification database in metricController:', err);
-          return reject('Error occurred during search notification database');
-        }
-        if (row) {
-          const { threshold, operator } = row;
-          // console.log(threshold);
-          // console.log(operator);
-          // go through completeData
-          completeData.forEach(dataPoint => {
-            const { Average, Timestamp } = dataPoint;
-            // if lastScanDate not null and Timestamp of completeData < lastScanData
-            let notify = false;
-            switch(operator) {
-              case 'greaterThan':
-                notify = Average > threshold;
-                break;
-              case 'greaterThanOrEqual': 
-                notify = Average >= threshold;
-                break;
-              case 'lessThan':
-                notify = Average < threshold;
-                break;
-              case 'lessThanOrEqual':
-                notify = Average <= threshold;
-                break;
-              case 'equal':
-                notify = Average == threshold;
-                break;
-              default:
-                break;
-            }
-            if (notify) {
-              notificationStore.notificationData.push({
-                timestamp: Timestamp,
-                metricName: metric_name,
-                value: Average,
-                threshold: threshold,
-                operator: operator,
-                clusterName: cluster_name,
-                serviceName: service_name,
-                Logs: `${metric_name} value(${Average}) is ${operator} than threshold(${threshold})`
-              });
-            }
-          });
-          resolve(); // Resolve the promise after processing the data
-        } else {
-          resolve(); // Resolve the promise if no row is found
-        }
-      });
+      resolve(row);
     });
+  })  
+
+  if (row) {
+    const { threshold, operator } = row;
+    const notifications = [];
+    // console.log(threshold);
+    // console.log(operator);
+    // go through completeData
+    completeData.forEach(dataPoint => {
+      const { Average, Timestamp } = dataPoint;
+      // if lastScanDate not null and Timestamp of completeData < lastScanData
+      let notify = false;
+      switch(operator) {
+        case 'greaterThan':
+          notify = Average > threshold;
+          break;
+        case 'greaterThanOrEqual': 
+          notify = Average >= threshold;
+          break;
+        case 'lessThan':
+          notify = Average < threshold;
+          break;
+        case 'lessThanOrEqual':
+          notify = Average <= threshold;
+          break;
+        case 'equal':
+          notify = Average == threshold;
+          break;
+        default:
+          break;
+      }
+      if (notify) {
+        notifications.push({
+          timestamp: Timestamp,
+          metricName: metric_name,
+          value: Average,
+          threshold: threshold,
+          operator: operator,
+          clusterName: cluster_name,
+          serviceName: service_name,
+          Logs: `${metric_name} value(${Average}) is ${operator} than threshold(${threshold})`
+        });
+      }
+    });
+
+    try {
+      for (const notification of notifications) {
+        await client.set(`notification:${user_id}:${notification.timestamp}`, JSON.stringify(notification), 'EX', 24 * 60 * 60);
+      }
+    } catch(err) {
+      console.error('Error storing notifications in Redis:', err);
+      throw new Errorr('Error storing notifications in Redis')
+    }
+  }
 }
 
 async function handleMetricRequest(ws, userId, accountName, region, clusterName, serviceName, metricName) {
@@ -279,7 +289,7 @@ async function handleMetricRequest(ws, userId, accountName, region, clusterName,
         const sendData = async () => {
             try {
                 let data;
-                let completeData
+                let completeData;
                 if (metricName === 'NetworkRxBytes' || metricName === 'NetworkTxBytes') {
                     data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'ECS/ContainerInsights', dimensionsContainerInsights);
                     completeData = fillMissingData(data);

@@ -1,10 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 
 const databases = {
-  //Users: './database/Users1.db',
   Accounts: './database/Accounts.db',
   Notifications: './database/Notifications.db',
-  Users: './database/Users.db'
+  Users: './database/Users.db',
 };
 
 function connectToDatabase(dbPath) {
@@ -23,14 +22,21 @@ for (const [name, path] of Object.entries(databases)) {
 }
 
 async function createTables() {
-  await dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
+  await dbConnections.Users.serialize(() => {
+    dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       google_id TEXT,
       first_name TEXT,
       last_name TEXT,
       user_name TEXT,
-      password TEXT
+      password TEXT,
+      email TEXT NOT NULL UNIQUE,
+      verification_code TEXT,
+      verified INTEGER DEFAULT 0,
+      reset_token TEXT,
+      reset_token_expiry INTEGER
     )`);
+  });
 
   await dbConnections.Accounts.serialize(() => {
     dbConnections.Accounts.run(`PRAGMA foreign_keys = ON;`);
