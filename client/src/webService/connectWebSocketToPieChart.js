@@ -1,7 +1,9 @@
 // connect web socket to Pie Chart
 
 export function connectWebSocketToPieChart(userId, serviceName, onMessage, onError, onClose) {
-  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&serviceName=${serviceName}&metricName=totalTasks`);
+  // change with redux data 
+  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=totalTasks`);
+      //ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization
       //ws://localhost:3000/getMetricData?userId=1&serviceName=v1&metricName=totalTasks  
     ws.onopen = () => {
       console.log('WebSocket connection opened');

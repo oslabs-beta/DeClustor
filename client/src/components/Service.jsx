@@ -23,8 +23,9 @@ const Service = ({ userId }) => {
     if (userId) {
       setLoading(true);
       setError(null);
-
-      fetch(`http://localhost:3000/listAllService?userId=${userId}`)
+       
+      // change to redux later
+      fetch(`http://localhost:3000/list/AllServices?userId=1&accountName=AriaLiang&clusterName=DeClustor&region=us-east-2`)
         .then(response => response.json())
         .then(data => {
           console.log('Fetching service names -->', data);
@@ -49,8 +50,10 @@ const Service = ({ userId }) => {
     if (userId && serviceName) {
       setLoading(true);
       setError(null);
-
-      const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&serviceName=${serviceName}&metricName=serviceStatus`);
+      
+      // change to redux later: 
+      // ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization
+      const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=serviceStatus`);
       ws.onopen = () => {
         console.log('WebSocket connection opened');
       };

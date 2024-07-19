@@ -1,13 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 const initialState = {
-  userId: '',
+  userId: 1,
   username: '',
   password: '',
   firstName: '',
   lastName: '',
   serviceName: '',
   error: null,
+  rootAccounts: [],
+  subAccounts: [],
+  accountsLoading: false,
+  accountsError: null,
 };
 
 // Async thunk for fetching current user data
@@ -16,21 +20,23 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await fetch('http://localhost:3000/api/current_user', {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!response.ok) {
         throw new Error('Could not fetch user data');
       }
       const data = await response.json();
-      const user = data.user; 
-      dispatch(loginSuccess({
-        userId: user.id,
-        username: user.user_name,
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
-        email: user.email || '',
-        serviceName: user.service_name || '',
-      }));
+      const user = data.user;
+      dispatch(
+        loginSuccess({
+          userId: user.id,
+          username: user.user_name,
+          firstName: user.first_name || '',
+          lastName: user.last_name || '',
+          email: user.email || '',
+          serviceName: user.service_name || '',
+        })
+      );
       return user;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -38,6 +44,24 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
+// Async thunk for fetching account data
+export const fetchAccounts = createAsyncThunk(
+  'user/fetchAccounts',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/allAccounts?userId=${userId}`
+      );
+      if (!response.ok) {
+        throw new Error('Could not fetch accounts data');
+      }
+      const data = await response.json();
+      return data; // data should include root and subaccount
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 const userSlice = createSlice({
   name: 'user',
@@ -84,7 +108,7 @@ const userSlice = createSlice({
     setServiceName: (state, action) => {
       state.serviceName = action.payload;
     },
-    updateProfile: (state , action) => {
+    updateProfile: (state, action) => {
       state.username = action.payload.username;
       state.password = action.payload.password;
       state.firstName = action.payload.firstName;
@@ -100,9 +124,52 @@ const userSlice = createSlice({
       state.lastName = null;
       state.error = null;
     },
+    // New reducers for account data
+    fetchAccountsSuccess: (state, action) => {
+      state.rootAccounts = action.payload.root;
+      state.subAccounts = action.payload.subaccount;
+      state.accountsLoading = false;
+      state.accountsError = null;
+    },
+    fetchAccountsFailure: (state, action) => {
+      state.accountsLoading = false;
+      state.accountsError = action.payload;
+    },
+    fetchAccountsPending: (state) => {
+      state.accountsLoading = true;
+      state.accountsError = null;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAccounts.pending, (state) => {
+        state.accountsLoading = true;
+        state.accountsError = null;
+      })
+      .addCase(fetchAccounts.fulfilled, (state, action) => {
+        state.rootAccounts = action.payload.root;
+        state.subAccounts = action.payload.subaccount;
+        state.accountsLoading = false;
+        state.accountsError = null;
+      })
+      .addCase(fetchAccounts.rejected, (state, action) => {
+        state.accountsLoading = false;
+        state.accountsError = action.payload;
+      });
   },
 });
 
-export const { loginSuccess, loginFailure, signupSuccess, signupFailure, setServiceName , updateProfile , logout } = userSlice.actions;
+export const {
+  loginSuccess,
+  loginFailure,
+  signupSuccess,
+  signupFailure,
+  setServiceName,
+  updateProfile,
+  logout,
+  fetchAccountsSuccess,
+  fetchAccountsFailure,
+  fetchAccountsPending,
+} = userSlice.actions;
 
 export default userSlice.reducer;

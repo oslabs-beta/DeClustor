@@ -10,27 +10,28 @@ const initialState = {
       metric: 'CPUUtilization',
       threshold: 0,
       operator: 'greaterThan', // defalut to '>'
-      isEnable: true,
+      isEnable: false,
     },
     {
       metric: 'MemoryUtilization',
       threshold: 0,
       operator: 'greaterThan',
-      isEnable: true,
+      isEnable: false,
     },
     {
       metric: 'NetworkRxBytes',
       threshold: 0,
       operator: 'greaterThan',
-      isEnable: true,
+      isEnable: false,
     },
     {
       metric: 'NetworkTxBytes',
       threshold: 0,
       operator: 'greaterThan',
-      isEnable: true,
+      isEnable: false,
     },
   ],
+  receivedNotifications: []
 };
 
 // export const fetchClusterAndServiceOptions = createAsyncThunk(
@@ -59,6 +60,9 @@ const notificationSlice = createSlice({
     setNotifications: (state, action) => {
       state.notifications = action.payload;
     },
+    setReceivedNotifications: (state, action) => {
+      state.receivedNotifications = action.payload;
+    }
   },
   // extraReducers: (builder) => {
   //   builder.addCase(fetchClusterAndServiceOptions.fulfilled, (state, action) => {
@@ -68,19 +72,19 @@ const notificationSlice = createSlice({
   // },
 });
 
-export const { setCluster, setService, updateNotification, setNotifications } = notificationSlice.actions;
+export const { setCluster, setService, updateNotification, setNotifications, setReceivedNotifications } = notificationSlice.actions;
 
 export const saveNotifications = createAsyncThunk(
   'notification/saveNotifications',
-  async ({ userId, clusters, services, notifications }, { rejectWithValue }) => {
+  async ({ userId, accountName, clusterName, region, notifications }, { rejectWithValue }) => {
     try {
       console.log('Saving notifications:', notifications);
-      const response = await fetch(`http://localhost:3000/setNotification?userId=${userId}`, {
+      const response = await fetch(`http://localhost:3000/setNotification?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ clusters, services, notifications })
+        body: JSON.stringify({ notifications })
       });
       if (!response.ok) {
         throw new Error('Failed to save notifications');
