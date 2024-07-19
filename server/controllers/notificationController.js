@@ -1,8 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const dbPath = path.resolve(__dirname, '../database/Notifications.db');
-const userNotifications = require('../database/notificationStore');
 const db = new sqlite3.Database(dbPath);
+
+const client = require('./redisClient');
 
 const notificationController = {};
 // {
@@ -69,11 +70,13 @@ notificationController.setNotification = (req, res, next) => {
             for (const setting of notifications) {
                 const { metric } = setting;
                 if (metric == 'NetworkRxBytes' || metric == 'NetworkTxBytes') {
-                    const { threshold, operator } = setting;
-                    insertQueries.push({
-                        query: `INSERT INTO Notifications (user_id, account_name, cluster_name, region, metric_name, threshold, operator) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-                        params: [userId, accountName, clusterName, region, metric, threshold, operator]
-                    })
+                    if (setting.hasOwnProperty('threshold') && setting.hasOwnProperty('operator') ) {
+                        const { threshold, operator } = setting;
+                        insertQueries.push({
+                            query: `INSERT INTO Notifications (user_id, account_name, cluster_name, region, metric_name, threshold, operator) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                            params: [userId, accountName, clusterName, region, metric, threshold, operator]
+                        })
+                    }
                 } else if (setting.hasOwnProperty('applyToAllServices')) {
                     const { applyToAllServices: { threshold, operator } } = setting;
                     if (threshold == undefined || !operator) {
@@ -106,14 +109,6 @@ notificationController.setNotification = (req, res, next) => {
                             params: [userId, accountName, clusterName, region, service_name, metric, threshold, operator]
                         });
                     }
-                } else {
-                    return next({
-                        log: 'Error metric setting',
-                        status: 400,
-                        message: {
-                            err: 'Error metric setting',
-                        },
-                    });
                 }
             }
             insertQueries.forEach(({ query, params }) => {
@@ -142,24 +137,25 @@ notificationController.setNotification = (req, res, next) => {
 
 notificationController.handleNotificationCheck = async(ws, userId) => {
     // sending data
-    const sendNotification = async() => {
-        try {
-            const notificationData = userNotifications.notificationData;
-            //console.log(notificationData);
-            ws.send(JSON.stringify({notificationData}));
-            userNotifications.notificationData = [];
-        } catch(err) {
-            ws.send(JSON.stringify({ error: 'Error getting notification data' }));
-            ws.close();
+    try {
+        const keys = await client.keys(`notification:${userId}:*`);;
+        if (keys.length === 0) {
+            ws.send(JSON.stringify({ message: 'No new notifications' }));
             return;
-        }   
-    }
-    sendNotification();
-    const intervalId = setInterval(sendNotification, 60 * 1000); //update everyone minute
+        }
 
-    ws.on('close', () => {
-        clearInterval(intervalId);
-    }); 
+        const notifications = [];
+        for (const key of keys) {
+            const data = await client.get(key);;
+            notifications.push(JSON.parse(data));
+            await client.del(key);
+        }
+        // console.log(notifications);
+        ws.send(JSON.stringify(notifications));
+    } catch(err) {
+        ws.send(JSON.stringify({error : 'Error checking notifications'}));
+        ws.close();
+    }
 }
 
 module.exports = notificationController;

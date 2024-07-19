@@ -32,7 +32,9 @@
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "path": "^0.12.7",
+    "redis": "^4.6.15",
     "sqlite3": "^5.1.7",
+    "util": "^0.12.5",
     "ws": "^8.18.0"
   }
 }
