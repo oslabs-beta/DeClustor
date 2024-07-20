@@ -12,6 +12,8 @@ const initialState = {
   subAccounts: [],
   accountsLoading: false,
   accountsError: null,
+  selectedAccount: null,
+  selectedAccountType: null,
 };
 
 // Async thunk for fetching current user data
@@ -44,21 +46,21 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
-// Async thunk for fetching account data
+// Fetch accounts async thunk using fetch
 export const fetchAccounts = createAsyncThunk(
   'user/fetchAccounts',
-  async (userId, { rejectWithValue }) => {
+  async (userId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/list/allAccounts?userId=${userId}`
+        `localhost:3000/list/allAccounts?userId=${userId}`
       );
       if (!response.ok) {
-        throw new Error('Could not fetch accounts data');
+        throw new Error('Network response was not ok');
       }
       const data = await response.json();
-      return data; // data should include root and subaccount
+      return data;
     } catch (error) {
-      return rejectWithValue(error.message);
+      throw new Error('Failed to fetch accounts: ' + error.message);
     }
   }
 );
@@ -139,6 +141,10 @@ const userSlice = createSlice({
       state.accountsLoading = true;
       state.accountsError = null;
     },
+    selectAccount: (state, action) => {
+      state.selectedAccount = action.payload.account;
+      state.selectedAccountType = action.payload.accountType;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -170,6 +176,7 @@ export const {
   fetchAccountsSuccess,
   fetchAccountsFailure,
   fetchAccountsPending,
+  selectAccount,
 } = userSlice.actions;
 
 export default userSlice.reducer;

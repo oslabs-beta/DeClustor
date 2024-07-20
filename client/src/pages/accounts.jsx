@@ -11,13 +11,15 @@ import {
   Divider,
   Drawer,
   CssBaseline,
+  Grid,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import FlexBetween from '../components/FlexBetween';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { fetchAccounts } from '../redux/userSlice.js';
+import { fetchAccounts, selectAccount } from '../redux/userSlice.js';
+import AccountDetails from '../components/AccountDetails';
 
 const drawerWidth = 240;
 
@@ -36,8 +38,20 @@ const Accounts = () => {
     }
   }, [dispatch, userId]);
 
-  console.log('Root Accounts:', rootAccounts);
-  console.log('Sub Accounts:', subAccounts);
+  const handleAccountClick = (account, accountType) => {
+    if (account) {
+      dispatch(selectAccount({ account, accountType }));
+      navigate(`/dashboard/${account.account_name}`);
+    }
+  };
+
+  if (accountsLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (accountsError) {
+    return <Typography>Error: {accountsError}</Typography>;
+  }
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -97,8 +111,8 @@ const Accounts = () => {
             {rootAccounts.map((account, index) => (
               <ListItem
                 button
-                key={`root-${account.account_name}-${index}`} // Ensure uniqueness
-                onClick={() => handleAccountClick(account.account_name)}
+                key={`root-${account.account_name}-${index}`}
+                onClick={() => handleAccountClick(account, 'Root')}
                 sx={{ justifyContent: 'center' }}
               >
                 <ListItemText
@@ -116,8 +130,8 @@ const Accounts = () => {
             {subAccounts.map((account, index) => (
               <ListItem
                 button
-                key={`sub-${account.account_name}-${index}`} // Ensure uniqueness
-                onClick={() => handleAccountClick(account.account_name)}
+                key={`sub-${account.account_name}-${index}`}
+                onClick={() => handleAccountClick(account, 'Sub')}
                 sx={{ justifyContent: 'center' }}
               >
                 <ListItemText
@@ -155,6 +169,24 @@ const Accounts = () => {
         <FlexBetween>
           <Typography variant='h4'>Select an Account from Sidebar</Typography>
         </FlexBetween>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          {rootAccounts.map((account, index) => (
+            <AccountDetails
+              key={`root-${account.account_name}-${index}`}
+              account={account}
+              accountType='Root'
+              onClick={handleAccountClick}
+            />
+          ))}
+          {subAccounts.map((account, index) => (
+            <AccountDetails
+              key={`sub-${account.account_name}-${index}`}
+              account={account}
+              accountType='Sub'
+              onClick={handleAccountClick}
+            />
+          ))}
+        </Grid>
       </Box>
     </Box>
   );

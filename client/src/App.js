@@ -23,6 +23,7 @@ import GetStarted from './pages/getstarted';
 import LogsNotification from './pages/LogsNotification';
 import Notification from './components/Setting'; // with passing in number of notification
 import Accounts from './pages/Accounts';
+import AccountDetails from './components/accountDetails';
 // import Overview from './pages/Overview';
 // import ClusterMetrics from './pages/ClusterMetrics';
 
@@ -54,6 +55,10 @@ const App = () => {
               <Route path='/userprofile' element={<UserProfile />} />
               {/* <Route path='/notification' element={<Notification />} /> */}
               <Route path='/accounts' element={<Accounts />} />
+              {/* <Route
+                path='/dashboard/:accountName'
+                element={<AccountDetails />}
+              /> */}
               <Route element={<Layout />}>
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='*' element={<Navigate to='/' replace />} />

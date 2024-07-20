@@ -1,40 +1,28 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
-import { Box, Typography } from '@mui/material';
+import { Card, CardContent, Typography, Grid } from '@mui/material';
 
-const AccountDetails = () => {
-  const selectedAccount = useSelector((state) => state.user.selectedAccount);
-  const selectedAccountType = useSelector(
-    (state) => state.user.selectedAccountType
-  );
-
-  if (!selectedAccount) {
-    return (
-      <Box sx={{ p: 3 }}>
-        <Typography variant='h5'>No Account Selected</Typography>
-      </Box>
-    );
+const AccountDetails = ({ account, accountType, onClick }) => {
+  if (!account) {
+    return null;
   }
 
+  const { account_name, status, email, userId } = account;
+
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant='h5'>Account Details</Typography>
-      <Typography>
-        <strong>Account Type:</strong> {selectedAccountType}
-      </Typography>
-      <Typography>
-        <strong>Account Name:</strong> {selectedAccount.accountName}
-      </Typography>
-      <Typography>
-        <strong>Status:</strong> {selectedAccount.status}
-      </Typography>
-      <Typography>
-        <strong>Email:</strong> {selectedAccount.email}
-      </Typography>
-      <Typography>
-        <strong>User ID:</strong> {selectedAccount.userId}
-      </Typography>
-    </Box>
+    <Grid item xs={12} sm={6} md={4}>
+      <Card
+        sx={{ cursor: 'pointer' }}
+        onClick={() => onClick(account, accountType)}
+      >
+        <CardContent>
+          <Typography variant='h6'>{account_name || 'N/A'}</Typography>
+          <Typography variant='body2'>Type: {accountType}</Typography>
+          <Typography variant='body2'>Status: {status || 'N/A'}</Typography>
+          <Typography variant='body2'>Email: {email || 'N/A'}</Typography>
+          <Typography variant='body2'>User ID: {userId || 'N/A'}</Typography>
+        </CardContent>
+      </Card>
+    </Grid>
   );
 };
 
