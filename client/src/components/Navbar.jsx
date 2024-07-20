@@ -9,7 +9,7 @@ import {
   Popover,
 } from '@mui/material'
 import FlexBetween from './FlexBetween'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setMode } from '../redux/globalSlice.js'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
@@ -40,6 +40,14 @@ const Navbar = ({
   const navigate = useNavigate()
 
   const [alertAnchorEl, setAlertAnchorEl] = useState(null)
+  const notifications = useSelector(
+    (state) => state.notification.receivedNotifications
+  )
+  const notificationCount = notifications.length;
+
+   // Log the notification data structure
+   console.log('Navbar Notifications -->', notifications);
+
 
   const handleNotificationClick = (event) => {
     setAlertAnchorEl(alertAnchorEl ? null : event.currentTarget)
@@ -58,6 +66,7 @@ const Navbar = ({
   }, [alertAnchorEl])
 
   const isAlertOpen = Boolean(alertAnchorEl)
+  const hasNotifications = notifications.length > 0
 
   return (
     <Box display="flex" justifyContent="space-between" padding={2}>
@@ -71,7 +80,7 @@ const Navbar = ({
             height: '40px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}
         >
           <MenuIcon />
@@ -82,7 +91,7 @@ const Navbar = ({
           alt="logo"
           src={logo}
           onClick={() => {
-            navigate('/dashboard');
+            navigate('/dashboard')
           }}
           height="100px"
           width="100px"
@@ -125,14 +134,34 @@ const Navbar = ({
           )}
         </IconButton>
 
-        {/* notification icon button */}
-        {showNotification && (
+          {/* Notification alert button */}
+          {showNotification && (
           <IconButton onClick={handleNotificationClick}>
-            <Badge badgeContent={1} color="secondary">
+            {notificationCount > 0 ? (
+              <Badge badgeContent={notificationCount} color="secondary">
+                <NotificationsOutlinedIcon sx={{ fontSize: '25px' }} />
+              </Badge>
+            ) : (
               <NotificationsOutlinedIcon sx={{ fontSize: '25px' }} />
-            </Badge>
+            )}
           </IconButton>
         )}
+
+        <Popover
+          open={isAlertOpen}
+          anchorEl={alertAnchorEl}
+          onClose={handleAlertClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <Alerts open={isAlertOpen} notificationCount={notificationCount} />
+        </Popover>
 
         {/* setting icon button */}
         <Tooltip title="Notification Setting">
@@ -176,7 +205,7 @@ const Navbar = ({
         <Alerts open={isAlertOpen} />
       </Popover>
     </Box>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
