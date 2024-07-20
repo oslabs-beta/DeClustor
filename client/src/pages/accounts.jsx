@@ -36,17 +36,8 @@ const Accounts = () => {
     }
   }, [dispatch, userId]);
 
-  const handleAccountClick = (accountName) => {
-    navigate(`/dashboard/${accountName}`);
-  };
-
-  if (accountsLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (accountsError) {
-    return <div>Error: {accountsError}</div>;
-  }
+  console.log('Root Accounts:', rootAccounts);
+  console.log('Sub Accounts:', subAccounts);
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -103,10 +94,10 @@ const Accounts = () => {
             Root Accounts
           </Typography>
           <List>
-            {rootAccounts.map((account) => (
+            {rootAccounts.map((account, index) => (
               <ListItem
                 button
-                key={account.account_name}
+                key={`root-${account.account_name}-${index}`} // Ensure uniqueness
                 onClick={() => handleAccountClick(account.account_name)}
                 sx={{ justifyContent: 'center' }}
               >
@@ -122,10 +113,10 @@ const Accounts = () => {
             Subaccounts
           </Typography>
           <List>
-            {subAccounts.map((account) => (
+            {subAccounts.map((account, index) => (
               <ListItem
                 button
-                key={account.account_name}
+                key={`sub-${account.account_name}-${index}`} // Ensure uniqueness
                 onClick={() => handleAccountClick(account.account_name)}
                 sx={{ justifyContent: 'center' }}
               >
