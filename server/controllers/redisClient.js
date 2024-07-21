@@ -1,7 +1,11 @@
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const redis = require('redis');
 
+console.log('Redis URL:', process.env.REDIS_URL);
+
 const client = redis.createClient({
-    url: 'redis://localhost:6379' 
+    url: process.env.EDIS_URL
 });
   
 
