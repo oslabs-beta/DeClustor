@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   Box,
   IconButton,
+  InputLabel,
   Button,
   Dialog,
   DialogActions,
@@ -10,7 +11,6 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
-  InputLabel,
   MenuItem,
   Select,
   Switch,
@@ -18,55 +18,40 @@ import {
   TextField,
   FormControlLabel,
   Grid,
-  Typography,
   Snackbar,
-  Alert
+  Alert,
+  Checkbox,
+  FormHelperText
 } from '@mui/material';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import { useTheme } from '@mui/material/styles';
-import { setCluster, setService, updateNotification, saveNotifications } from '../redux/notificationSlice';
-//fetchClusterAndServiceOptions
 import { setServiceName } from '../redux/userSlice';
+import { updateNotification, saveNotifications } from '../redux/notificationSlice';
 
 const Setting = () => {
- 
   const dispatch = useDispatch();
-  // userId from user's state
-  const userId = useSelector((state) => state.user.userId);
-  // notificationSlice redux
-  const {
-    clusters = 'allClusters',
-    services = 'allServices',
-    notifications = [],
-    clusterOptions = [], // setup for fetching to all services and clusters work // check again later
-    serviceOptions = [] // setup for fetching to all services and clusters work // check again later
-  } = useSelector((state) => state.notification);
+  const userId = 1;
+  const accountName = "AriaLiang"; // change with redux later
+  const clusterName = "DeClustor"; // change with redux later
+  const region = "us-east-2"; // change with redux later
+  const { notifications = [] } = useSelector((state) => state.notification);
+
   const [serviceNames, setServiceNames] = useState([]);
-  const [serviceName, setServiceNameLocal] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [errors, setErrors] = useState({});
   const [open, setOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
-  const theme = useTheme();
-
-  // useEffect(() => {
-  //   if (userId) {
-  //     dispatch(fetchClusterAndServiceOptions(userId));
-  //   }
-  // }, [userId, dispatch]);
 
   useEffect(() => {
     if (userId) {
       setLoading(true);
-      setError(null);
+      setErrors({});
 
-      fetch(`http://localhost:3000/listAllService?userId=${userId}`)
+      fetch(`http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`)
         .then(response => response.json())
         .then(data => {
           console.log('Fetching service names -->', data);
           if (data && data.length > 0) {
             setServiceNames(data);
-            setServiceNameLocal(data[0]);
             dispatch(setServiceName(data[0])); // Update Redux state
           } else {
             throw new Error('No services found');
@@ -75,61 +60,28 @@ const Setting = () => {
         })
         .catch(error => {
           console.error('Error fetching service names:', error);
-          setError('Error fetching service names');
+          setErrors({ fetch: 'Error fetching service names' });
           setLoading(false);
         });
     }
   }, [userId, dispatch]);
 
-  // get clusters from backend 
-  // check endpoint and logic again
-
-  // useEffect(() => {
-  //   if (userId) {
-  //     setLoading(true);
-  //     setError(null);
-
-  //     fetch(`http://localhost:3000/listAllClusters?userId=${userId}`)
-  //       .then(response => response.json())
-  //       .then(data => {
-  //         console.log('Fetching cluster names -->', data);
-  //         if (data && data.length > 0) {
-  //           setClusterNames(data);
-  //         } else {
-  //           throw new Error('No clusters found');
-  //         }
-  //         setLoading(false);
-  //       })
-  //       .catch(error => {
-  //         console.error('Error fetching cluster names:', error);
-  //         setError('Error fetching cluster names');
-  //         setLoading(false);
-  //       });
-  //   }
-  // }, [userId]);
-
-  // default cluster name for now
-  const clusterNames = ['DeClustor'];  // <= don't forget to delete this later
-
-  // set open window
   const handleClickOpen = () => {
     setOpen(true);
   };
-  // if click close the window
+
   const handleClose = () => {
     setOpen(false);
   };
-  // alert after click save 
+
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
 
-  // turn on and turn off // enable notification setting
   const getTooltipTitle = (isOn) => {
     return isOn ? 'Turn off' : 'Turn on';
   };
 
-  // operators
   const operators = [
     { value: 'greaterThan', label: '>' },
     { value: 'greaterThanOrEqual', label: '>=' },
@@ -138,18 +90,87 @@ const Setting = () => {
     { value: 'equal', label: '=' }
   ];
 
-  // save { userId,clusters,services,notifications,}
   const handleSave = async () => {
-    console.log('Notifications to save -->', notifications);
+    const newErrors = {};
+    let isValid = true;
+
+    notifications.forEach((notification, index) => {
+      if (!notification.isEnable) return;
+
+      if (!notification.operator) {
+        isValid = false;
+        newErrors[`operator-${index}`] = 'Operator is required';
+      }
+      if (notification.threshold === undefined) {
+        isValid = false;
+        newErrors[`threshold-${index}`] = 'Threshold is required';
+      }
+      if (['CPUUtilization', 'MemoryUtilization'].includes(notification.metric)) {
+        if (serviceSpecificSettings[notification.metric].applyToAll) {
+          if (serviceSpecificSettings[notification.metric].threshold === undefined) {
+            isValid = false;
+            newErrors[`threshold-${notification.metric}`] = 'Threshold is required';
+          }
+        } else {
+          serviceSpecificSettings[notification.metric].services.forEach((service, idx) => {
+            if (!service.serviceName) {
+              isValid = false;
+              newErrors[`serviceName-${index}-${idx}`] = 'Service name is required';
+            }
+            if (!service.operator) {
+              isValid = false;
+              newErrors[`serviceOperator-${index}-${idx}`] = 'Operator is required';
+            }
+            if (service.threshold === undefined) {
+              isValid = false;
+              newErrors[`serviceThreshold-${index}-${idx}`] = 'Threshold is required';
+            }
+          });
+        }
+      }
+    });
+
+    setErrors(newErrors);
+    if (!isValid) return;
+
+    const payload = notifications.map(notification => {
+      if (!notification.isEnable) {
+        return { metric: notification.metric };
+      }
+      if (notification.metric === 'CPUUtilization' || notification.metric === 'MemoryUtilization') {
+        if (serviceSpecificSettings[notification.metric].applyToAll) {
+          return {
+            metric: notification.metric,
+            applyToAllServices: {
+              threshold: serviceSpecificSettings[notification.metric].threshold,
+              operator: serviceSpecificSettings[notification.metric].operator
+            }
+          };
+        } else {
+          const services = {};
+          serviceSpecificSettings[notification.metric].services.forEach(service => {
+            services[service.serviceName] = {
+              threshold: service.threshold,
+              operator: service.operator
+            };
+          });
+          return {
+            metric: notification.metric,
+            services
+          };
+        }
+      } else {
+        return {
+          metric: notification.metric,
+          threshold: notification.threshold,
+          operator: notification.operator
+        };
+      }
+    })
+
     if (userId) {
-      const payload = {
-        userId,
-        clusters,
-        services,
-        notifications,
-      };
       try {
-        await dispatch(saveNotifications(payload)).unwrap();
+        await dispatch(saveNotifications({ userId, accountName, clusterName, region, notifications: payload })).unwrap();
         setOpen(false);
         setAlertOpen(true);
       } catch (error) {
@@ -160,8 +181,61 @@ const Setting = () => {
     }
   };
 
-  return (
+  const [serviceSpecificSettings, setServiceSpecificSettings] = useState({
+    CPUUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' },
+    MemoryUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' }
+  });
+
+  const handleApplyToAllChange = (metric) => {
+    setServiceSpecificSettings(prevSettings => ({
+      ...prevSettings,
+      [metric]: { ...prevSettings[metric], applyToAll: !prevSettings[metric].applyToAll }
+    }));
+  };
+
+  const handleAddService = (metric) => {
+    setServiceSpecificSettings(prevSettings => ({
+      ...prevSettings,
+      [metric]: { ...prevSettings[metric], services: [...prevSettings[metric].services, { serviceName: '', operator: 'greaterThan', threshold: '' }] }
+    }));
+  };
+
+  const handleServiceChange = (metric, index, key, value) => {
+    const updatedServices = [...serviceSpecificSettings[metric].services];
+    updatedServices[index][key] = value;
+    setServiceSpecificSettings(prevSettings => ({
+      ...prevSettings,
+      [metric]: { ...prevSettings[metric], services: updatedServices }
+    }));
+
+    // clear error state
+    const newErrors = { ...errors };
+    delete newErrors[`service${key.charAt(0).toUpperCase() + key.slice(1)}-${metric}-${index}`];
+    setErrors(newErrors);
+  };
+
+  const handleDeleteService = (metric, index) => {
+    const updatedServices = [...serviceSpecificSettings[metric].services];
+    updatedServices.splice(index, 1);
+    setServiceSpecificSettings(prevSettings => ({
+      ...prevSettings,
+      [metric]: { ...prevSettings[metric], services: updatedServices }
+    }));
+  };
+
+  const handleOperatorThresholdChange = (metric, key, value) => {
+    setServiceSpecificSettings(prevSettings => ({
+      ...prevSettings,
+      [metric]: { ...prevSettings[metric], [key]: value }
+    }));
     
+    // clear error state
+    const newErrors = { ...errors };
+    delete newErrors[`${key}-${metric}`];
+    setErrors(newErrors);
+  };
+
+  return (
     <React.Fragment>
       <IconButton onClick={handleClickOpen}>
         <SettingsOutlinedIcon sx={{ fontSize: '25px' }} />
@@ -175,47 +249,7 @@ const Setting = () => {
             <br />
           </DialogContentText>
 
-          {/* clusters dropdown menu */}
-          {/* cluster has been setup , change the mock data to real endpoint later // check again if this works */}
-          <FormControl sx={{ mt: 2, minWidth: 180 }}>
-            <InputLabel htmlFor="clusters">Clusters</InputLabel>
-            <Select
-              autoFocus
-              value={clusters}
-              onChange={(e) => dispatch(setCluster(e.target.value))}
-              label="Clusters"
-              inputProps={{
-                name: 'clusters',
-                id: 'clusters',
-              }}
-            >
-              <MenuItem value="allClusters">All Clusters</MenuItem>
-              {clusterNames.map((cluster) => (
-                <MenuItem key={cluster} value={cluster}>{cluster}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* services dropdown menu */}
-          <FormControl sx={{ mt: 2, minWidth: 180 }}>
-            <InputLabel htmlFor="services">Services</InputLabel>
-            <Select
-              autoFocus
-              value={services}
-              onChange={(e) => dispatch(setService(e.target.value))}
-              label="Services"
-              inputProps={{
-                name: 'services',
-                id: 'services',
-              }}
-            >
-              <MenuItem value="allServices">All Services</MenuItem>
-              {serviceNames.map((service) => (
-                <MenuItem key={service} value={service}>{service}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
+          {/* Notification settings */}
           <Box
             component="form"
             sx={{
@@ -225,96 +259,225 @@ const Setting = () => {
               width: '100%',
             }}
           >
-            {/* get the operators */}
-            {notifications.map((metric, index) => {
-              const operatorValue = metric.operator || 'greaterThan'; // Default to 'greaterThan' // if not working check redux notificationSlice
-              const helperText =
-                metric.metric === 'CPUUtilization' || metric.metric === 'MemoryUtilization'
-                  ? 'Please enter a percentage (%)' // cpu mem %
-                  : 'Please enter a number (Bytes/Second)'; // network
-
-              return (
-                
-                <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={metric.metric}>
-                  <Grid item xs={3}>
-                    <TextField
-                      id={metric.metric} // metric name
-                      select
-                      label={metric.metric} // metric name
-                      value={operatorValue}  // operator
-                      onChange={(e) => dispatch(updateNotification({ index, key: 'operator', value: e.target.value }))}
-                      helperText="Please choose an operator"
-                      variant="filled"
-                      fullWidth
-                    >
-                      {/* operator dropdown menu */}
-                      {operators.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-                  
-                  {/* input box number, key to backend ='threshold' */}
-                  <Grid item xs={3}>
-                    <TextField
-                      id={`${metric.metric}-number`}
-                      label="Number"
-                      type="number"
-                      value={metric.threshold}
-                      onChange={(e) => dispatch(updateNotification({ index, key: 'threshold', value: e.target.value }))}
-                      helperText={
-                        <span style={{ whiteSpace: 'nowrap' }}>
-                          {helperText}
-                        </span>
+            {notifications.map((metric, index) => (
+              <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={metric.metric}>
+                <Grid item xs={12}>
+                  <Tooltip title={getTooltipTitle(metric.isEnable)}>
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={metric.isEnable}
+                          onChange={(e) => dispatch(updateNotification({ index, key: 'isEnable', value: e.target.checked }))}
+                        />
                       }
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      fullWidth
+                      label={metric.metric}
                     />
-                  </Grid>
-
-                  {/* enable switch */}
-                  <Grid item xs={2}>
-                    <Tooltip title={getTooltipTitle(metric.isEnable)}>
-                      <FormControlLabel
-                        control={
-                          <Switch
-                            checked={metric.isEnable}
-                            onChange={(e) => dispatch(updateNotification({ index, key: 'isEnable', value: e.target.checked }))}
-                          />
-                        }
-                        label="Enable"
-                      />
-                    </Tooltip>
-                  </Grid>
-
-                  {/* monitoring details */}
-                  <Grid item xs={4}>
-                    <Typography variant="body2">{metric.metric} monitoring.</Typography>
-                  </Grid>
+                  </Tooltip>
                 </Grid>
-              );
-            })}
+                {metric.isEnable && ['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
+                  <>
+                    <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={`${metric.metric}-apply-to-all`} style={{ padding: '0 16px' }}>
+                      <Grid item xs={3} container alignItems="center" justifyContent="flex-start">
+                        <FormControlLabel
+                          control={
+                            <Checkbox
+                              checked={serviceSpecificSettings[metric.metric].applyToAll}
+                              onChange={() => handleApplyToAllChange(metric.metric)}
+                            />
+                          }
+                          label="Apply to all services"
+                          style={{ marginRight: 0 }}
+                        />
+                      </Grid>
+                      {serviceSpecificSettings[metric.metric].applyToAll && (
+                        <>
+                          <Grid item xs={4}>
+                            <FormControl fullWidth error={!!errors[`operator-${index}`]}>
+                              <InputLabel>Operator</InputLabel>
+                              <Select
+                                value={serviceSpecificSettings[metric.metric].operator}
+                                onChange={(e) => handleOperatorThresholdChange(metric.metric, 'operator', e.target.value)}
+                                label="Operator"
+                              >
+                                {operators.map((option) => (
+                                  <MenuItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </MenuItem>
+                                ))}
+                              </Select>
+                              {errors[`operator-${index}`] && (
+                                <FormHelperText>{errors[`operator-${index}`]}</FormHelperText>
+                              )}
+                              <FormHelperText>Please select an operator</FormHelperText>
+                            </FormControl>
+                          </Grid>
+                          <Grid item xs={5}>
+                            <TextField
+                              label="Threshold"
+                              type="number"
+                              value={serviceSpecificSettings[metric.metric].threshold}
+                              onChange={(e) => handleOperatorThresholdChange(metric.metric, 'threshold', e.target.value)}
+                              error={!!errors[`threshold-${metric.metric}`]}
+                              helperText={errors[`threshold-${metric.metric}`] || (
+                                <span style={{ whiteSpace: 'nowrap' }}>
+                                  {metric.metric === 'CPUUtilization' || metric.metric === 'MemoryUtilization'
+                                    ? 'Please enter a percentage (%)'
+                                    : 'Please enter a number (Bytes/Second)'}
+                                </span>
+                              )}
+                              variant="filled"
+                              fullWidth
+                            />
+                          </Grid>
+                        </>
+                      )}
+                    </Grid>
+                    {!serviceSpecificSettings[metric.metric].applyToAll && (
+                      <>
+                        {serviceSpecificSettings[metric.metric].services.map((service, idx) => (
+                          <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={idx} style={{ paddingLeft: 16 }}>
+                            <Grid item xs={3}>
+                              <FormControl fullWidth error={!!errors[`serviceName-${index}-${idx}`]}>
+                                <InputLabel htmlFor={`${metric.metric}-service-${idx}`}>Service</InputLabel>
+                                <Select
+                                  id={`${metric.metric}-service-${idx}`}
+                                  value={service.serviceName}
+                                  onChange={(e) => handleServiceChange(metric.metric, idx, 'serviceName', e.target.value)}
+                                  label="Service"
+                                >
+                                  {serviceNames.map((serviceName) => (
+                                    <MenuItem
+                                      key={serviceName}
+                                      value={serviceName}
+                                      disabled={serviceSpecificSettings[metric.metric].services.some(s => s.serviceName === serviceName)}
+                                    >
+                                      {serviceName}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                {errors[`serviceName-${index}-${idx}`] && (
+                                  <FormHelperText>{errors[`serviceName-${index}-${idx}`]}</FormHelperText>
+                                )}
+                                <FormHelperText>Please select a service</FormHelperText>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <FormControl fullWidth error={!!errors[`serviceOperator-${index}-${idx}`]}>
+                                <InputLabel>Operator</InputLabel>
+                                <Select
+                                  value={service.operator}
+                                  onChange={(e) => handleServiceChange(metric.metric, idx, 'operator', e.target.value)}
+                                  label="Operator"
+                                >
+                                  {operators.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                      {option.label}
+                                    </MenuItem>
+                                  ))}
+                                </Select>
+                                {errors[`serviceOperator-${index}-${idx}`] && (
+                                  <FormHelperText>{errors[`serviceOperator-${index}-${idx}`]}</FormHelperText>
+                                )}
+                                <FormHelperText>Please select an operator</FormHelperText>
+                              </FormControl>
+                            </Grid>
+                            <Grid item xs={3}>
+                              <TextField
+                                label="Threshold"
+                                type="number"
+                                value={service.threshold}
+                                onChange={(e) => handleServiceChange(metric.metric, idx, 'threshold', e.target.value)}
+                                error={!!errors[`serviceThreshold-${index}-${idx}`]}
+                                helperText={errors[`serviceThreshold-${index}-${idx}`] || (
+                                  <span style={{ whiteSpace: 'nowrap' }}>
+                                    {metric.metric === 'CPUUtilization' || metric.metric === 'MemoryUtilization'
+                                      ? 'Please enter a percentage (%)'
+                                      : 'Please enter a number (Bytes/Second)'}
+                                  </span>
+                                )}
+                                variant="filled"
+                                fullWidth
+                              />
+                            </Grid>
+                            <Grid item xs={3}>
+                              <Button variant="contained" color="secondary" onClick={() => handleDeleteService(metric.metric, idx)}>
+                                Delete
+                              </Button>
+                            </Grid>
+                          </Grid>
+                        ))}
+                        <Grid item xs={12} style={{ paddingLeft: 16 }}>
+                          <Button variant="outlined" onClick={() => handleAddService(metric.metric)}>
+                            + Add service
+                          </Button>
+                        </Grid>
+                      </>
+                    )}
+                  </>
+                )}
+                {metric.isEnable && !['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
+                  <>
+                    <Grid item xs={6}>
+                      <FormControl fullWidth error={!!errors[`operator-${index}`]}>
+                        <InputLabel>Operator</InputLabel>
+                        <Select
+                          id={metric.metric}
+                          value={metric.operator || 'greaterThan'}
+                          onChange={(e) => dispatch(updateNotification({ index, key: 'operator', value: e.target.value }))}
+                          label="Operator"
+                        >
+                          {operators.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                        {errors[`operator-${index}`] && (
+                          <FormHelperText>{errors[`operator-${index}`]}</FormHelperText>
+                        )}
+                        <FormHelperText>Please select an operator</FormHelperText>
+                      </FormControl>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        id={`${metric.metric}-number`}
+                        label="Threshold"
+                        type="number"
+                        value={metric.threshold}
+                        onChange={(e) => dispatch(updateNotification({ index, key: 'threshold', value: e.target.value }))}
+                        error={!!errors[`threshold-${index}`]}
+                        helperText={errors[`threshold-${index}`] || (
+                          <span style={{ whiteSpace: 'nowrap' }}>
+                            {metric.metric === 'CPUUtilization' || metric.metric === 'MemoryUtilization'
+                              ? 'Please enter a percentage (%)'
+                              : 'Please enter a number (Bytes/Second)'}
+                          </span>
+                        )}
+                        InputLabelProps={{
+                          shrink: true,
+                        }}
+                        variant="filled"
+                        fullWidth
+                      />
+                    </Grid>
+                  </>
+                )}
+              </Grid>
+            ))}
           </Box>
         </DialogContent>
 
-       {/* close and save button with handle fubnction */}
         <DialogActions>
           <Button onClick={handleClose}>Close</Button>
           <Button onClick={handleSave} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
 
-       {/* if click save will send an alert box on the page */}
       <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
         <Alert onClose={handleAlertClose} severity="success" sx={{ width: '100%' }}>
           Notification settings have been set successfully!
         </Alert>
       </Snackbar>
-
     </React.Fragment>
   );
 };
