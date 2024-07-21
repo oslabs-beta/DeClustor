@@ -6,24 +6,27 @@ import {
   InputBase,
   Typography,
   Tooltip,
-  Popover,
+  Badge,
 } from '@mui/material'
 import FlexBetween from './FlexBetween'
-import { useDispatch } from 'react-redux'
-import { setMode } from '../redux/globalSlice.js'
+import { useDispatch, useSelector } from 'react-redux'
+import { setMode } from '../redux/globalSlice'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined'
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
 import Search from '@mui/icons-material/Search'
 import { Menu as MenuIcon } from '@mui/icons-material'
-import Badge from '@mui/material/Badge'
-import { useNavigate } from 'react-router-dom'
 import LogoutIcon from '@mui/icons-material/Logout'
 import logo from '../assets/logo.png'
-// import Setting from './Setting'
-import Setting from './setting1'
-import Alerts from './Alerts'
+import Setting from './Setting'
+import {
+  clearNotificationBadge,
+  markNotificationsAsRead,
+} from '../redux/notificationSlice'
+import { useNavigate } from 'react-router-dom'
+//import Alerts from './Alerts'
+// import { useWebSocket } from '../redux/wsContext'  // <= keep this for now , ws global
 
 const Navbar = ({
   isSidebarOpen,
@@ -32,22 +35,18 @@ const Navbar = ({
   showSearch = true,
   showNotification = true,
   showUser = true,
-  // handleClickOpen,
 }) => {
-  // theme setting
   const dispatch = useDispatch()
   const theme = useTheme()
   const navigate = useNavigate()
 
   const [alertAnchorEl, setAlertAnchorEl] = useState(null)
 
-  const handleNotificationClick = (event) => {
-    setAlertAnchorEl(alertAnchorEl ? null : event.currentTarget)
-  }
+  // unread redux state
+  const unreadNotificationCount = useSelector(
+    (state) => state.notification.unreadNotificationCount
+  )
 
-  const handleAlertClose = () => {
-    setAlertAnchorEl(null)
-  }
   useEffect(() => {
     if (alertAnchorEl) {
       const timer = setTimeout(() => {
@@ -57,7 +56,23 @@ const Navbar = ({
     }
   }, [alertAnchorEl])
 
-  const isAlertOpen = Boolean(alertAnchorEl)
+  // make sure the state update happens before navigation // not time lapping
+  const handleNotificationClick = (event) => {
+    if (unreadNotificationCount > 0) {
+      // mark and clare redux state
+      dispatch(markNotificationsAsRead())
+      dispatch(clearNotificationBadge())
+      setTimeout(() => {
+        navigate('/logs')
+      }, 0)
+    }
+  }
+
+  // const handleAlertClose = () => {
+  //   setAlertAnchorEl(null)
+  // }
+
+  //const isAlertOpen = Boolean(alertAnchorEl)
 
   return (
     <Box display="flex" justifyContent="space-between" padding={2}>
@@ -71,7 +86,7 @@ const Navbar = ({
             height: '40px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
           }}
         >
           <MenuIcon />
@@ -81,9 +96,7 @@ const Navbar = ({
           component="img"
           alt="logo"
           src={logo}
-          onClick={() => {
-            navigate('/dashboard');
-          }}
+          onClick={() => navigate('/dashboard')}
           height="100px"
           width="100px"
           borderRadius="28%"
@@ -125,13 +138,27 @@ const Navbar = ({
           )}
         </IconButton>
 
-        {/* notification icon button */}
+        {/* Notification alert button */}
+        {/* check if there is no unread .length, tooltip box equals no notification */}
         {showNotification && (
-          <IconButton onClick={handleNotificationClick}>
-            <Badge badgeContent={1} color="secondary">
-              <NotificationsOutlinedIcon sx={{ fontSize: '25px' }} />
-            </Badge>
-          </IconButton>
+          <Tooltip
+            title={
+              unreadNotificationCount > 0
+                ? 'You have notifications!'
+                : 'No notifications'
+            }
+          >
+            {/* handle notification  */}
+            <IconButton onClick={handleNotificationClick}>
+              {unreadNotificationCount > 0 ? (
+                <Badge badgeContent={unreadNotificationCount} color="secondary">
+                  <NotificationsOutlinedIcon sx={{ fontSize: '25px' }} />
+                </Badge>
+              ) : (
+                <NotificationsOutlinedIcon sx={{ fontSize: '25px' }} />
+              )}
+            </IconButton>
+          </Tooltip>
         )}
 
         {/* setting icon button */}
@@ -158,25 +185,8 @@ const Navbar = ({
           </IconButton>
         </Tooltip>
       </FlexBetween>
-
-      {/* Popover for Alert component */}
-      <Popover
-        open={isAlertOpen}
-        anchorEl={alertAnchorEl}
-        onClose={handleAlertClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-      >
-        <Alerts open={isAlertOpen} />
-      </Popover>
     </Box>
-  );
-};
+  )
+}
 
-export default Navbar;
+export default Navbar
