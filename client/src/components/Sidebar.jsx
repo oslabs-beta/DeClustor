@@ -158,7 +158,7 @@ const Sidebar = ({
                   );
                 }
 
-                const lowerCaseText = text.toLowerCase();
+                const lowerCaseText = text.toLowerCase().replace(' ', '');
 
                 // set the navagat by following the {text} navItems name
                 // swich the colors follow by if it's active?
