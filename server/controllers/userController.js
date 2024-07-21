@@ -1,3 +1,5 @@
+// Import necessary modules and set up the database and email transporter
+const path = require('path');
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 const nodemailer = require('nodemailer');
@@ -6,6 +8,7 @@ const userdbPath = path.resolve(__dirname, '../database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
+// Configure email transporter using environment variables for Gmail credentials
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
   auth: {
@@ -14,8 +17,10 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Define userController object to export
 const userController = {};
 
+// Create a new user in the database and send a verification email
 userController.createUser = (req, res, next) => {
   const { firstname, lastname, username, password, email } = req.body;
   const verificationCode = crypto.randomBytes(3).toString('hex');
@@ -24,43 +29,36 @@ userController.createUser = (req, res, next) => {
     return res.status(400).send('Username or password is required');
   }
 
+  // Check if username already exists in the database
   userdb.get(
     'SELECT user_name FROM Users WHERE user_name = ?',
     [username],
     (err, row) => {
       if (err) {
-        // userdb.close();
         console.log(err);
         return res.status(500).json({ message: 'Internal server error' });
       }
 
       if (row) {
-        // userdb.close();
         return res.status(400).json({ message: 'Username already exists' });
       }
 
+      // Insert new user into the database
       userdb.run(
         'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
         [firstname, lastname, username, password, email, verificationCode],
         (err) => {
-          // userdb.close();
           if (err) {
             console.log(err);
-            return res
-              .status(500)
-              .json({ message: 'Internal server error here' });
+            return res.status(500).json({ message: 'Internal server error here' });
           }
-          // res.locals.userId = this.lastID;
-          // console.log(res.locals.userId);
+      
           userdb.get(
             'SELECT id FROM Users WHERE user_name = ?',
             [username],
             (err, row) => {
               if (err) {
-                // userdb.close();
-                return res
-                  .status(500)
-                  .json({ message: 'Internal server error' });
+                return res.status(500).json({ message: 'Internal server error' });
               }
 
               if (row) {
@@ -89,6 +87,7 @@ userController.createUser = (req, res, next) => {
   );
 };
 
+// Verify user login credentials
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
   console.log(email, password);
@@ -111,15 +110,14 @@ userController.verifyUser = (req, res, next) => {
   );
 };
 
+// Verify the user's email via a provided verification code
 userController.verifyEmail = (req, res) => {
   const { email, code } = req.body;
-  console.log(email, code);
 
   userdb.get(
     'SELECT * FROM Users WHERE email = ? AND verification_code = ?',
     [email, code],
     (err, row) => {
-      console.log(email);
       if (err) {
         res.status(500).json({ error: err.message });
       } else if (!row) {
@@ -141,6 +139,7 @@ userController.verifyEmail = (req, res) => {
   );
 };
 
+// Allow a user to request a password reset and send them a reset link
 userController.requestPasswordReset = (req, res) => {
   const { email } = req.body;
   const resetToken = crypto.randomBytes(20).toString('hex');
@@ -168,10 +167,7 @@ userController.requestPasswordReset = (req, res) => {
           if (error) {
             res.status(500).json({ error: error.message });
           } else {
-            console.log('Email sent: ' + info.response);
-            res
-              .status(200)
-              .json({ message: 'Password reset link sent to your email' });
+            res.status(200).json({ message: 'Password reset link sent to your email' });
           }
         });
       }
@@ -179,6 +175,7 @@ userController.requestPasswordReset = (req, res) => {
   );
 };
 
+// Reset the user's password using a token received in their email
 userController.resetPassword = (req, res) => {
   const { email, token, newPassword } = req.query;
 
@@ -207,8 +204,8 @@ userController.resetPassword = (req, res) => {
   );
 };
 
+// Handle user login with Google OAuth
 userController.googleLogin = (accessToken, refreshToken, profile, done) => {
-  console.log(profile);
   const firstname = profile.given_name;
   const lastname = profile.lastname;
   const googleId = profile.id;
@@ -227,7 +224,6 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
           [firstname, lastname, username, googleId],
 
           function (err) {
-            console.log(err);
             if (err) {
               return done(err);
             } else {
@@ -245,7 +241,6 @@ userController.googleLogin = (accessToken, refreshToken, profile, done) => {
       }
     }
   );
-  // db.close();
 };
 
 module.exports = userController;

@@ -295,6 +295,9 @@ app.use((err, req, res, next) => {
   // console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = {server, app};

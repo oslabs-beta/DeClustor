@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "server": "nodemon server/server.js",
     "start": "npm run server"
   },
@@ -36,5 +36,9 @@
     "sqlite3": "^5.1.7",
     "util": "^0.12.5",
     "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
   }
 }
