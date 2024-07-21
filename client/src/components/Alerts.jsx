@@ -1,24 +1,39 @@
-import React from 'react';
-import Alert from '@mui/material/Alert';
-import Stack from '@mui/material/Stack';
+import React from 'react'
+import Alert from '@mui/material/Alert'
+import Stack from '@mui/material/Stack'
 import { Link } from 'react-router-dom'
-import LogsNotification from '../pages/LogsNotification';
-// import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined'
-// import Badge from '@mui/material/Badge'
-// import { Box, IconButton, InputBase, Typography, Tooltip } from '@mui/material'
+import { useDispatch } from 'react-redux'
+// import redux on mark and clear
+import { markNotificationsAsRead, clearNotificationBadge } from '../redux/notificationSlice'
 
-const Alerts = ({ open }) => {
+const Alerts = ({ notificationCount, onAlertClick }) => {
 
-    if (!open) return null;
+  const dispatch = useDispatch()
+
+  // handle cleaning and counting notification
+  const handleAlertClick = () => {
+    // first time clicking
+    dispatch(markNotificationsAsRead())
+    // then clear the number on the badge
+    dispatch(clearNotificationBadge())
+    onAlertClick()
+  }
 
   return (
-
     <Stack sx={{ width: '100%' }} spacing={2}>
-      <Link to="/logs" style={{ textDecoration: 'none' }}>
-      <Alert severity="info">You have notifications!</Alert>
-      </Link>
+      {notificationCount > 0 ? (
+        <Link
+          to="/logs"
+          style={{ textDecoration: 'none' }}
+          onClick={handleAlertClick}
+        >
+          <Alert severity="info">You have notifications!</Alert>
+        </Link>
+      ) : (
+        <Alert severity="info">You have no notifications</Alert>
+      )}
     </Stack>
-  );
+  )
 }
 
-export default Alerts;
+export default Alerts

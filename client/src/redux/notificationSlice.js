@@ -9,7 +9,7 @@ const initialState = {
     {
       metric: 'CPUUtilization',
       threshold: 0,
-      operator: 'greaterThan', // defalut to '>'
+      operator: 'greaterThan', // default to '>'
       isEnable: false,
     },
     {
@@ -31,17 +31,11 @@ const initialState = {
       isEnable: false,
     },
   ],
-  receivedNotifications: []
+  receivedNotifications: [],
+  unreadNotificationCount: 0, // default to 0
+  loading: false,
+  error: null,
 };
-
-// export const fetchClusterAndServiceOptions = createAsyncThunk(
-//   'notification/fetchClusterAndServiceOptions',
-//   async (userId) => {
-//     const response = await fetch(`http://localhost:3000/?userId=${userId}`); //<= change this endpoint to get all the service and cluster 
-//     const data = await response.json();
-//     return data;
-//   }
-// );
 
 const notificationSlice = createSlice({
   name: 'notification',
@@ -62,17 +56,36 @@ const notificationSlice = createSlice({
     },
     setReceivedNotifications: (state, action) => {
       state.receivedNotifications = action.payload;
-    }
+      state.unreadNotificationCount = action.payload.filter(notification => !notification.isRead).length;
+    },
+    clearNotificationBadge: (state) => {
+      state.unreadNotificationCount = 0; // only clear badge out
+    },
+    markNotificationsAsRead: (state) => {
+      state.receivedNotifications = state.receivedNotifications.map(notification => ({
+        ...notification,
+        isRead: true,
+      }));
+      state.unreadNotificationCount = 0; // reset unread count!!!
+    },
   },
-  // extraReducers: (builder) => {
-  //   builder.addCase(fetchClusterAndServiceOptions.fulfilled, (state, action) => {
-  //     state.clusterOptions = action.payload.clusters;
-  //     state.serviceOptions = action.payload.services;
-  //   });
-  // },
+  extraReducers: (builder) => {
+    builder
+      .addCase(saveNotifications.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(saveNotifications.fulfilled, (state, action) => {
+        state.loading = false;
+        // handle successful saving if needed
+      })
+      .addCase(saveNotifications.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-export const { setCluster, setService, updateNotification, setNotifications, setReceivedNotifications } = notificationSlice.actions;
+export const { setCluster, setService, updateNotification, setNotifications, setReceivedNotifications, clearNotificationBadge, markNotificationsAsRead } = notificationSlice.actions;
 
 export const saveNotifications = createAsyncThunk(
   'notification/saveNotifications',
@@ -97,3 +110,5 @@ export const saveNotifications = createAsyncThunk(
 );
 
 export default notificationSlice.reducer;
+
+
