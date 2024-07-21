@@ -1,28 +1,56 @@
 import React from 'react';
-import { Card, CardContent, Typography, Grid } from '@mui/material';
+import {
+  Card,
+  CardContent,
+  Typography,
+  CardActionArea,
+  useTheme,
+} from '@mui/material';
 
 const AccountDetails = ({ account, accountType, onClick }) => {
-  if (!account) {
-    return null;
-  }
-
-  const { account_name, status, email, userId } = account;
+  const theme = useTheme();
 
   return (
-    <Grid item xs={12} sm={6} md={4}>
-      <Card
-        sx={{ cursor: 'pointer' }}
-        onClick={() => onClick(account, accountType)}
-      >
-        <CardContent>
-          <Typography variant='h6'>{account_name || 'N/A'}</Typography>
-          <Typography variant='body2'>Type: {accountType}</Typography>
-          <Typography variant='body2'>Status: {status || 'N/A'}</Typography>
-          <Typography variant='body2'>Email: {email || 'N/A'}</Typography>
-          <Typography variant='body2'>User ID: {userId || 'N/A'}</Typography>
+    <Card
+      onClick={onClick}
+      sx={{
+        cursor: 'pointer',
+        backgroundColor: theme.palette.background.alt,
+        color: theme.palette.neutral.main,
+        boxShadow: theme.shadows[5],
+        '&:hover': {
+          boxShadow: theme.shadows[10],
+        },
+        borderRadius: '16px',
+        width: '350px',
+        height: 'auto',
+        transition: 'transform 0.2s',
+        '&:hover': {
+          transform: 'scale(1.05)',
+        },
+      }}
+    >
+      <CardActionArea>
+        <CardContent sx={{ padding: '25px' }}>
+          <Typography
+            variant='h4'
+            component='div'
+            sx={{ mb: 2, color: theme.palette.secondary.main }} // Change the color here
+          >
+            {account.Name}
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`ID: ${account.Id}`}
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`Email: ${account.Email}`}
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`Status: ${account.Status}`}
+          </Typography>
         </CardContent>
-      </Card>
-    </Grid>
+      </CardActionArea>
+    </Card>
   );
 };
 

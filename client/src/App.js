@@ -55,10 +55,7 @@ const App = () => {
               <Route path='/userprofile' element={<UserProfile />} />
               {/* <Route path='/notification' element={<Notification />} /> */}
               <Route path='/accounts' element={<Accounts />} />
-              {/* <Route
-                path='/dashboard/:accountName'
-                element={<AccountDetails />}
-              /> */}
+              <Route path='/dashboard' element={<AccountDetails />} />
               <Route element={<Layout />}>
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='*' element={<Navigate to='/' replace />} />

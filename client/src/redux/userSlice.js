@@ -14,6 +14,9 @@ const initialState = {
   accountsError: null,
   selectedAccount: null,
   selectedAccountType: null,
+  selectedSubAccountDetails: [],
+  status: 'idle',
+  error: null,
 };
 
 // Async thunk for fetching current user data
@@ -52,7 +55,7 @@ export const fetchAccounts = createAsyncThunk(
   async (userId) => {
     try {
       const response = await fetch(
-        `localhost:3000/list/allAccounts?userId=${userId}`
+        `http://localhost:3000/list/allAccounts?userId=${userId}`
       );
       if (!response.ok) {
         throw new Error('Network response was not ok');
@@ -61,6 +64,25 @@ export const fetchAccounts = createAsyncThunk(
       return data;
     } catch (error) {
       throw new Error('Failed to fetch accounts: ' + error.message);
+    }
+  }
+);
+
+// Fetch subaccount details
+export const fetchSubAccountDetails = createAsyncThunk(
+  'user/fetchSubAccountDetails',
+  async ({ userId, accountName }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/AllSubAccounts?userId=${userId}&accountName=${accountName}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      return { accountName, details: data };
+    } catch (error) {
+      throw new Error('Failed to fetch subaccount details: ' + error.message);
     }
   }
 );
@@ -128,8 +150,19 @@ const userSlice = createSlice({
     },
     // New reducers for account data
     fetchAccountsSuccess: (state, action) => {
-      state.rootAccounts = action.payload.root;
-      state.subAccounts = action.payload.subaccount;
+      // Store root and subaccounts including necessary fields
+      state.rootAccounts = action.payload.root.map((account) => ({
+        ...account,
+        email: account.email || 'N/A',
+        status: account.status || 'N/A',
+        id: account.id || 'N/A',
+      }));
+      state.subAccounts = action.payload.subaccount.map((account) => ({
+        ...account,
+        email: account.email || 'N/A',
+        status: account.status || 'N/A',
+        id: account.id || 'N/A',
+      }));
       state.accountsLoading = false;
       state.accountsError = null;
     },
@@ -141,9 +174,18 @@ const userSlice = createSlice({
       state.accountsLoading = true;
       state.accountsError = null;
     },
-    selectAccount: (state, action) => {
-      state.selectedAccount = action.payload.account;
-      state.selectedAccountType = action.payload.accountType;
+    selectAccount(state, action) {
+      const { account, accountType } = action.payload;
+      if (accountType === 'Root') {
+        state.selectedSubAccountDetails = [];
+      }
+    },
+    clearSelectedAccount(state) {
+      state.selectedAccount = null;
+      state.selectedAccountType = null;
+    },
+    setUserId: (state, action) => {
+      state.userId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -153,14 +195,40 @@ const userSlice = createSlice({
         state.accountsError = null;
       })
       .addCase(fetchAccounts.fulfilled, (state, action) => {
-        state.rootAccounts = action.payload.root;
-        state.subAccounts = action.payload.subaccount;
+        state.rootAccounts = action.payload.root.map((account) => ({
+          ...account,
+          email: account.email || 'N/A',
+          status: account.status || 'N/A',
+          id: account.id || 'N/A',
+        }));
+        state.subAccounts = action.payload.subaccount.map((account) => ({
+          ...account,
+          email: account.email || 'N/A',
+          status: account.status || 'N/A',
+          id: account.id || 'N/A',
+        }));
         state.accountsLoading = false;
         state.accountsError = null;
       })
       .addCase(fetchAccounts.rejected, (state, action) => {
         state.accountsLoading = false;
         state.accountsError = action.payload;
+      })
+      .addCase(fetchSubAccountDetails.pending, (state) => {
+        state.accountsLoading = true;
+      })
+      .addCase(fetchSubAccountDetails.fulfilled, (state, action) => {
+        state.accountsLoading = false;
+        state.selectedSubAccountDetails = action.payload.details.map(
+          (detail) => ({
+            ...detail,
+            account_name: action.payload.accountName,
+          })
+        );
+      })
+      .addCase(fetchSubAccountDetails.rejected, (state, action) => {
+        state.accountsLoading = false;
+        state.accountsError = action.error.message;
       });
   },
 });
@@ -177,6 +245,8 @@ export const {
   fetchAccountsFailure,
   fetchAccountsPending,
   selectAccount,
+  clearSelectedAccount,
+  setUserId,
 } = userSlice.actions;
 
 export default userSlice.reducer;

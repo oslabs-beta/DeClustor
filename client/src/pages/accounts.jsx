@@ -18,18 +18,28 @@ import logo from '../assets/logo.png';
 import FlexBetween from '../components/FlexBetween';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { fetchAccounts, selectAccount } from '../redux/userSlice.js';
-import AccountDetails from '../components/AccountDetails';
+import {
+  fetchAccounts,
+  fetchSubAccountDetails,
+  selectAccount,
+} from '../redux/userSlice.js';
+import AccountDetails from '../components/accountDetails';
 
-const drawerWidth = 240;
+const drawerWidth = 300;
 
 const Accounts = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { userId, rootAccounts, subAccounts, accountsLoading, accountsError } =
-    useSelector((state) => state.user);
+  const {
+    userId,
+    rootAccounts = [],
+    subAccounts = [],
+    accountsLoading,
+    accountsError,
+    selectedSubAccountDetails = [],
+  } = useSelector((state) => state.user);
   const [drawerOpen, setDrawerOpen] = React.useState(true);
 
   useEffect(() => {
@@ -41,7 +51,11 @@ const Accounts = () => {
   const handleAccountClick = (account, accountType) => {
     if (account) {
       dispatch(selectAccount({ account, accountType }));
-      navigate(`/dashboard/${account.account_name}`);
+      if (accountType === 'Root') {
+        dispatch(
+          fetchSubAccountDetails({ userId, accountName: account.account_name })
+        );
+      }
     }
   };
 
@@ -104,7 +118,7 @@ const Accounts = () => {
             <CloseIcon />
           </IconButton>
           <Divider sx={{ my: '1rem', width: '100%' }} />
-          <Typography variant='h6' gutterBottom>
+          <Typography variant='h4' gutterBottom>
             Root Accounts
           </Typography>
           <List>
@@ -123,7 +137,7 @@ const Accounts = () => {
             ))}
           </List>
           <Divider sx={{ my: '1rem', width: '100%' }} />
-          <Typography variant='h6' gutterBottom>
+          <Typography variant='h4' gutterBottom>
             Subaccounts
           </Typography>
           <List>
@@ -164,27 +178,32 @@ const Accounts = () => {
           flexGrow: 1,
           p: 3,
           marginLeft: drawerOpen ? `${drawerWidth}px` : '0px',
+          backgroundColor: theme.palette.background.default,
         }}
       >
         <FlexBetween>
-          <Typography variant='h4'>Select an Account from Sidebar</Typography>
+          <Typography
+            variant='h2'
+            sx={{ mb: 2, color: theme.palette.secondary.main }}
+          >
+            Account Details
+          </Typography>
         </FlexBetween>
-        <Grid container spacing={2} sx={{ mt: 2 }}>
-          {rootAccounts.map((account, index) => (
-            <AccountDetails
-              key={`root-${account.account_name}-${index}`}
-              account={account}
-              accountType='Root'
-              onClick={handleAccountClick}
-            />
-          ))}
-          {subAccounts.map((account, index) => (
-            <AccountDetails
-              key={`sub-${account.account_name}-${index}`}
-              account={account}
-              accountType='Sub'
-              onClick={handleAccountClick}
-            />
+        <Grid container spacing={3} sx={{ mt: 2 }}>
+          {selectedSubAccountDetails.map((account, index) => (
+            <Grid
+              item
+              xs={12}
+              sm={6}
+              md={4}
+              key={`account-${account.account_name}-${index}`}
+            >
+              <AccountDetails
+                account={account}
+                accountType='Sub'
+                onClick={() => navigate(`/dashboard/${account.account_name}`)}
+              />
+            </Grid>
           ))}
         </Grid>
       </Box>
