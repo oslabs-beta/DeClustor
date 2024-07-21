@@ -1,7 +1,6 @@
 // Import necessary modules and set up the database and email transporter
 const path = require('path');
-const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 const userdbPath = path.resolve(__dirname, '../database/Users.db');
@@ -90,7 +89,7 @@ userController.createUser = (req, res, next) => {
 // Verify user login credentials
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
-  console.log(email, password);
+  // console.log(email, password);
   userdb.get(
     'SELECT * FROM Users WHERE email = ? AND password = ?',
     [email, password],
@@ -102,7 +101,7 @@ userController.verifyUser = (req, res, next) => {
       if (!row) {
         return res
           .status(400)
-          .json({ message: 'Incorrect username or password' });
+          .json({ message: 'Incorrect email or password' });
       }
       res.locals.userId = row.id;
       next();

@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 const path = require('path');
 
 const dbPath = path.resolve(__dirname, '../database/Accounts.db');
@@ -88,12 +88,12 @@ listController.SubAccounts = (req, res) => {
           res.status(200).json(accounts);
         })
         .catch(error => {
-          console.error('Error listing accounts:', error);
+          console.error('1. Error listing accounts:', error);
           res.status(500).json({ error: 'Error listing accounts from AWS Organizations' });
         });
     }); 
   } catch(err) {
-    console.error('Error listing Accounts:', err);
+    console.error('2. Error listing Accounts:', err);
     res.status(500).json({ error: 'Error listing Accounts' }); 
   }
 }
@@ -177,9 +177,9 @@ async function listClustersForRegion(client, region) {
 listController.Services = (req, res) => {
   const {userId, accountName, clusterName, region} = req.query;
   // get access_key, secret_key, region, and clusterName from Credential Database
-  db.all(
-    `SELECT access_key, secret_key FROM Accounts WHERE user_id = ? AND account_name = ?`,
-    [userId, accountName],
+  db.get(
+    `SELECT access_key, secret_key FROM Accounts WHERE account_name = ? AND user_id = ?  `,
+    [ accountName, userId],
     async (err, rows) => {
       if (err) {
         return res
@@ -192,7 +192,7 @@ listController.Services = (req, res) => {
               'No credentials found for the use, configure Credentials first',
           });
         }
-        const { access_key, secret_key } = rows[0];
+        const { access_key, secret_key } = rows;
 
         // use SDK to get list of services in that user’s cluster
         const client = new ECSClient({
