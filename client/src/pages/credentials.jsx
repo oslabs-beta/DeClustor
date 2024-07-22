@@ -9,15 +9,12 @@ import {
   Box,
   Typography,
   Paper,
-  IconButton,
-  Tooltip,
-  Select,
-  MenuItem,
   FormControl,
   InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
@@ -62,7 +59,7 @@ const Credentials = () => {
       }
 
       console.log('Credentials saved successfully');
-      navigate('/dashboard');
+      navigate('/accounts');
     } catch (error) {
       console.error('Error saving credentials:', error.message);
     }

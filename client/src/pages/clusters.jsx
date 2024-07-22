@@ -42,16 +42,27 @@ const Clusters = () => {
     if (userId && accountName) {
       dispatch(fetchClusters({ userId, accountName }))
         .unwrap()
-        .catch((error) => console.error('Error fetching clusters:', error));
+        .then((data) => {
+          // Redirect if no clusters are available
+          if (data.clusters.length === 0) {
+            navigate('/credentials');
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching clusters:', error);
+        });
     }
-  }, [dispatch, userId, accountName]);
+  }, [dispatch, userId, accountName, navigate]);
+
+  // redirect users back to credentials if there are no clusters for that acc
+  useEffect(() => {
+    if (clusters.length === 0) {
+      navigate('/credentials');
+    }
+  }, [clusters, navigate]);
 
   if (clustersLoading) {
     return <Typography>Loading clusters...</Typography>;
-  }
-
-  if (clustersError) {
-    return <Typography>Error loading clusters: {clustersError}</Typography>;
   }
 
   const handleRegionClick = (region) => {
