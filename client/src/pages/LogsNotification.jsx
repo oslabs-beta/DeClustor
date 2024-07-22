@@ -8,6 +8,7 @@ import {
   clearNotificationBadge,
   setReceivedNotifications,
 } from '../redux/notificationSlice'
+import Export from '../components/Export.jsx'
 
 // set the column fields for the table formatting
 const columns = [
@@ -51,7 +52,7 @@ const LogsNotification = () => {
   useEffect(() => {
     console.log('Received notifications changed -->', receivedNotifications)
   }, [receivedNotifications])
-
+  
   const rows = useMemo(
     () =>
       (receivedNotifications || []).map((data, index) => {
@@ -81,46 +82,50 @@ const LogsNotification = () => {
   )
 
   return (
-    <Box sx={{ height: 700, width: '100%', pr: 4 }}>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 10,
+    <div>
+      <Box sx={{ height: 700, width: '100%', pr: 4 }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          initialState={{
+            pagination: {
+              paginationModel: {
+                pageSize: 10,
+              },
             },
-          },
-        }}
-        pageSizeOptions={[10]}
-        checkboxSelection
-        disableRowSelectionOnClick
-        sx={{
-          '& .MuiDataGrid-cell': {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-          },
-          '& .MuiDataGrid-columnHeaderTitleContainer': {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            textAlign: 'center',
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            textAlign: 'center',
-          },
-          '& .MuiDataGrid-columnHeaderTitle': {
-            textAlign: 'center',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          },
-        }}
-      />
-    </Box>
+          }}
+          pageSizeOptions={[10]}
+          checkboxSelection
+          disableRowSelectionOnClick
+          sx={{
+            '& .MuiDataGrid-cell': {
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+            },
+            '& .MuiDataGrid-columnHeaderTitleContainer': {
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              textAlign: 'center',
+            },
+            '& .MuiDataGrid-columnHeaders': {
+              textAlign: 'center',
+            },
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textAlign: 'center',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            },
+          }}
+        />
+      </Box>
+      {/* rows props*/}
+      <Export rows={rows} />
+    </div>
   )
 }
 
-export default LogsNotification
+export default LogsNotification;
