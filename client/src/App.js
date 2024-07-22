@@ -21,9 +21,13 @@ import UserProfile from './pages/UserProfile'
 import Credentials from './pages/credentials'
 import GetStarted from './pages/getstarted'
 import LogsNotification from './pages/LogsNotification'
-import Notification from './components/Setting' // with passing in number of notification
+//import Notification from './components/Setting' // with passing in number of notification
 import ClusterMetrics from './pages/ClusterMetrics'
-// import Overview from './pages/Overview';
+import Overview from './pages/Overview';
+import Accounts from './pages/Accounts';
+import AccountDetails from './components/accountDetails';
+import Clusters from './pages/clusters';
+import ClusterDetails from './components/clusterDetails';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode)
@@ -51,12 +55,20 @@ const App = () => {
               <Route path="/protected" element={<Dashboard />} />
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/userprofile" element={<UserProfile />} />
-              {/* <Route path='/notification' element={<Notification />} /> */}
+              <Route path='/accounts' element={<Accounts />} />
+              <Route path='/accounts/:accountId' element={<AccountDetails />} />
+              <Route path='/clusters/:accountName' element={<Clusters />} />
               <Route element={<Layout />}>
-                <Route path="/dashboard" element={<Dashboard />} />
+              <Route path='/dashboard/:clusterName' element={<Dashboard />} />
+              <Route
+                  path='/dashboard/:accountName'
+                  element={<ClusterDetails />}
+                />
+                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
                 {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
                 <Route path="/logs" element={<LogsNotification />} />
                 <Route path="/clustermetics" element={<ClusterMetrics />} />
+                <Route path="/taskoverview" element={<Overview />} />
               </Route>
             </Routes>
           </Box>
