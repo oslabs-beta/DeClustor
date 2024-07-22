@@ -1,22 +1,32 @@
 import React from 'react';
 import {
+  Box,
+  Typography,
   Card,
   CardContent,
-  Typography,
   CardActionArea,
-  useTheme,
 } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 
-const AccountDetails = ({ account, accountType }) => {
+const ClusterDetails = ({ cluster = {} }) => {
   const theme = useTheme();
   const navigate = useNavigate();
 
+  const {
+    clusterName,
+    status,
+    activeServicesCount,
+    runningTasksCount,
+    pendingTasksCount,
+    capacityProviders,
+  } = cluster;
+
   const handleClick = () => {
-    if (account && account.Name) {
-      navigate(`/clusters/${account.Name}`);
+    if (clusterName) {
+      navigate(`/dashboard/${clusterName}`);
     } else {
-      console.error('Account or account name is missing');
+      console.error('Cluster name is missing');
     }
   };
 
@@ -32,7 +42,7 @@ const AccountDetails = ({ account, accountType }) => {
           boxShadow: theme.shadows[10],
         },
         borderRadius: '16px',
-        width: '350px',
+        width: '100%',
         height: 'auto',
         transition: 'transform 0.2s',
         '&:hover': {
@@ -47,16 +57,22 @@ const AccountDetails = ({ account, accountType }) => {
             component='div'
             sx={{ mb: 2, color: theme.palette.secondary.main }}
           >
-            {account.Name}
+            {clusterName || 'No cluster name'}
           </Typography>
           <Typography variant='body2' color='textSecondary'>
-            {`ID: ${account.Id}`}
+            {`Status: ${status || 'N/A'}`}
           </Typography>
           <Typography variant='body2' color='textSecondary'>
-            {`Email: ${account.Email}`}
+            {`Active Services Count: ${activeServicesCount || 0}`}
           </Typography>
           <Typography variant='body2' color='textSecondary'>
-            {`Status: ${account.Status}`}
+            {`Running Task Count: ${runningTasksCount || 0}`}
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`Pending Task Count: ${pendingTasksCount || 0}`}
+          </Typography>
+          <Typography variant='body2' color='textSecondary'>
+            {`Capacity Providers: ${capacityProviders?.join(', ') || 'N/A'}`}
           </Typography>
         </CardContent>
       </CardActionArea>
@@ -64,4 +80,4 @@ const AccountDetails = ({ account, accountType }) => {
   );
 };
 
-export default AccountDetails;
+export default ClusterDetails;

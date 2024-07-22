@@ -8,6 +8,7 @@ const initialState = {
   lastName: '',
   serviceName: '',
   error: null,
+  // account
   rootAccounts: [],
   subAccounts: [],
   accountsLoading: false,
@@ -16,7 +17,11 @@ const initialState = {
   selectedAccountType: null,
   selectedSubAccountDetails: [],
   status: 'idle',
-  error: null,
+  // clusters
+  clusters: [],
+  clustersLoading: false,
+  clustersError: null,
+  selectedCluster: null,
 };
 
 // Async thunk for fetching current user data
@@ -83,6 +88,31 @@ export const fetchSubAccountDetails = createAsyncThunk(
       return { accountName, details: data };
     } catch (error) {
       throw new Error('Failed to fetch subaccount details: ' + error.message);
+    }
+  }
+);
+
+// Fetch clusters
+export const fetchClusters = createAsyncThunk(
+  'cluster/fetchClusters',
+  async ({ userId, accountName }, { rejectWithValue }) => {
+    if (!userId || !accountName) {
+      return rejectWithValue('User ID and account name are required');
+    }
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/AllClusters?userId=${userId}&accountName=${accountName}`
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        return rejectWithValue(
+          `Network response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue('Failed to fetch clusters: ' + error.message);
     }
   }
 );
@@ -187,6 +217,9 @@ const userSlice = createSlice({
     setUserId: (state, action) => {
       state.userId = action.payload;
     },
+    selectCluster: (state, action) => {
+      state.selectedCluster = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -229,6 +262,18 @@ const userSlice = createSlice({
       .addCase(fetchSubAccountDetails.rejected, (state, action) => {
         state.accountsLoading = false;
         state.accountsError = action.error.message;
+      })
+      .addCase(fetchClusters.pending, (state) => {
+        state.clustersLoading = true;
+        state.clustersError = null;
+      })
+      .addCase(fetchClusters.fulfilled, (state, action) => {
+        state.clustersLoading = false;
+        state.clusters = action.payload;
+      })
+      .addCase(fetchClusters.rejected, (state, action) => {
+        state.clustersLoading = false;
+        state.clustersError = action.payload;
       });
   },
 });
@@ -247,6 +292,7 @@ export const {
   selectAccount,
   clearSelectedAccount,
   setUserId,
+  selectCluster,
 } = userSlice.actions;
 
 export default userSlice.reducer;
