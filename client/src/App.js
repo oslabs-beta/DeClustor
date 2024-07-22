@@ -60,7 +60,7 @@ const App = () => {
               <Route path='/accounts/:accountId' element={<AccountDetails />} />
               <Route path='/clusters/:accountName' element={<Clusters />} />
               <Route element={<Layout />}>
-                <Route path='/dashboard' element={<Dashboard />} />
+                <Route path='/dashboard/:clusterName' element={<Dashboard />} />
                 <Route path='*' element={<Navigate to='/' replace />} />
                 <Route path='/logs' element={<LogsNotification />} />
                 <Route
