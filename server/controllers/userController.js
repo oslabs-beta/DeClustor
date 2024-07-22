@@ -180,7 +180,7 @@ userController.requestPasswordReset = (req, res) => {
           text: `You requested a password reset. Click the link to reset your password: ${resetLink}`,
         };
 
-        transporter.sendMail(mailOptions, (error, info) => {
+        transporter.sendMail(mailOptions, (error) => {
           if (error) {
             res.status(500).json({ error: error.message });
           } else {

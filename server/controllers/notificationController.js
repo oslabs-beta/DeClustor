@@ -110,7 +110,7 @@ notificationController.setNotification = (req, res, next) => {
         return next({
             log: 'Error saving notification settings',
             status: 400,
-            message: { err: 'Error saving notification settings' },
+            message: { err: `Error saving notification settings, ${err}` },
         });
     }
 };
@@ -142,7 +142,7 @@ notificationController.handleNotificationCheck = async(ws, userId) => {
         // Send all notifications via WebSocket
         ws.send(JSON.stringify(notifications));
     } catch(err) {
-        ws.send(JSON.stringify({error : 'Error checking notifications'}));
+        ws.send(JSON.stringify({error : `Error checking notifications, ${err}`}));
         ws.close();
     }
 }

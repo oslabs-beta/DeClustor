@@ -203,12 +203,7 @@ function fillMissingData(dataPoints) {
  */
 async function checkMetricThreshold(user_id, account_name, region, cluster_name, metric_name, service_name = null, completeData) {
   const dbPathNotification = path.resolve(__dirname, '../database/Notifications.db');
-  const dbNotification = new sqlite3.Database(dbPathNotification, (err) => {
-  if (err) {
-      console.log('Fail to connect to Notifications database');
-      return reject('Fail to connect to Notifications database');
-    }
-  });
+  const dbNotification = new sqlite3.Database(dbPathNotification);
   
   let searchQuery;
   let searchParams;
@@ -282,7 +277,7 @@ async function checkMetricThreshold(user_id, account_name, region, cluster_name,
       }
     } catch(err) {
       console.error('Error storing notifications in Redis:', err);
-      throw new Errorr('Error storing notifications in Redis')
+      throw new Error('Error storing notifications in Redis')
     }
   }
 }
@@ -351,9 +346,9 @@ async function handleMetricRequest(ws, userId, accountName, region, clusterName,
                     completeData = fillMissingData(data);
                     await checkMetricThreshold (userId, accountName, region, clusterName, metricName, null, completeData)
                 } else if (metricName === 'serviceStatus') {
-                    completeData = await getserviceStatus(ecsClient, cluster_name, serviceName);
+                    completeData = await getserviceStatus(ecsClient, clusterName, serviceName);
                 } else if (metricName === 'taskStatus') {
-                    completeData = await getTaskStatus(ecsClient, cluster_name, serviceName);
+                    completeData = await getTaskStatus(ecsClient, clusterName, serviceName);
                 } else if (metricName === 'CPUUtilization' || metricName === 'MemoryUtilization') {
                     data = await getCloudWatchMetrics(cloudwatchClient, metricName, 'AWS/ECS', dimensionsEcs);
                     completeData = fillMissingData(data);
@@ -369,7 +364,7 @@ async function handleMetricRequest(ws, userId, accountName, region, clusterName,
                 }
                 ws.send(JSON.stringify(completeData));
             } catch (err) {
-                ws.send(JSON.stringify({ error: 'Error fetching metric data' }));
+                ws.send(JSON.stringify({ error: `Error fetching metric data, ${err}`}));
                 ws.close();
                 return;
             }

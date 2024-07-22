@@ -288,7 +288,7 @@ wss.on('connection', async (ws, req) => {
 // Default 404 route
 app.use((req, res) => res.sendStatus(404));
 // Global error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
     status: 500,

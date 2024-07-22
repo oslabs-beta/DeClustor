@@ -89,7 +89,7 @@ listController.SubAccounts = (req, res) => {
   
           return accounts;
         } catch (error) {
-          throw new Error('Error listing accounts function from AWS Organizations');
+          throw new Error('Error listing accounts function from AWS Organizations', error);
         }
       }
   
