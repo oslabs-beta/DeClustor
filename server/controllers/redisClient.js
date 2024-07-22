@@ -2,12 +2,9 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 const redis = require('redis');
 
-console.log('Redis URL:', process.env.REDIS_URL);
-
 const client = redis.createClient({
     url: process.env.REDIS_URL
 });
-  
 
 client.on('error', (err) => {
   console.error('Redis error:', err);
@@ -26,3 +23,6 @@ client.on('connect', async () => {
 client.connect().catch(console.error);
 
 module.exports = client;
+
+
+

@@ -13,7 +13,6 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-// import { GoogleLogin } from '@react-oauth/google';
 import Google from '../assets/logingoogle.png';
 import GitHub from '../assets/signupgithub.png';
 import Navbar from '../components/Navbar';
@@ -76,33 +75,6 @@ const Login = () => {
       setError('An error occurred. Please try again.');
     }
   };
-
-  // const handleGoogleSuccess = async (credentialResponse) => {
-  //   console.log(credentialResponse);
-
-  //   try {
-  //     const response = await fetch('http://localhost:3000/auth/google', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ token: credentialResponse.credential }),
-  //     });
-
-  //     const data = await response.json();
-  //     console.log(data);
-
-  //     if (response.ok) {
-  //       console.log('Google login successful');
-  //       navigate('/dashboard');
-  //     } else {
-  //       setError(data.message);
-  //     }
-  //   } catch (error) {
-  //     console.error('Google login error:', error);
-  //     setError('An error occurred with Google login. Please try again.');
-  //   }
-  // };
 
   return (
     <div>

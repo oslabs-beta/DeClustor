@@ -28,11 +28,9 @@ import Accounts from './pages/Accounts';
 import AccountDetails from './components/accountDetails';
 import Clusters from './pages/clusters';
 import ClusterDetails from './components/clusterDetails';
-
 const App = () => {
   const mode = useSelector((state) => state.global.mode)
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode])
-
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -79,5 +77,4 @@ const App = () => {
     </ThemeProvider>
   )
 }
-
 export default App
