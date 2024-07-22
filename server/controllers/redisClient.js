@@ -5,7 +5,7 @@ const redis = require('redis');
 console.log('Redis URL:', process.env.REDIS_URL);
 
 const client = redis.createClient({
-    url: process.env.EDIS_URL
+    url: process.env.REDIS_URL
 });
   
 

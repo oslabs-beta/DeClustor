@@ -1,0 +1,36 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+
+    - name: Install root dependencies
+      run: npm install
+
+    - name: Install client dependencies
+      run: cd client && npm install --legacy-peer-deps
+
+    - name: Run tests
+      run: npm test
+
+    - name: Build client
+      run: cd client && npm run build

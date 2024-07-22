@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "server": "nodemon server/server.js",
-    "start": "npm run server"
+    "client": "cd client && npm run dev",
+    "start": "npm-run-all --parallel server client"
   },
   "keywords": [],
   "author": "",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemailer-mock": "^2.0.6",
+    "npm-run-all": "^4.1.5",
     "sqlite3": "^5.1.7",
     "supertest": "^7.0.0"
   }

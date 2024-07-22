@@ -29,7 +29,6 @@ app.post('/setNotification', notificationController.setNotification, (req, res) 
 });
 
 app.use((err, req, res, next) => {
-    console.error(err.log);
     res.status(err.status || 500).json({ message: err.message });
 });
 

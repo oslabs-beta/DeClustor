@@ -39,7 +39,6 @@ jest.mock('@aws-sdk/client-ecs', () => {
         ...actualModule,
         ECSClient: jest.fn(() => ({
             send: jest.fn((command) => {
-                console.log(`Handling command: ${command.constructor.name}`);
                 if (command.constructor.name === 'ListClustersCommand') {
                     return Promise.resolve({
                         clusterArns: ['clusterArn']
@@ -49,12 +48,10 @@ jest.mock('@aws-sdk/client-ecs', () => {
                         clusters: [{ clusterName: 'testCluster' }]
                     });
                 } else if (command.constructor.name === 'ListServicesCommand') {
-                    console.log('ListServicesCommand called');
                     return Promise.resolve({
                         serviceArns: ['serviceArn']
                     });
                 } else if (command.constructor.name === 'DescribeServicesCommand') {
-                    console.log('DescribeServicesCommand called');
                     return Promise.resolve({
                         services: [{ serviceName: 'testService' }]
                     });
@@ -131,8 +128,6 @@ describe('listController tests', () => {
 
     test('should list all services in a cluster', async () => {
         const response = await request(app).get('/list/AllServices?userId=1&accountName=testAccount&clusterName=testCluster&region=us-east-1');
-        console.log('Response status:', response.status);
-        console.log('Response body:', response.body);
         expect(response.status).toBe(200);
         expect(response.body).toEqual(['testService']);
     });
