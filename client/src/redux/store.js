@@ -21,9 +21,9 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // redux store
 const store = configureStore({
-  reducer: persistedReducer, // 使用持久化的 reducer
+  reducer: persistedReducer, 
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    serializableCheck: false, // 禁用序列化检查
+    serializableCheck: false, 
   }),
 });
 

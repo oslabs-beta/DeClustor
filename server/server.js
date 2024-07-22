@@ -51,7 +51,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 
 const userdbPath = path.resolve(__dirname, './database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
@@ -295,6 +295,9 @@ app.use((err, req, res, next) => {
   // console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });
+
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+module.exports = {server, app};

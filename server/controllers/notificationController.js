@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 const path = require('path');
 const dbPath = path.resolve(__dirname, '../database/Notifications.db');
 const db = new sqlite3.Database(dbPath);
@@ -6,41 +6,6 @@ const db = new sqlite3.Database(dbPath);
 const client = require('./redisClient');
 
 const notificationController = {};
-// {
-//     "notifications":
-//         [
-//             {
-//                 "metric":"CPUUtilization",
-//                 "applyToAllServices":
-//                     {
-//                         "threshold":"",
-//                         "operator":"greaterThan"
-//                     }
-//             },
-//             {
-//                 "metric":"MemoryUtilization",
-//                 "services":
-//                     {
-//                         "v1":
-//                             {
-//                                 "threshold":"0",
-//                                 "operator":"greaterThan"
-//                             }
-//                     }
-//             },
-//             {
-//                 "metric":"NetworkRxBytes",
-//                 "threshold":"20",
-//                 "operator":"greaterThan"
-//             },
-//             {
-//                 "metric":"NetworkTxBytes",
-//                 "threshold":"20",
-//                 "operator":"greaterThan"
-//             }
-//         ]
-//     }
-
 // test http://localhost:3000/setNotification?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}
 
 notificationController.setNotification = (req, res, next) => {

@@ -1,5 +1,5 @@
 const path = require('path');
-const sqlite3 = require('sqlite3').verbose();
+const sqlite3 = require('sqlite3');
 
 const dbPath = path.resolve(__dirname, '../database/Accounts.db');
 const db = new sqlite3.Database(dbPath);
@@ -22,7 +22,7 @@ credentialsController.saveCredentials = (req, res, next) => {
 
       if (row) {
         if (row.access_key == accessKey) {
-          return res.status(400).json({ message: 'AccessKey already exists', alreayExist: true });
+          return res.status(400).json({ message: 'AccessKey already exists', alreadyExist: true });
         } else if (row.account_name === accountName) {
           return res.status(400).json({ message: 'Account name already exists for this user', alreadyExist: true });
         }
@@ -34,7 +34,6 @@ credentialsController.saveCredentials = (req, res, next) => {
         [userId, accessKey, secretKey, accountName, accountType],
         (err) => {
           // userdb.close();
-          console.log(err);
           if (err) {
             return res.status(500).json({ message: '2.Internal server error' });
           }
