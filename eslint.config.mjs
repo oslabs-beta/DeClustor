@@ -11,6 +11,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.node, 
+        ...globals.jest,
       },
     },
     settings: {
@@ -27,4 +28,9 @@ export default [
   },
   pluginJs.configs.recommended,
   pluginReact.configs.flat.recommended,
+  {
+    rules: {
+      "no-prototype-builtins": "off", 
+    },
+  },
 ];

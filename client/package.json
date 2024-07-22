@@ -4,6 +4,7 @@
   "description": "",
   "main": "webpack.config.js",
   "scripts": {
+    "lint": "eslint .",
     "build": "webpack",
     "dev": "webpack serve --open",
     "test": "echo \"Error: no test specified\" && exit 1"
