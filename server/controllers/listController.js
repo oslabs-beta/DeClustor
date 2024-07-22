@@ -250,7 +250,7 @@ listController.Services = (req, res) => {
           .status(500)
           .json({ error: 'Error occurred during query the database' });
       } else {
-        if (rows.length === 0) {
+        if (!rows || rows.length === 0) {
           return res.status(404).json({
             error:
               'No credentials found for the use, configure Credentials first',
