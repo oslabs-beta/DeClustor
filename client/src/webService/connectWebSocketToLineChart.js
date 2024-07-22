@@ -2,7 +2,11 @@
 
 export function connectWebSocketToLineChart(userId, serviceName, metricNames, onMessage, onError, onClose) {
   // change with redux 
-  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=${metricNames.join(',')}`);
+  const url = `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=${metricNames.join(',')}`;
+  if ( !serviceName ) {
+    url = `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&metricName=${metricNames.join(',')}`
+  }
+  const ws = new WebSocket(url);
   //ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization
 
   ws.onopen = () => {

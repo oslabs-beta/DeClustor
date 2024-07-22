@@ -1,9 +1,15 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import { DataGrid } from '@mui/x-data-grid';
-import connectWebSocketToNotification from '../webService/connectWebSocketToNotification';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useMemo } from 'react'
+import Box from '@mui/material/Box'
+import { DataGrid } from '@mui/x-data-grid'
+import connectWebSocketNotifications from '../webService/connectWebSocketToNotifications'
+import { useSelector, useDispatch } from 'react-redux'
+import {
+  markNotificationsAsRead,
+  clearNotificationBadge,
+  setReceivedNotifications,
+} from '../redux/notificationSlice'
 
+// set the column fields for the table formatting
 const columns = [
   { field: 'time', headerName: 'Time', flex: 1 },
   { field: 'clusters', headerName: 'Cluster', flex: 1 },
@@ -11,34 +17,82 @@ const columns = [
   { field: 'metric', headerName: 'Metric Name', flex: 1 },
   { field: 'value', headerName: 'Value', type: 'number', flex: 1 },
   { field: 'logs', headerName: 'Logs', sortable: false, flex: 4 },
-];
+]
 
 const LogsNotification = () => {
-  connectWebSocketToNotification();
-  const receivedNotifications = useSelector((state) => state.notification.receivedNotifications);
-  const rows = receivedNotifications.map((data, index) => ({
-    id: index + 1,
-    time: new Date(data.timestamp).toLocaleTimeString(),
-    clusters: data.clusterName || 'no data',
-    service: data.serviceName || 'no data',
-    metric: data.metricName,
-    value: data.value,
-    logs: data.Logs || 'no data',
-  }));
+  // connect to webSocket
+  connectWebSocketNotifications()
+  const dispatch = useDispatch()
+  // array of {} of the notications
+  const receivedNotifications = useSelector(
+    (state) => state.notification.receivedNotifications
+  )
+
+  // redux mark as read // clear badge
+  useEffect(() => {
+    const markAndClearNotifications = () => {
+      const updatedNotifications = receivedNotifications.map(
+        (notification) => ({
+          ...notification,
+          isRead: true,
+        })
+      )
+      dispatch(setReceivedNotifications(updatedNotifications))
+      dispatch(markNotificationsAsRead())
+      dispatch(clearNotificationBadge())
+    }
+
+    if (receivedNotifications.some((notification) => !notification.isRead)) {
+      markAndClearNotifications()
+    }
+  }, [dispatch, receivedNotifications])
+
+  // check after the notification button has clicked
+  useEffect(() => {
+    console.log('Received notifications changed -->', receivedNotifications)
+  }, [receivedNotifications])
+
+  const rows = useMemo(
+    () =>
+      (receivedNotifications || []).map((data, index) => {
+        if (data && data.timestamp) {
+          return {
+            id: index + 1,
+            time: new Date(data.timestamp).toLocaleTimeString(),
+            clusters: data.clusterName || 'N/A',
+            service: data.serviceName || 'not applicable',
+            metric: data.metricName || 'N/A',
+            value: data.value || 0,
+            logs: data.Logs || 'N/A',
+          }
+        } else {
+          return {
+            id: index + 1,
+            time: 'Invalid Data',
+            clusters: 'Invalid Data',
+            service: 'Invalid Data',
+            metric: 'Invalid Data',
+            value: 'Invalid Data',
+            logs: 'Invalid Data',
+          }
+        }
+      }),
+    [receivedNotifications]
+  )
 
   return (
-    <Box sx={{ height: 400, width: '100%', pr: 4 }}>
+    <Box sx={{ height: 700, width: '100%', pr: 4 }}>
       <DataGrid
         rows={rows}
         columns={columns}
         initialState={{
           pagination: {
             paginationModel: {
-              pageSize: 5,
+              pageSize: 10,
             },
           },
         }}
-        pageSizeOptions={[5]}
+        pageSizeOptions={[10]}
         checkboxSelection
         disableRowSelectionOnClick
         sx={{
@@ -66,7 +120,7 @@ const LogsNotification = () => {
         }}
       />
     </Box>
-  );
-};
+  )
+}
 
-export default LogsNotification;
+export default LogsNotification

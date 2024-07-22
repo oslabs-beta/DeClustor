@@ -1,7 +1,7 @@
 import React from 'react';
 import { Container, Box, Typography, Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import Tutorial from '../components/Tutorial';
+import Tutorial from '../components/tutorial';
 
 const GetStarted = () => {
   const theme = useTheme();
