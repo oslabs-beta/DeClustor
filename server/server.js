@@ -1,45 +1,45 @@
+// Load required modules
 const express = require('express');
 const path = require('path');
-const cookieParser = require('cookie-parser');
 const http = require('http');
 const WebSocket = require('ws');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GithubStrategy = require('passport-github2').Strategy;
-const cookieSession = require('cookie-session');
 const cors = require('cors');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-
 const app = express();
+
+// Controllers for handling business logic
 const userController = require('./controllers/userController');
-const listController = require('./controllers/listController');
 const metricController = require('./controllers/metricController');
 const credentialsController = require('./controllers/credentialsController');
 const notificationController = require('./controllers/notificationController');
 
+// Router for handling listing operations
 const listRouter = require('./router/listRouter');
-
-const { access } = require('fs');
 const PORT = 3000;
+
+// CORS settings to allow interactions between different ports during development
 const corsOptions = {
   origin: 'http://localhost:8080',
   credentials: true,
 };
 app.use(cors(corsOptions));
-// app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const crypto = require('crypto');
+
+// Generating a random secret for session handling
 const secret = crypto.randomBytes(16).toString('hex');
 
 //list Router: including list all accounts, subaccounts, region, cluster, service
 app.use('/list', listRouter);
 
-//test passport.use:
+//Setup session management for the application
 const session = require('express-session');
-
 app.use(
   session({
     secret: secret,
@@ -47,15 +47,15 @@ app.use(
     saveUninitialized: false,
   })
 );
-
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Setting up the SQLite database for user management
 const sqlite3 = require('sqlite3');
-
 const userdbPath = path.resolve(__dirname, './database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 
+// Configure Google OAuth strategy
 passport.use(
   new GoogleStrategy(
     {
@@ -64,7 +64,6 @@ passport.use(
       callbackURL: 'http://localhost:3000/auth/google/callback',
     },
     function (accessToken, refreshToken, profile, done) {
-      // console.log(profile);
       userdb.get(
         'SELECT * FROM Users WHERE google_id = ?',
         [profile.id],
@@ -73,7 +72,6 @@ passport.use(
             return done(err);
           }
           if (row) {
-            // console.log('already exist in Users');
             return done(null, row);
           } else {
             const insert =
@@ -86,8 +84,6 @@ passport.use(
                 if (err) {
                   return done(err);
                 }
-                // console.log('insert into googleUser database');
-                // console.log('this.lastId', this.lastID);
                 return done(null, {
                   google_id: profile.id,
                   user_name: profile.displayName,
@@ -102,11 +98,13 @@ passport.use(
     }
   )
 );
+
+// Serializes the user ID to manage session authentication
 passport.serializeUser((user, done) => {
-  // console.log('user.id', user.id);
   done(null, user.id);
 });
 
+// Deserializes the user from the session using the user ID
 passport.deserializeUser((id, done) => {
   userdb.get('SELECT * FROM Users WHERE id = ?', [id], function (err, row) {
     if (err) {
@@ -116,6 +114,7 @@ passport.deserializeUser((id, done) => {
   });
 });
 
+// Authentication routes for Google OAuth
 app.get(
   '/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -125,6 +124,7 @@ app.get(
   '/auth/google/callback',
   passport.authenticate('google', { failureRedirect: '/login' }),
   function (req, res) {
+    // Redirect new users to credentials page, existing users to dashboard
     if (req.user.isNewUser) {
       res.redirect('http://localhost:8080/credentials');
     } else {
@@ -133,6 +133,7 @@ app.get(
   }
 );
 
+// Configure GitHub OAuth strategy
 passport.use(
   new GithubStrategy(
     {
@@ -163,8 +164,6 @@ passport.use(
                 if (err) {
                   return done(err);
                 }
-                // console.log('insert into googleUser database');
-                // console.log('this.lastId', this.lastID);
                 return done(null, {
                   google_id: profile.id,
                   user_name: profile.displayName,
@@ -180,6 +179,7 @@ passport.use(
   )
 );
 
+// Authentication routes for GitHub OAuth
 app.get(
   '/auth/github',
   passport.authenticate('github', { scope: ['profile', 'email'] })
@@ -189,6 +189,7 @@ app.get(
   '/auth/github/callback',
   passport.authenticate('github', { failureRedirect: '/login' }),
   function (req, res) {
+    // Redirect new users to credentials page, existing users to dashboard
     if (req.user.isNewUser) {
       res.redirect('http://localhost:8080/credentials');
     } else {
@@ -197,25 +198,28 @@ app.get(
   }
 );
 
+// Failure route for login
 app.get('/login', (req, res) => {
   res.send('Login Failed');
 });
 
+// Current user info endpoint, checks if user is authenticated
 app.get('/api/current_user', (req, res) => {
   if (req.isAuthenticated()) {
-    // console.log('req.user', req.user);
     res.json({ user: req.user });
   } else {
     res.status(401).json({ error: 'User not authenticated' });
   }
 });
 
+// Serve static files from the React app build directory
 app.use(express.static(path.join(__dirname, '../client/dist')));
+
+// User-related routes
 app.post('/signup', userController.createUser, (req, res) => {
   const userId = res.locals.userId;
   res.status(200).json({ userId: userId, message: 'user created' });
 });
-
 app.post('/login', userController.verifyUser, (req, res) => {
   const userId = res.locals.userId;
   const username = req.body.username;
@@ -224,18 +228,16 @@ app.post('/login', userController.verifyUser, (req, res) => {
     .status(200)
     .json({ userId, username, serviceName, message: 'logged in!' });
 });
-
 app.post('/verify-email', userController.verifyEmail);
-
 app.post('/request-password-reset', userController.requestPasswordReset);
-
 app.post('/reset-password', userController.resetPassword);
 
+// Credentials handling
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {
   res.status(200).json({ message: 'got your credentials!' });
 });
 
-// notification
+// Notification settings
 app.post(
   '/setNotification',
   notificationController.setNotification,
@@ -244,8 +246,8 @@ app.post(
   }
 );
 
+// WebSocket connections for metric and notification data
 wss.on('connection', async (ws, req) => {
-  // get metric data controller
   if (req.url.startsWith('/getMetricData')) {
     const urlParams = new URLSearchParams(req.url.split('?')[1]);
     const userId = urlParams.get('userId');
@@ -283,7 +285,9 @@ wss.on('connection', async (ws, req) => {
   }
 });
 
+// Default 404 route
 app.use((req, res) => res.sendStatus(404));
+// Global error handling middleware
 app.use((err, req, res, next) => {
   const defaultErr = {
     log: 'Express error handler caught unknown middleware error',
@@ -291,13 +295,12 @@ app.use((err, req, res, next) => {
     message: { err: 'An error occurred' },
   };
   const errorObj = Object.assign({}, defaultErr, err);
-  // console.log(errorObj.log);
-  // console.log(err);
   return res.status(errorObj.status).json(errorObj.message);
 });
 
+// Start the server
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
+// Export server and app for testing or further integration
 module.exports = {server, app};

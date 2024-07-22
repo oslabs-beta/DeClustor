@@ -1,6 +1,5 @@
 const sqlite3 = require('sqlite3');
 const path = require('path');
-
 const dbPath = path.resolve(__dirname, '../database/Accounts.db');
 const db = new sqlite3.Database(dbPath);
 const { OrganizationsClient, ListAccountsCommand } = require('@aws-sdk/client-organizations');
@@ -8,7 +7,12 @@ const { ECSClient, ListClustersCommand, ListServicesCommand, DescribeClustersCom
 
 const listController = {};
 
-// list all root accounts in database
+/**
+ * Lists all root and subaccounts we already get credentials associated with a given user from the database.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object used to send responses back to the client.
+ * @returns {void} - Sends a JSON response or an error message directly to the client.
+ */
 listController.Accounts = (req, res) => {
   const userId = req.query.userId;
   if (!userId) {
@@ -21,13 +25,13 @@ listController.Accounts = (req, res) => {
       if (err) {
         return res
           .status(500)
-          .json({ error: '1.Error occurred during query the database on listAccount controller' });
+          .json({ error: 'Error occurred during query the database on listAccount controller' });
       }
       db.all(searchSubaccount, [userId], (err, subRows) => {
         if (err) {
           return res
           .status(500)
-          .json({ error: '2.Error occurred during query the database on listAccount controller' });
+          .json({ error: 'Error occurred during query the database on listAccount controller' });
         }
         return res.status(200).json({root: rootRows, subaccount: subRows});
       })
@@ -38,6 +42,12 @@ listController.Accounts = (req, res) => {
   }
 }
 
+/**
+ * Lists root account and all subaccount under a given root using the AWS Organizations service.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object used to send responses back to the client.
+ * @returns {void} - Sends account data or an error message directly to the client.
+ */
 listController.SubAccounts = (req, res) => {
   const { userId, accountName} = req.query;
   if (!accountName || !userId) {
@@ -98,7 +108,14 @@ listController.SubAccounts = (req, res) => {
   }
 }
 
+/**
+ * Lists all clusters available across multiple regions for a given account using AWS ECS.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {void} - Sends a JSON response with cluster data or an error message directly to the client.
+ */
 listController.Clusters = (req, res) => {
+  // Define the regions to check
   const regions = [
     "us-east-1", "us-east-2", "us-west-1", "us-west-2", "af-south-1", "ap-east-1", 
     "ap-south-1", "ap-south-2", "ap-southeast-1", "ap-southeast-2", "ap-southeast-3", 
@@ -150,6 +167,7 @@ listController.Clusters = (req, res) => {
   }
 }
 
+// Define listClustersForRegion as an async function elsewhere in your code
 async function listClustersForRegion(client, region) {
   let clusterArns = [];
   let nextToken = null;
@@ -174,9 +192,15 @@ async function listClustersForRegion(client, region) {
   }
 }
 
+/**
+ * Lists services within a specified cluster and region using AWS ECS.
+ * Returns an HTTP response with the service details or an error message.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @returns {void} - Sends service details or an error message directly to the client.
+ */
 listController.Services = (req, res) => {
   const {userId, accountName, clusterName, region} = req.query;
-  // get access_key, secret_key, region, and clusterName from Credential Database
   db.get(
     `SELECT access_key, secret_key FROM Accounts WHERE account_name = ? AND user_id = ?  `,
     [ accountName, userId],

@@ -1,11 +1,17 @@
 const sqlite3 = require('sqlite3');
 
+// Dictionary of database paths for easier management and initialization
 const databases = {
   Accounts: './database/Accounts.db',
   Notifications: './database/Notifications.db',
   Users: './database/Users.db',
 };
 
+/**
+ * Connects to a SQLite database provided by the path and logs the status.
+ * @param {string} dbPath Path to the SQLite database file.
+ * @returns {object} The SQLite database connection object.
+ */
 function connectToDatabase(dbPath) {
   return new sqlite3.Database(dbPath, (err) => {
     if (err) {
@@ -15,12 +21,15 @@ function connectToDatabase(dbPath) {
     }
   });
 }
-
+// Create a dictionary to hold the database connection objects
 const dbConnections = {};
 for (const [name, path] of Object.entries(databases)) {
   dbConnections[name] = connectToDatabase(path);
 }
 
+/**
+ * Asynchronously creates necessary tables in each database if they do not exist.
+ */
 async function createTables() {
   await dbConnections.Users.serialize(() => {
     dbConnections.Users.run(`CREATE TABLE IF NOT EXISTS Users (

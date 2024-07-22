@@ -19,7 +19,12 @@ const transporter = nodemailer.createTransport({
 // Define userController object to export
 const userController = {};
 
-// Create a new user in the database and send a verification email
+/**
+ * Creates a new user in the database and sends a verification email.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @param {function} next - Callback to pass control to the next middleware.
+ */
 userController.createUser = (req, res, next) => {
   const { firstname, lastname, username, password, email } = req.body;
   const verificationCode = crypto.randomBytes(3).toString('hex');
@@ -86,7 +91,12 @@ userController.createUser = (req, res, next) => {
   );
 };
 
-// Verify user login credentials
+/**
+ * Verifies user login credentials.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ * @param {function} next - Callback to pass control to the next middleware.
+ */
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
   // console.log(email, password);
@@ -109,7 +119,11 @@ userController.verifyUser = (req, res, next) => {
   );
 };
 
-// Verify the user's email via a provided verification code
+/**
+ * Verifies the user's email using the provided verification code.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ */
 userController.verifyEmail = (req, res) => {
   const { email, code } = req.body;
 
@@ -138,7 +152,11 @@ userController.verifyEmail = (req, res) => {
   );
 };
 
-// Allow a user to request a password reset and send them a reset link
+/**
+ * Allows a user to request a password reset and sends them a reset link via email.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ */
 userController.requestPasswordReset = (req, res) => {
   const { email } = req.body;
   const resetToken = crypto.randomBytes(20).toString('hex');
@@ -174,7 +192,11 @@ userController.requestPasswordReset = (req, res) => {
   );
 };
 
-// Reset the user's password using a token received in their email
+/**
+ * Resets the user's password using a token received in their email.
+ * @param {object} req - The HTTP request object.
+ * @param {object} res - The HTTP response object.
+ */
 userController.resetPassword = (req, res) => {
   const { email, token, newPassword } = req.query;
 
@@ -195,45 +217,6 @@ userController.resetPassword = (req, res) => {
               res.status(500).json({ error: err.message });
             } else {
               res.status(200).json({ message: 'Password reset successfully' });
-            }
-          }
-        );
-      }
-    }
-  );
-};
-
-// Handle user login with Google OAuth
-userController.googleLogin = (accessToken, refreshToken, profile, done) => {
-  const firstname = profile.given_name;
-  const lastname = profile.lastname;
-  const googleId = profile.id;
-  const username = profile.emails[0].value;
-  userdb.get(
-    'SELECT * FROM Users WHERE user_name = ?',
-    [username],
-    (err, row) => {
-      if (err) {
-        return done(err);
-      } else if (row) {
-        return done(null, row);
-      } else {
-        userdb.run(
-          'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [firstname, lastname, username, googleId],
-
-          function (err) {
-            if (err) {
-              return done(err);
-            } else {
-              const newUser = {
-                id: this.lastID,
-                first_name: firstname,
-                last_name: lastname,
-                user_name: username,
-                password: googleId,
-              };
-              return done(null, newUser);
             }
           }
         );
