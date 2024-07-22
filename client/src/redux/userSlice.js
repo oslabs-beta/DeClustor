@@ -8,6 +8,20 @@ const initialState = {
   lastName: '',
   serviceName: '',
   error: null,
+  // account
+  rootAccounts: [],
+  subAccounts: [],
+  accountsLoading: false,
+  accountsError: null,
+  selectedAccount: null,
+  selectedAccountType: null,
+  selectedSubAccountDetails: [],
+  status: 'idle',
+  // clusters
+  clusters: [],
+  clustersLoading: false,
+  clustersError: null,
+  selectedCluster: null,
 };
 
 // Async thunk for fetching current user data
@@ -16,21 +30,23 @@ export const fetchCurrentUser = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       const response = await fetch('http://localhost:3000/api/current_user', {
-        credentials: 'include'
+        credentials: 'include',
       });
       if (!response.ok) {
         throw new Error('Could not fetch user data');
       }
       const data = await response.json();
-      const user = data.user; 
-      dispatch(loginSuccess({
-        userId: user.id,
-        username: user.user_name,
-        firstName: user.first_name || '',
-        lastName: user.last_name || '',
-        email: user.email || '',
-        serviceName: user.service_name || '',
-      }));
+      const user = data.user;
+      dispatch(
+        loginSuccess({
+          userId: user.id,
+          username: user.user_name,
+          firstName: user.first_name || '',
+          lastName: user.last_name || '',
+          email: user.email || '',
+          serviceName: user.service_name || '',
+        })
+      );
       return user;
     } catch (error) {
       return rejectWithValue(error.message);
@@ -38,6 +54,68 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
+// Fetch accounts async thunk using fetch
+export const fetchAccounts = createAsyncThunk(
+  'user/fetchAccounts',
+  async (userId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/allAccounts?userId=${userId}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      throw new Error('Failed to fetch accounts: ' + error.message);
+    }
+  }
+);
+
+// Fetch subaccount details
+export const fetchSubAccountDetails = createAsyncThunk(
+  'user/fetchSubAccountDetails',
+  async ({ userId, accountName }) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/AllSubAccounts?userId=${userId}&accountName=${accountName}`
+      );
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      const data = await response.json();
+      return { accountName, details: data };
+    } catch (error) {
+      throw new Error('Failed to fetch subaccount details: ' + error.message);
+    }
+  }
+);
+
+// Fetch clusters
+export const fetchClusters = createAsyncThunk(
+  'cluster/fetchClusters',
+  async ({ userId, accountName }, { rejectWithValue }) => {
+    if (!userId || !accountName) {
+      return rejectWithValue('User ID and account name are required');
+    }
+    try {
+      const response = await fetch(
+        `http://localhost:3000/list/AllClusters?userId=${userId}&accountName=${accountName}`
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        return rejectWithValue(
+          `Network response was not ok: ${response.statusText} - ${errorText}`
+        );
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue('Failed to fetch clusters: ' + error.message);
+    }
+  }
+);
 
 const userSlice = createSlice({
   name: 'user',
@@ -84,7 +162,7 @@ const userSlice = createSlice({
     setServiceName: (state, action) => {
       state.serviceName = action.payload;
     },
-    updateProfile: (state , action) => {
+    updateProfile: (state, action) => {
       state.username = action.payload.username;
       state.password = action.payload.password;
       state.firstName = action.payload.firstName;
@@ -100,9 +178,121 @@ const userSlice = createSlice({
       state.lastName = null;
       state.error = null;
     },
+    // New reducers for account data
+    fetchAccountsSuccess: (state, action) => {
+      // Store root and subaccounts including necessary fields
+      state.rootAccounts = action.payload.root.map((account) => ({
+        ...account,
+        email: account.email || 'N/A',
+        status: account.status || 'N/A',
+        id: account.id || 'N/A',
+      }));
+      state.subAccounts = action.payload.subaccount.map((account) => ({
+        ...account,
+        email: account.email || 'N/A',
+        status: account.status || 'N/A',
+        id: account.id || 'N/A',
+      }));
+      state.accountsLoading = false;
+      state.accountsError = null;
+    },
+    fetchAccountsFailure: (state, action) => {
+      state.accountsLoading = false;
+      state.accountsError = action.payload;
+    },
+    fetchAccountsPending: (state) => {
+      state.accountsLoading = true;
+      state.accountsError = null;
+    },
+    selectAccount(state, action) {
+      const { account, accountType } = action.payload;
+      if (accountType === 'Root') {
+        state.selectedSubAccountDetails = [];
+      }
+    },
+    clearSelectedAccount(state) {
+      state.selectedAccount = null;
+      state.selectedAccountType = null;
+    },
+    setUserId: (state, action) => {
+      state.userId = action.payload;
+    },
+    selectCluster: (state, action) => {
+      state.selectedCluster = action.payload;
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchAccounts.pending, (state) => {
+        state.accountsLoading = true;
+        state.accountsError = null;
+      })
+      .addCase(fetchAccounts.fulfilled, (state, action) => {
+        state.rootAccounts = action.payload.root.map((account) => ({
+          ...account,
+          email: account.email || 'N/A',
+          status: account.status || 'N/A',
+          id: account.id || 'N/A',
+        }));
+        state.subAccounts = action.payload.subaccount.map((account) => ({
+          ...account,
+          email: account.email || 'N/A',
+          status: account.status || 'N/A',
+          id: account.id || 'N/A',
+        }));
+        state.accountsLoading = false;
+        state.accountsError = null;
+      })
+      .addCase(fetchAccounts.rejected, (state, action) => {
+        state.accountsLoading = false;
+        state.accountsError = action.payload;
+      })
+      .addCase(fetchSubAccountDetails.pending, (state) => {
+        state.accountsLoading = true;
+      })
+      .addCase(fetchSubAccountDetails.fulfilled, (state, action) => {
+        state.accountsLoading = false;
+        state.selectedSubAccountDetails = action.payload.details.map(
+          (detail) => ({
+            ...detail,
+            account_name: action.payload.accountName,
+          })
+        );
+      })
+      .addCase(fetchSubAccountDetails.rejected, (state, action) => {
+        state.accountsLoading = false;
+        state.accountsError = action.error.message;
+      })
+      .addCase(fetchClusters.pending, (state) => {
+        state.clustersLoading = true;
+        state.clustersError = null;
+      })
+      .addCase(fetchClusters.fulfilled, (state, action) => {
+        state.clustersLoading = false;
+        state.clusters = action.payload;
+      })
+      .addCase(fetchClusters.rejected, (state, action) => {
+        state.clustersLoading = false;
+        state.clustersError = action.payload;
+      });
   },
 });
 
-export const { loginSuccess, loginFailure, signupSuccess, signupFailure, setServiceName , updateProfile , logout } = userSlice.actions;
+export const {
+  loginSuccess,
+  loginFailure,
+  signupSuccess,
+  signupFailure,
+  setServiceName,
+  updateProfile,
+  logout,
+  fetchAccountsSuccess,
+  fetchAccountsFailure,
+  fetchAccountsPending,
+  selectAccount,
+  clearSelectedAccount,
+  setUserId,
+  selectCluster,
+} = userSlice.actions;
 
 export default userSlice.reducer;
