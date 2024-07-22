@@ -14,6 +14,7 @@ import { useDispatch } from 'react-redux'
 import { setServiceName } from '../redux/userSlice.js'
 
 function CustomTabPanel(props) {
+
   const { children, value, index, ...other } = props
   return (
     <div
@@ -34,6 +35,7 @@ CustomTabPanel.propTypes = {
   value: PropTypes.number.isRequired,
 }
 
+// tab options
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
@@ -54,6 +56,7 @@ const ClusterMetrics = () => {
   const dispatch = useDispatch()
   const userId = 1 // <= change this later
 
+  // fetching services from backend
   useEffect(() => {
     if (userId) {
       fetch(
@@ -82,7 +85,10 @@ const ClusterMetrics = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
+      {/* dropdown menu */}
       <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
+
+        {/* account dropdown */}
         <Autocomplete
           value={accountName}
           onChange={(event, newValue) => {
@@ -99,6 +105,8 @@ const ClusterMetrics = () => {
             <TextField {...params} label="Choose your account name" />
           )}
         />
+
+        {/* cluster dropdown */}
         <Autocomplete
           value={clusterName}
           onChange={(event, newValue) => {
@@ -109,12 +117,14 @@ const ClusterMetrics = () => {
             setInputValueCluster(newInputValue)
           }}
           id="cluster-name-dropdown"
-          options={['DeClustor']}
+          options={['DeClustor']} // change this later
           sx={{ minWidth: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Choose your cluster name" />
           )}
         />
+
+        {/* service dropdown */}
         <Autocomplete
           value={serviceName}
           onChange={(event, newValue) => {
@@ -133,6 +143,8 @@ const ClusterMetrics = () => {
           )}
         />
       </Box>
+
+     {/* hightlight tab for summary  */}
       <Box
         sx={{
           p: 2,
@@ -160,18 +172,23 @@ const ClusterMetrics = () => {
             : 'Please choose your service name'}
         </Typography>
       </Box>
+
+       {/* tabpanel for metrics options */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mt: 2 }}>
         <Tabs
           value={value}
           onChange={handleChange}
           aria-label="basic tabs example"
         >
+          {/* tab label options function */}
           <Tab label="CPUUtilization" {...a11yProps(0)} />
           <Tab label="MemoryUtilization" {...a11yProps(1)} />
           <Tab label="NetworkRxBytes" {...a11yProps(2)} />
           <Tab label="NetworkTxBytes" {...a11yProps(3)} />
         </Tabs>
       </Box>
+
+      {/* CPU Utilization */}
       <CustomTabPanel value={value} index={0}>
         <Box
           flex="1 1 calc(50% - 20px)"
@@ -188,7 +205,7 @@ const ClusterMetrics = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
           >
-            CPU Utilization
+            CPUUtilization
           </Typography>
           {serviceName && (
             <LineChart
@@ -199,6 +216,8 @@ const ClusterMetrics = () => {
           )}
         </Box>
       </CustomTabPanel>
+
+      {/* MemoryUtilization */}
       <CustomTabPanel value={value} index={1}>
         <Box
           flex="1 1 calc(50% - 20px)"
@@ -215,7 +234,7 @@ const ClusterMetrics = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
           >
-            Memory Utilization
+            MemoryUtilization
           </Typography>
           {serviceName && (
             <LineChart
@@ -226,6 +245,8 @@ const ClusterMetrics = () => {
           )}
         </Box>
       </CustomTabPanel>
+
+      {/* NetworkRxBytes */}
       <CustomTabPanel value={value} index={2}>
         <Box
           flex="1 1 calc(50% - 20px)"
@@ -242,7 +263,7 @@ const ClusterMetrics = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
           >
-            Network Rx Bytes
+            NetworkRxBytes
           </Typography>
           {serviceName && (
             <LineChart
@@ -253,6 +274,8 @@ const ClusterMetrics = () => {
           )}
         </Box>
       </CustomTabPanel>
+
+      {/* NetworkTxBytes */}
       <CustomTabPanel value={value} index={3}>
         <Box
           flex="1 1 calc(50% - 20px)"
@@ -269,7 +292,7 @@ const ClusterMetrics = () => {
             fontSize="0.9rem"
             sx={{ color: theme.palette.secondary[100] }}
           >
-            Network Tx Bytes
+            NetworkTxBytes
           </Typography>
           {serviceName && (
             <LineChart
@@ -280,12 +303,9 @@ const ClusterMetrics = () => {
           )}
         </Box>
       </CustomTabPanel>
+
     </Box>
   )
-}
-
-ClusterMetrics.propTypes = {
-  userId: PropTypes.string.isRequired,
 }
 
 export default ClusterMetrics
