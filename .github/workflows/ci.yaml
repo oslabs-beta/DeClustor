@@ -4,13 +4,10 @@ on:
   push:
     branches:
       - main
-      - dev
-      - docker
+  
   pull_request:
     branches:
       - main
-      - dev
-      - docker
 
 jobs:
   build:
