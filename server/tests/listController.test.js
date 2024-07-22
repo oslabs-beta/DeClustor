@@ -1,6 +1,5 @@
 const request = require('supertest');
 const express = require('express');
-const listController = require('../controllers/listController');
 
 jest.mock('sqlite3', () => {
     const mockDbQuery = jest.fn((sql, params, callback) => {
