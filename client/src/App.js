@@ -27,7 +27,6 @@ import AccountDetails from './components/accountDetails';
 import Clusters from './pages/clusters';
 import ClusterDetails from './components/clusterDetails';
 // import Overview from './pages/Overview';
-// import ClusterMetrics from './pages/ClusterMetrics';
 
 const App = () => {
   const mode = useSelector((state) => state.global.mode);
