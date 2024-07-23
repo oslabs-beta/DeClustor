@@ -10,6 +10,7 @@ const BreadcrumbsNav = ({ breadcrumbs, currentPath }) => {
   return (
     <Breadcrumbs
       aria-label='breadcrumb'
+      separator='>'
       sx={{
         display: 'flex',
         justifyContent: 'flex-start',
