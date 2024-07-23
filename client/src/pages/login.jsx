@@ -88,7 +88,7 @@ const Login = () => {
         showNotification={false}
         showUser={false}
       />
-      <Container maxWidth="sm">
+      <Container maxWidth='sm'>
         <Box
           sx={{
             display: 'flex',
@@ -101,13 +101,13 @@ const Login = () => {
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
-          <Typography component="h1" variant="h5">
+          <Typography component='h1' variant='h5'>
             Login In
           </Typography>
           {/* Error message display */}
           {error && (
             <Alert
-              severity="error"
+              severity='error'
               sx={{
                 mt: 2,
                 width: '100%',
@@ -120,7 +120,7 @@ const Login = () => {
           )}
           {/* Login form */}
           <Box
-            component="form"
+            component='form'
             onSubmit={handleSubmit}
             sx={{
               mt: 1,
@@ -137,8 +137,8 @@ const Login = () => {
           >
             {/* Username input field */}
             <TextField
-              variant="outlined"
-              label="Username"
+              variant='outlined'
+              label='Username'
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
@@ -146,9 +146,9 @@ const Login = () => {
             />
             {/* Password input field */}
             <TextField
-              variant="outlined"
-              label="Password"
-              type="password"
+              variant='outlined'
+              label='Password'
+              type='password'
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -156,9 +156,9 @@ const Login = () => {
             />
             {/* Login button */}
             <Button
-              type="submit"
-              variant="contained"
-              color="primary"
+              type='submit'
+              variant='contained'
+              color='primary'
               fullWidth
               sx={{ mt: 2 }}
             >
@@ -167,7 +167,7 @@ const Login = () => {
             {/* Forgot password button */}
             <Button
               onClick={() => alert('Redirect to forgot password page')}
-              color="secondary"
+              color='secondary'
               sx={{ mt: 0.5 }}
             >
               Forgot Password?
@@ -175,18 +175,18 @@ const Login = () => {
              {/* Redirect to Sign up button */}
             <Button
               onClick={() => navigate('/signup')}
-              color="secondary"
+              color='secondary'
               sx={{ mt: 0.5 }}
             >
               Don't have an account? Sign up!
             </Button>
             {/* Google OAuth button */}
             <Button onClick={google}>
-              <img src={Google} alt="Google" style={{ width: '60%' }} />
+              <img src={Google} alt='Google' style={{ width: '60%' }} />
             </Button>
             {/* GitHub OAuth button */}
             <Button onClick={github} style={{ paddingBottom: '15px' }}>
-              <img src={GitHub} alt="GitHub" style={{ width: '60%' }} />
+              <img src={GitHub} alt='GitHub' style={{ width: '60%' }} />
             </Button>
           </Box>
         </Box>

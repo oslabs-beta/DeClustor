@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo } from 'react';
 import {
   BrowserRouter as Router,
   Navigate,
@@ -47,21 +47,21 @@ const App = () => {
         >
           <Box sx={{ flex: 1 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/info" element={<Info />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/credentials" element={<Credentials />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/protected" element={<Dashboard />} />
-              <Route path="/get-started" element={<GetStarted />} />
-              <Route path="/userprofile" element={<UserProfile />} />
+              <Route path='/' element={<Home />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/info' element={<Info />} />
+              <Route path='/signup' element={<Signup />} />
+              <Route path='/credentials' element={<Credentials />} />
+              <Route path='/login' element={<Login />} />
+              <Route path='/protected' element={<Dashboard />} />
+              <Route path='/get-started' element={<GetStarted />} />
+              <Route path='/userprofile' element={<UserProfile />} />
               <Route path='/accounts' element={<Accounts />} />
               <Route path='/accounts/:accountId' element={<AccountDetails />} />
               <Route path='/clusters/:accountName' element={<Clusters />} />
               <Route element={<Layout />}>
-              <Route path='/dashboard/:clusterName' element={<Dashboard />} />
-              <Route
+                <Route path='/dashboard/:clusterName' element={<Dashboard />} />
+                <Route
                   path='/dashboard/:accountName'
                   element={<ClusterDetails />}
                 />
@@ -77,6 +77,6 @@ const App = () => {
         </Box>
       </Router>
     </ThemeProvider>
-  )
-}
-export default App
+  );
+};
+export default App;

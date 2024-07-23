@@ -20,6 +20,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { fetchClusters } from '../redux/userSlice.js';
 import ClusterDetails from '../components/clusterDetails';
+import BreadcrumbsNav from '../components/breadcrumbs.jsx';
 
 const drawerWidth = 300;
 
@@ -43,7 +44,6 @@ const Clusters = () => {
       dispatch(fetchClusters({ userId, accountName }))
         .unwrap()
         .then((data) => {
-          // Redirect if no clusters are available
           if (data.clusters.length === 0) {
             navigate('/credentials');
           }
@@ -54,7 +54,6 @@ const Clusters = () => {
     }
   }, [dispatch, userId, accountName, navigate]);
 
-  // redirect users back to credentials if there are no clusters for that acc
   useEffect(() => {
     if (clusters.length === 0) {
       navigate('/credentials');
@@ -72,6 +71,14 @@ const Clusters = () => {
   const regionClusters = clusters.find(
     (regionCluster) => regionCluster.region === selectedRegion
   );
+
+  const breadcrumbsNav = [
+    { name: 'Credentials', path: '/credentials' },
+    { name: 'Accounts', path: '/accounts' },
+    { name: 'Cluster', path: '/clusters/:accountName' },
+    { name: 'Service', path: '/dashboard/:clusterName' },
+  ];
+  const currentPath = '/clusters/:accountName';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -167,16 +174,28 @@ const Clusters = () => {
           backgroundColor: theme.palette.background.default,
         }}
       >
-        <FlexBetween>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            mb: 4, // Margin bottom for spacing
+          }}
+        >
+          <BreadcrumbsNav
+            breadcrumbs={breadcrumbsNav}
+            currentPath={currentPath}
+            sx={{ mb: 2 }} // Margin bottom for spacing between breadcrumbs and heading
+          />
           <Typography
             variant='h2'
-            sx={{ mb: 2, color: theme.palette.secondary.main }}
+            sx={{ mb: 3, color: theme.palette.secondary.main }}
           >
             Cluster Details
           </Typography>
-        </FlexBetween>
+        </Box>
         {selectedRegion ? (
-          <Grid container spacing={3} sx={{ mt: 2 }}>
+          <Grid container spacing={3}>
             {regionClusters?.clusters.map((cluster, index) => (
               <Grid
                 item
