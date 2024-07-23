@@ -8,8 +8,6 @@ import {
   Tabs,
   Tab,
 } from '@mui/material'
-import LineChart from '../components/LineChart.jsx'
-import PropTypes from 'prop-types'
 import { useDispatch } from 'react-redux'
 import { setServiceName } from '../redux/userSlice.js'
 import PieChart from '../components/PieChart.jsx'

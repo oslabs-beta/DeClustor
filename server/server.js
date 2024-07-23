@@ -80,7 +80,6 @@ passport.use(
               insert,
               [profile.id, profile.displayName, profile.emails[0].value],
               function (err) {
-                console.log('2 ', err);
                 if (err) {
                   return done(err);
                 }
@@ -142,7 +141,6 @@ passport.use(
       callbackURL: 'http://localhost:3000/auth/github/callback',
     },
     function (accessToken, refreshToken, profile, done) {
-      console.log(profile);
       userdb.get(
         'SELECT * FROM Users WHERE google_id = ?',
         [profile.id],
@@ -151,7 +149,6 @@ passport.use(
             return done(err);
           }
           if (row) {
-            // console.log('already exist in Users');
             return done(null, row);
           } else {
             const insert =

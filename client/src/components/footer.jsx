@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, Typography, Container ,useTheme } from '@mui/material';
 
+// Footer component
 const Footer = (props) => {
   const theme = useTheme();
 
@@ -16,6 +17,7 @@ const Footer = (props) => {
       }}
     >
       <Container maxWidth='sm'>
+        {/* Footer text */}
         <Typography variant='body2' color={theme.palette.secondary[100]}>
           DeClustor © {new Date().getFullYear()}
         </Typography>

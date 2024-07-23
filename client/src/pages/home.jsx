@@ -20,24 +20,32 @@ import { setMode } from '../redux/globalSlice.js'
 import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined'
 
+// Home component
 const Home = () => {
-  const navigate = useNavigate()
-  const theme = useTheme()
-  const dispatch = useDispatch()
+  // Hook to navigate between routes
+  const navigate = useNavigate();
+  // Hook to access the current theme
+  const theme = useTheme();
+  // Hook to dispatch actions to the Redux store
+  const dispatch = useDispatch();
 
   return (
     <>
+      {/* AppBar for the top navigation bar */}
       <AppBar
         position="static"
         sx={{ backgroundColor: theme.palette.primary[700] }}
       >
         <Toolbar>
+          {/* Container for logo and navigation buttons */}
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            {/* Logo image */}
             <img
               src={nobglogo}
               alt="AWS ECS Cluster Monitor"
               style={{ height: '90px', marginRight: '10px' }}
             />
+            {/* Home button */}
             <Button
               color="inherit"
               onClick={() => navigate('/')}
@@ -52,6 +60,7 @@ const Home = () => {
             >
               Home
             </Button>
+            {/* Get Started button */}
             <Button
               color="inherit"
               onClick={() => navigate('/getting-started')}
@@ -67,6 +76,7 @@ const Home = () => {
               Get Started
             </Button>
           </Box>
+          {/* Theme toggle button */}
           <IconButton onClick={() => dispatch(setMode())}>
             {theme.palette.mode === 'dark' ? (
               <DarkModeOutlinedIcon sx={{ fontSize: '25px' }} />
@@ -74,6 +84,7 @@ const Home = () => {
               <LightModeOutlinedIcon sx={{ fontSize: '25px' }} />
             )}
           </IconButton>
+          {/* Login/Signup button */}
           <Button
             color="inherit"
             onClick={() => navigate('/login')}
@@ -90,7 +101,9 @@ const Home = () => {
           </Button>
         </Toolbar>
       </AppBar>
+      {/* Main content container */}
       <Container maxWidth="md" sx={{ mt: 8, textAlign: 'center' }}>
+        {/* Title */}
         <Typography
           variant="h2"
           gutterBottom
@@ -98,6 +111,7 @@ const Home = () => {
         >
           DeClustor
         </Typography>
+        {/* Description */}
         <Typography
           variant="body1"
           gutterBottom
@@ -107,6 +121,7 @@ const Home = () => {
           managing ECS environments on AWS. Track metrics and monitor real-time
           performance across multiple ECS clusters effortlessly.
         </Typography>
+        {/* Get Started button */}
         <Button
           variant="contained"
           color="primary"
@@ -117,6 +132,7 @@ const Home = () => {
           Get Started
         </Button>
       </Container>
+      {/* Team component */}
       <Box sx={{ mt: 8 }}>
         <Team />
       </Box>

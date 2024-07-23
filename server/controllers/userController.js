@@ -66,7 +66,6 @@ userController.createUser = (req, res, next) => {
               }
 
               if (row) {
-                console.log(row.id);
                 res.locals.userId = row.id;
                 const mailOptions = {
                   from: 'diweizhi@gmail.com',
@@ -99,12 +98,10 @@ userController.createUser = (req, res, next) => {
  */
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
-  // console.log(email, password);
   userdb.get(
     'SELECT * FROM Users WHERE email = ? AND password = ?',
     [email, password],
     (err, row) => {
-      console.log(row);
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }

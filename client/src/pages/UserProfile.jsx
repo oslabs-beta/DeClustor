@@ -8,19 +8,23 @@ import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import CancelIcon from '@mui/icons-material/Cancel';
 import Navbar from '../components/Navbar';
 import { useTheme } from '@emotion/react';
-import Credentials from './credentials';
 
+// UserProfile component
 const UserProfile = () => {
-  const user = useSelector((state) => state.user);
+  // Get user data from Redux store
+  const user = useSelector((state) => state.user); 
   const dispatch = useDispatch();
+  // State for the username and password input field
   const [username , setNewUsername] = useState(user.username || '');
   const [password , setNewPassword] = useState(user.password || '');
+  // State to track if the user is in edit mode
   const [isEditing , setIsEditing] = useState(false);
+  // State to track any error and success
   const [error , setError] = useState(null);
   const [success , setSuccess] = useState(null);
   const theme = useTheme();
-  //const navigate = useNavigate();
 
+  // UseEffect to update the input fields when the user data changes
   useEffect(() => {
     setNewUsername(user.username || '');
     setNewPassword(user.password || '');
@@ -65,8 +69,10 @@ const UserProfile = () => {
 
   return (
     <div>
+      {/* Navbar component */}
       <Navbar showSidebar={false} showSearch={false}/>
     <Container maxWidth='small'>
+      {/* Form container */}
       <Box
       sx={{
         display: 'flex',
