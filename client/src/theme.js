@@ -16,7 +16,7 @@ export const darkTheme = {
     1000: '#000000',
   },
   primary: {
-    // indigo // background
+    // Indigo color palette for primary theme
     100: '#d7dbdd',
     200: '#afb8bb',
     300: '#889498',
@@ -28,7 +28,7 @@ export const darkTheme = {
     900: '#0b0f11',
   },
   secondary: {
-    // orange
+    // Orange color palette for secondary theme
     100: '#ffe5cc',
     200: '#ffca99',
     300: '#ffb066',
@@ -41,8 +41,14 @@ export const darkTheme = {
   },
 }
 
-// representing the theme light and dark
-// function that reverses the color palette
+/**
+ * Reverses the color palette from dark to light theme or from light to dark theme
+ * This function takes in a dark theme color palette and reverses the colors
+ * to create a light theme. It iterates through each color category
+ * and reverses the order of the color values.
+ * @param {Object} darkTheme - The dark theme color palette object.
+ * @returns {Object} - The reversed color palette object for light theme.
+ */
 function reverseTheme(darkTheme) {
   const reversedTokens = {}
   Object.entries(darkTheme).forEach(([key, val]) => {
@@ -60,6 +66,14 @@ function reverseTheme(darkTheme) {
 export const lightTheme = reverseTheme(darkTheme)
 
 // mui/icon material theme settings
+/**
+ * Generates the MUI/Material-UI theme settings based on the mode.
+ * This function creates the theme settings for the application based on whether the mode
+ * is 'dark' or 'light'. It configures the palette, including primary, secondary, neutral colors,
+ * and background settings, and sets the typography options.
+ * @param {string} mode - The current theme mode, either 'dark' or 'light'.
+ * @returns {Object} - The theme settings object for MUI/Material-UI.
+ */
 export const themeSettings = (mode) => {
   return {
     palette: {

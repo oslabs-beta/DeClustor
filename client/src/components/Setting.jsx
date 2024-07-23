@@ -27,6 +27,7 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import { setServiceName } from '../redux/userSlice';
 import { updateNotification, saveNotifications } from '../redux/notificationSlice';
 
+// Setting component for managing user notification settings.
 const Setting = () => {
   const dispatch = useDispatch();
   const userId = 1;
@@ -41,11 +42,13 @@ const Setting = () => {
   const [open, setOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
 
+  // Fetches the list of services for the given userId and updates the state.
   useEffect(() => {
     if (userId) {
       setLoading(true);
       setErrors({});
 
+      // Fetch the list of services for the given userId, accountName, clusterName, and region
       fetch(`http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`)
         .then(response => response.json())
         .then(data => {
@@ -66,18 +69,22 @@ const Setting = () => {
     }
   }, [userId, dispatch]);
 
+  // Handles opening the settings dialog.
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Handles closing the settings dialog.
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Handles closing the alert Snackbar.
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
 
+  // Returns the tooltip title based on the switch state
   const getTooltipTitle = (isOn) => {
     return isOn ? 'Turn off' : 'Turn on';
   };
@@ -90,10 +97,12 @@ const Setting = () => {
     { value: 'equal', label: '=' }
   ];
 
+  // Handles saving the notification settings.
   const handleSave = async () => {
     const newErrors = {};
     let isValid = true;
 
+    // Validate each notification
     notifications.forEach((notification, index) => {
       if (!notification.isEnable) return;
 
@@ -133,6 +142,7 @@ const Setting = () => {
     setErrors(newErrors);
     if (!isValid) return;
 
+    // Prepare payload for saving notifications
     const payload = notifications.map(notification => {
       if (!notification.isEnable) {
         return { metric: notification.metric };
@@ -168,6 +178,7 @@ const Setting = () => {
       }
     })
 
+    // Save notifications using Redux action
     if (userId) {
       try {
         await dispatch(saveNotifications({ userId, accountName, clusterName, region, notifications: payload })).unwrap();
@@ -181,11 +192,16 @@ const Setting = () => {
     }
   };
 
+  // Handles toggling the "apply to all" setting for a metric.
   const [serviceSpecificSettings, setServiceSpecificSettings] = useState({
     CPUUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' },
     MemoryUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' }
   });
 
+   /**
+   * Handles toggling the "apply to all" setting for a metric.
+   * @param {string} metric - The metric name.
+   */
   const handleApplyToAllChange = (metric) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,
@@ -193,6 +209,10 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles adding a service-specific setting for a metric.
+   * @param {string} metric - The metric name.
+   */
   const handleAddService = (metric) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,
@@ -200,6 +220,13 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles changes to service-specific settings.
+   * @param {string} metric - The metric name.
+   * @param {number} index - The index of the service.
+   * @param {string} key - The key to update.
+   * @param {any} value - The new value.
+   */
   const handleServiceChange = (metric, index, key, value) => {
     const updatedServices = [...serviceSpecificSettings[metric].services];
     updatedServices[index][key] = value;
@@ -214,6 +241,11 @@ const Setting = () => {
     setErrors(newErrors);
   };
 
+  /**
+   * Handles deleting a service-specific setting for a metric.
+   * @param {string} metric - The metric name.
+   * @param {number} index - The index of the service.
+   */
   const handleDeleteService = (metric, index) => {
     const updatedServices = [...serviceSpecificSettings[metric].services];
     updatedServices.splice(index, 1);
@@ -223,6 +255,12 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles changes to the operator or threshold for a metric.
+   * @param {string} metric - The metric name.
+   * @param {string} key - The key to update.
+   * @param {any} value - The new value.
+   */
   const handleOperatorThresholdChange = (metric, key, value) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,

@@ -17,22 +17,29 @@ import Google from '../assets/logingoogle.png';
 import GitHub from '../assets/signupgithub.png';
 import Navbar from '../components/Navbar';
 
+// Login component
 const Login = () => {
+  // State for username and password input fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  // State for handling error messages
   const [error, setError] = useState('');
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const theme = useTheme();
 
+  // Function to handle Google OAuth login
   const google = () => {
     window.open('http://localhost:3000/auth/google', '_self');
   };
 
+  // Function to handle GitHub OAuth login
   const github = () => {
     window.open('http://localhost:3000/auth/github', '_self');
   };
 
+  // Function to handle form submission for login
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -52,12 +59,7 @@ const Login = () => {
         localStorage.setItem('username', data.username);
         localStorage.setItem('userId', data.userId);
         localStorage.setItem('password', password);
-        console.log('saved to local storage! -->', data);
-
-        console.log(
-          'Login successful, dispatching loginSuccess with data:',
-          data
-        );
+        // Dispatch login success action
         dispatch(
           loginSuccess({
             userId: data.userId,
@@ -67,6 +69,7 @@ const Login = () => {
         );
         navigate('/dashboard');
       } else {
+        // Dispatch login failure action and set error message
         dispatch(loginFailure(data.message));
         setError(data.message);
       }
@@ -78,6 +81,7 @@ const Login = () => {
 
   return (
     <div>
+      {/* Navbar component */}
       <Navbar
         showSidebar={false}
         showSearch={false}
@@ -93,12 +97,14 @@ const Login = () => {
             marginTop: 8,
           }}
         >
+          {/* Avatar with lock icon */}
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
             Login In
           </Typography>
+          {/* Error message display */}
           {error && (
             <Alert
               severity="error"
@@ -112,6 +118,7 @@ const Login = () => {
               {error}
             </Alert>
           )}
+          {/* Login form */}
           <Box
             component="form"
             onSubmit={handleSubmit}
@@ -128,6 +135,7 @@ const Login = () => {
               gap: 2,
             }}
           >
+            {/* Username input field */}
             <TextField
               variant="outlined"
               label="Username"
@@ -136,6 +144,7 @@ const Login = () => {
               required
               fullWidth
             />
+            {/* Password input field */}
             <TextField
               variant="outlined"
               label="Password"
@@ -145,6 +154,7 @@ const Login = () => {
               required
               fullWidth
             />
+            {/* Login button */}
             <Button
               type="submit"
               variant="contained"
@@ -154,6 +164,7 @@ const Login = () => {
             >
               Login
             </Button>
+            {/* Forgot password button */}
             <Button
               onClick={() => alert('Redirect to forgot password page')}
               color="secondary"
@@ -161,6 +172,7 @@ const Login = () => {
             >
               Forgot Password?
             </Button>
+             {/* Redirect to Sign up button */}
             <Button
               onClick={() => navigate('/signup')}
               color="secondary"
@@ -168,9 +180,11 @@ const Login = () => {
             >
               Don't have an account? Sign up!
             </Button>
+            {/* Google OAuth button */}
             <Button onClick={google}>
               <img src={Google} alt="Google" style={{ width: '60%' }} />
             </Button>
+            {/* GitHub OAuth button */}
             <Button onClick={github} style={{ paddingBottom: '15px' }}>
               <img src={GitHub} alt="GitHub" style={{ width: '60%' }} />
             </Button>

@@ -20,8 +20,8 @@ const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [clusterName, setClusterName] = useState('');
-  const [accType, setAccType] = useState('');
-  const [accName, setAccName] = useState('');
+  const [accountType, setAccType] = useState('');
+  const [accountName, setAccName] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -46,10 +46,10 @@ const Credentials = () => {
         },
         body: JSON.stringify({
           userId,
-          accType,
+          accountType,
           accessKey,
           secretKey,
-          accName,
+          accountName,
         }),
       });
 
@@ -106,13 +106,13 @@ const Credentials = () => {
               </InputLabel>
               <Select
                 labelId='accType-label'
-                value={accType}
+                value={accountType}
                 onChange={(e) => setAccType(e.target.value)}
                 label='Account Type'
                 sx={{ color: theme.palette.primary.contrastText }}
               >
-                <MenuItem value='personal'>Root</MenuItem>
-                <MenuItem value='business'>Sub-account</MenuItem>
+                <MenuItem value='root'>Root</MenuItem>
+                <MenuItem value='subaccount'>Sub-account</MenuItem>
               </Select>
             </FormControl>
             <TextField
@@ -146,7 +146,7 @@ const Credentials = () => {
             <TextField
               variant='outlined'
               label='Account Name'
-              value={accName}
+              value={accountName}
               onChange={(e) => setAccName(e.target.value)}
               required
               fullWidth
