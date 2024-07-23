@@ -19,7 +19,6 @@ import { useTheme } from '@mui/material/styles';
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
-  const [clusterName, setClusterName] = useState('');
   const [accType, setAccType] = useState('');
   const [accName, setAccName] = useState('');
   const navigate = useNavigate();
@@ -66,28 +65,37 @@ const Credentials = () => {
   };
 
   return (
-    <Container maxWidth='sm'>
+    <Container maxWidth='md'>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          gap: 2,
           marginTop: 8,
         }}
       >
-        <Typography component='h1' variant='h4' gutterBottom>
-          Enter AWS Credentials
-        </Typography>
         <Paper
           elevation={3}
           sx={{
             width: '100%',
+            maxWidth: 600,
             padding: 4,
             borderRadius: 2,
             backgroundColor: 'transparent',
             color: theme.palette.primary.contrastText,
+            margin: '0 auto',
           }}
         >
+          <Typography
+            variant='h3'
+            sx={{
+              mb: 2,
+              textAlign: 'center',
+              color: theme.palette.secondary.main,
+            }}
+          >
+            Enter AWS Credentials
+          </Typography>
           <Box
             component='form'
             onSubmit={handleSubmit}
