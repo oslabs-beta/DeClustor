@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Tutorial Component renders correctly and matches the snapshot 1`] = `
+<div>
+  <div
+    class="MuiContainer-root MuiContainer-maxWidthMd css-xdmu94-MuiContainer-root"
+  >
+    <div
+      class="MuiBox-root css-r5jd8k"
+    >
+      <img
+        alt="Tutorial"
+        height="auto"
+        src="dashboard.gif"
+        width="100%"
+      />
+    </div>
+  </div>
+</div>
+`;

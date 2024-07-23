@@ -19,14 +19,14 @@ import {
   CalendarMonthOutlined,
   AdminPanelSettingsOutlined,
   TrendingUpOutlined,
-} from '@mui/icons-material'
-import { useLocation, useNavigate } from 'react-router-dom'
-import FlexBetween from './FlexBetween'
-import profileImage from '../assets/profile.png'
-import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined'
-import LanOutlinedIcon from '@mui/icons-material/LanOutlined'
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined'
-import logo from '../assets/logo.png' 
+} from '@mui/icons-material';
+import { useLocation, useNavigate } from 'react-router-dom';
+import FlexBetween from './FlexBetween';
+import profileImage from '../assets/profile.png';
+import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
+import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
+import logo from '../assets/logo.png';
 import { useSelector } from 'react-redux';
 
 // passin props from Layout
@@ -44,7 +44,7 @@ const Sidebar = ({
   // from theme color
   const theme = useTheme();
   const user = useSelector((state) => state.user);
-  console.log('user login -->' , user);
+  console.log('user login -->', user);
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
@@ -89,13 +89,13 @@ const Sidebar = ({
   return (
     // react drawer from react dom
     // persistenr drawer
-    <Box component='nav'>
+    <Box component="nav">
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          variant='persistent'
-          anchor='left'
+          variant="persistent"
+          anchor="left"
           sx={{
             width: drawerWidth,
             // class name ที่ MUI ใช้กำหนดสำหรับส่วนของ Drawer component ที่ประพฤติเหมือนกระดาษ (paper), โดยปกติจะเป็นส่วนที่เลื่อนเข้าออกได้.
@@ -107,20 +107,20 @@ const Sidebar = ({
             },
           }}
         >
-          <Box width='230px'>
+          <Box width="230px">
             {/* t r b l */}
-            <Box margin='1.2rem 1.8rem 0.8rem 1rem'>
+            <Box margin="1.2rem 1.8rem 0.8rem 1rem">
               <FlexBetween color={theme.palette.secondary.main}>
                 <Box
-                  component='img'
-                  alt='logo'
+                  component="img"
+                  alt="logo"
                   src={logo}
                   onClick={() => {
-                    navigate('/')
+                    navigate('/');
                   }}
-                  height='100px'
-                  width='100px'
-                  borderRadius='28%'
+                  height="100px"
+                  width="100px"
+                  borderRadius="28%"
                   sx={{
                     objectFit: 'cover',
                     borderColor: theme.palette.primary[400],
@@ -139,7 +139,10 @@ const Sidebar = ({
 
                 {/* responsive for mobile , it's will pop up the left arrow */}
                 {!isNonMobile && (
-                  <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                  <IconButton
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    data-testid="close-sidebar-button"
+                  >
                     <ChevronLeft />
                   </IconButton>
                 )}
@@ -208,21 +211,21 @@ const Sidebar = ({
           <Divider
             sx={{ width: '100%', maxWidth: '500px', marginTop: '230px' }}
           />
-          <Box position='absolute' bottom='2rem'>
-            <FlexBetween textTransform='none' gap='1rem' m='1.5rem 2rem 0 3rem'>
+          <Box position="absolute" bottom="2rem">
+            <FlexBetween textTransform="none" gap="1rem" m="1.5rem 2rem 0 3rem">
               <Box
-                component='img'
-                alt='profile'
+                component="img"
+                alt="profile"
                 src={profileImage}
-                height='60px'
-                width='60px'
-                borderRadius='50%'
+                height="60px"
+                width="60px"
+                borderRadius="50%"
                 sx={{ objectFit: 'cover' }}
               />
-              <Box textAlign='left'>
+              <Box textAlign="left">
                 <Typography
-                  fontWeight='bold'
-                  fontSize='0.9rem'
+                  fontWeight="bold"
+                  fontSize="0.9rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
                   {/* change to user info !! call the api '/userProfile' ?*/}
