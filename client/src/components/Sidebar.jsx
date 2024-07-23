@@ -27,7 +27,9 @@ import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import logo from '../assets/logo.png';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAccounts } from '../redux/userSlice';
+import AccountsSection from './accSection';
 
 // passin props from Layout
 const Sidebar = ({
@@ -45,11 +47,21 @@ const Sidebar = ({
   const theme = useTheme();
   const user = useSelector((state) => state.user);
   console.log('user login -->', user);
+  const dispatch = useDispatch();
+  const userId = useSelector((state) => state.user.userId);
+
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
     setActive(pathname.substring(1));
   }, [pathname]);
+
+  // fetchAccounts from store
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchAccounts(userId));
+    }
+  }, [dispatch, userId]);
 
   const navItems = [
     {
@@ -202,6 +214,7 @@ const Sidebar = ({
                 );
               })}
             </List>
+            <AccountsSection userId={userId} />
           </Box>
 
           {/* user profile need an update!*/}
