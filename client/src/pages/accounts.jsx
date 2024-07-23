@@ -24,6 +24,7 @@ import {
   selectAccount,
 } from '../redux/userSlice.js';
 import AccountDetails from '../components/accountDetails';
+import BreadcrumbsNav from '../components/breadcrumbs.jsx';
 
 const drawerWidth = 300;
 
@@ -66,6 +67,14 @@ const Accounts = () => {
   if (accountsError) {
     return <Typography>Error: {accountsError}</Typography>;
   }
+
+  const breadcrumbsNav = [
+    { name: 'Credentials', path: '/credentials' },
+    { name: 'Accounts', path: '/accounts' },
+    { name: 'Cluster', path: '/clusters/:accountName' },
+    { name: 'Service', path: '/dashboard/:clusterName' },
+  ];
+  const currentPath = '/accounts';
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -181,15 +190,28 @@ const Accounts = () => {
           backgroundColor: theme.palette.background.default,
         }}
       >
-        <FlexBetween>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            mb: 4, // Margin bottom for spacing
+          }}
+        >
+          <BreadcrumbsNav
+            breadcrumbs={breadcrumbsNav}
+            currentPath={currentPath}
+            sx={{ mb: 2 }} // Margin bottom for spacing between breadcrumbs and heading
+          />
           <Typography
             variant='h2'
-            sx={{ mb: 2, color: theme.palette.secondary.main }}
+            sx={{ mb: 3, color: theme.palette.secondary.main }} // Margin bottom for spacing from content below
           >
             Account Details
           </Typography>
-        </FlexBetween>
-        <Grid container spacing={3} sx={{ mt: 2 }}>
+        </Box>
+
+        <Grid container spacing={3}>
           {selectedSubAccountDetails.map((account, index) => (
             <Grid
               item
