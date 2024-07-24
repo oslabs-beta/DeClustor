@@ -72,14 +72,6 @@ const Sidebar = ({
       text: 'Logs',
       icon: <CalendarMonthOutlined />,
     },
-    {
-      text: 'Account Management',
-      icon: null,
-    },
-    {
-      text: 'Setting',
-      icon: <AdminPanelSettingsOutlined />,
-    },
   ];
 
   return (
@@ -133,6 +125,7 @@ const Sidebar = ({
                 )}
               </FlexBetween>
             </Box>
+            {/* link of list in the sidebar */}
             <List>
               {navItems.map(({ text, icon }) => {
                 const lowerCaseText = text.toLowerCase().replace(' ', '');
@@ -179,8 +172,10 @@ const Sidebar = ({
           <Divider
             sx={{ width: '100%', maxWidth: '500px', marginTop: '230px' }}
           />
+          {/* user profile */}
           <Box position='absolute' bottom='2rem'>
             <FlexBetween textTransform='none' gap='1rem' m='1.5rem 2rem 0 3rem'>
+              {/* user profile */}
               <Box
                 component='img'
                 alt='profile'
@@ -190,6 +185,7 @@ const Sidebar = ({
                 borderRadius='50%'
                 sx={{ objectFit: 'cover' }}
               />
+              {/* user's name */}
               <Box textAlign='left'>
                 <Typography
                   fontWeight='bold'

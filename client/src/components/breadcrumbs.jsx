@@ -16,9 +16,10 @@ const BreadcrumbsNav = ({ breadcrumbs, currentPath }) => {
         justifyContent: 'flex-start',
         margin: 0,
         padding: 0,
-        marginBottom: '20px', // Added margin bottom
+        marginBottom: '20px', 
       }}
     >
+      {/* check if the current path? */}
       {breadcrumbs.map((breadcrumb, index) => {
         const isLast = index === breadcrumbs.length - 1;
         const isActive = breadcrumb.path === currentPathname;
