@@ -1,4 +1,4 @@
 module.exports = {
-    testEnvironment: 'node',
-    clearMocks: true,     
+  testEnvironment: 'jest-environment-jsdom',
+  clearMocks: true,
 };
