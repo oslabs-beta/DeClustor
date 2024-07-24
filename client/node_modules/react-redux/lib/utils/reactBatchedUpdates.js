@@ -1,11 +1,8 @@
 "use strict";
 
 exports.__esModule = true;
-Object.defineProperty(exports, "unstable_batchedUpdates", {
-  enumerable: true,
-  get: function () {
-    return _reactDom.unstable_batchedUpdates;
-  }
-});
+exports.unstable_batchedUpdates = void 0;
 
 var _reactDom = require("react-dom");
+
+exports.unstable_batchedUpdates = _reactDom.unstable_batchedUpdates;

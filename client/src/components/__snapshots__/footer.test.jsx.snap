@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders Footer component with correct styles and content 1`] = `
+<DocumentFragment>
+  <footer
+    class="MuiBox-root css-ymuci6"
+  >
+    <div
+      class="MuiContainer-root MuiContainer-maxWidthSm css-cuefkz-MuiContainer-root"
+    >
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      >
+        DeClustor © 2024
+      </p>
+    </div>
+  </footer>
+</DocumentFragment>
+`;

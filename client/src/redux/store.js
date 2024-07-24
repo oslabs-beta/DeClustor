@@ -3,7 +3,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 import { combineReducers } from 'redux';
 import globalReducer from './globalSlice.js';
-import userReducer from './userSlice.js'; 
+import userReducer from './userSlice.js';
 import notificationReducer from './notificationSlice.js';
 
 // Configuration for persisting the Redux store
@@ -24,10 +24,11 @@ const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 // Create the Redux store with the persisted reducer and configure middleware
 const store = configureStore({
-  reducer: persistedReducer, 
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    serializableCheck: false, 
-  }),
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: false,
+    }),
 });
 
 // Create a persistor for the Redux store to enable persistence
