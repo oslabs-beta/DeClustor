@@ -3,7 +3,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const userdbPath = path.resolve(__dirname, '../database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
