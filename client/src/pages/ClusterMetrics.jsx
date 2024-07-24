@@ -12,7 +12,7 @@ import LineChart from '../components/LineChart.jsx';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { setServiceName, setAccountName, setClusterName, fetchAccounts, fetchClusters } from '../redux/userSlice.js';
-
+// function to handle css and effect
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
   return (
@@ -27,20 +27,20 @@ function CustomTabPanel(props) {
     </div>
   );
 }
-
+// function to handle css and effect
 CustomTabPanel.propTypes = {
   children: PropTypes.node,
   index: PropTypes.number.isRequired,
   value: PropTypes.number.isRequired,
 };
-
+// function to handle css and effect
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
-
+// individual rendering metric
 const ClusterMetrics = () => {
   const [value, setValue] = useState(0);
   const theme = useTheme();
@@ -59,7 +59,7 @@ const ClusterMetrics = () => {
     clusterName: state.user.clusterName,
     serviceName: state.user.serviceName,
   }));
-
+  // fetching data from backend
   useEffect(() => {
     if (userId) {
       dispatch(fetchAccounts(userId))

@@ -8,11 +8,10 @@ import {
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-
+// cluster cards component
 const ClusterDetails = ({ cluster = {} }) => {
   const theme = useTheme();
   const navigate = useNavigate();
-
   const {
     clusterName,
     status,
@@ -21,7 +20,7 @@ const ClusterDetails = ({ cluster = {} }) => {
     pendingTasksCount,
     capacityProviders,
   } = cluster;
-
+  // redirect to dashboard
   const handleClick = () => {
     if (clusterName) {
       navigate(`/dashboard/${clusterName}`);
@@ -50,6 +49,7 @@ const ClusterDetails = ({ cluster = {} }) => {
         },
       }}
     >
+      {/* header tab */}
       <CardActionArea>
         <CardContent sx={{ padding: '25px' }}>
           <Typography
@@ -59,6 +59,7 @@ const ClusterDetails = ({ cluster = {} }) => {
           >
             {clusterName || 'No cluster name'}
           </Typography>
+          {/* details card */}
           <Box component="table" sx={{ width: '100%', tableLayout: 'fixed' }}>
             <Box component="tbody">
               <Box component="tr">

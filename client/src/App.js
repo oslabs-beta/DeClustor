@@ -13,13 +13,11 @@ import Layout from './pages/Layout'
 import Dashboard from './pages/Dashboard'
 import Login from './pages/login'
 import Home from './pages/home'
-import Info from './components/getstarted'
 import Signup from './pages/signup'
 import Feedback from './components/feedback'
 import Footer from './components/footer'
 import UserProfile from './pages/UserProfile'
 import Credentials from './pages/credentials'
-import GetStarted from './pages/getstarted'
 import LogsNotification from './pages/LogsNotification'
 import ClusterMetrics from './pages/ClusterMetrics'
 import Overview from './pages/Overview'
@@ -47,16 +45,14 @@ const App = () => {
           }}
         >
           <Box sx={{ flex: 1 }}>
-             {/* Define routes for different pages */}
+            {/* Define routes for different pages */}
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/info" element={<Info />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/credentials" element={<Credentials />} />
               <Route path="/login" element={<Login />} />
               <Route path="/protected" element={<Dashboard />} />
-              <Route path="/get-started" element={<GetStarted />} />
               <Route path="/userprofile" element={<UserProfile />} />
               <Route element={<Layout />}>
                 <Route path="/dashboard/:clusterName" element={<Dashboard />} />
