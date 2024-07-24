@@ -3,6 +3,7 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const userdbPath = path.resolve(__dirname, '../database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -37,7 +38,7 @@ userController.createUser = (req, res, next) => {
   userdb.get(
     'SELECT user_name FROM Users WHERE user_name = ?',
     [username],
-    (err, row) => {
+    async (err, row) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: 'Internal server error' });
@@ -47,10 +48,12 @@ userController.createUser = (req, res, next) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
 
+      // Hash the password before inserting it into the database
+      const hashedPassword = await bcrypt.hash(password, 10);
       // Insert new user into the database
       userdb.run(
         'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [firstname, lastname, username, password, email, verificationCode],
+        [firstname, lastname, username, hashedPassword, email, verificationCode],
         (err) => {
           if (err) {
             console.log(err);
@@ -58,7 +61,7 @@ userController.createUser = (req, res, next) => {
           }
       
           userdb.get(
-            'SELECT id FROM Users WHERE user_name = ?',
+            'SELECT id, first_name, last_name, user_name, email FROM Users WHERE user_name = ?',
             [username],
             (err, row) => {
               if (err) {
@@ -66,7 +69,13 @@ userController.createUser = (req, res, next) => {
               }
 
               if (row) {
-                res.locals.userId = row.id;
+                res.locals.user = {
+                  id: row.id,
+                  first_name: row.first_name,
+                  last_name: row.last_name,
+                  user_name: row.user_name,
+                  email: row.email
+                };
                 const mailOptions = {
                   from: 'diweizhi@gmail.com',
                   to: email,
@@ -99,9 +108,9 @@ userController.createUser = (req, res, next) => {
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
   userdb.get(
-    'SELECT * FROM Users WHERE email = ? AND password = ?',
-    [email, password],
-    (err, row) => {
+    'SELECT * FROM Users WHERE email = ?',
+    [email],
+    async (err, row) => {
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
@@ -110,7 +119,18 @@ userController.verifyUser = (req, res, next) => {
           .status(400)
           .json({ message: 'Incorrect email or password' });
       }
-      res.locals.userId = row.id;
+      // Compare the hashed password
+      const match = await bcrypt.compare(password, row.password);
+      if (!match) {
+        return res.status(400).json({ message: 'Incorrect email or password' });
+      }
+      res.locals.user = {
+        id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        user_name: row.user_name,
+        email: row.email
+      };
       next();
     }
   );
@@ -220,6 +240,22 @@ userController.resetPassword = (req, res) => {
       }
     }
   );
+};
+
+userController.resetEmailAndUserName = (req, res) => {
+  const {userId, username, email} = req.body;
+  const searchQuery = `UPDATE Users SET user_name = ?, email = ? WHERE id = ?`;
+  userdb.run(searchQuery, [username, email, userId], function(err) {
+    if (err) {
+      res.status(500).json({ message: 'Failed to update profile.' });
+    } else {
+      if (this.changes === 0) {
+        res.status(404).json({ message: 'User not found.' });
+      } else {
+        res.status(200).json({ message: 'Profile updated successfully!' });
+      }
+    }
+  });
 };
 
 module.exports = userController;

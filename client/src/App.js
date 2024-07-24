@@ -36,6 +36,7 @@ const App = () => {
   const theme = useMemo(() => createTheme(themeSettings(mode)), [mode])
   return (
     <ThemeProvider theme={theme}>
+      {/* CssBaseline to ensure consistent baseline styles */}
       <CssBaseline />
       <Router>
         <Box
@@ -46,6 +47,7 @@ const App = () => {
           }}
         >
           <Box sx={{ flex: 1 }}>
+             {/* Define routes for different pages */}
             <Routes>
               <Route path='/' element={<Home />} />
               <Route path='/login' element={<Login />} />
@@ -59,6 +61,7 @@ const App = () => {
               <Route path='/accounts' element={<Accounts />} />
               <Route path='/accounts/:accountId' element={<AccountDetails />} />
               <Route path='/clusters/:accountName' element={<Clusters />} />
+               {/* Nested routes under Layout */}
               <Route element={<Layout />}>
                 <Route path='/dashboard/:clusterName' element={<Dashboard />} />
                 <Route
@@ -72,6 +75,7 @@ const App = () => {
               </Route>
             </Routes>
           </Box>
+          {/* Feedback and Footer components */}
           <Feedback />
           <Footer sx={{ mt: 'auto' }} />
         </Box>

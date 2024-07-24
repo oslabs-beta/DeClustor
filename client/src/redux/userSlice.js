@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-
+// Initial state for the user slice
 const initialState = {
   userId: '',
   username: '',
@@ -7,6 +7,7 @@ const initialState = {
   firstName: '',
   lastName: '',
   serviceName: '',
+  email: '',
   error: null,
   // account
   rootAccounts: [],
@@ -117,10 +118,12 @@ export const fetchClusters = createAsyncThunk(
   }
 );
 
+// Create the user slice
 const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
+    // Reducer for successful login
     loginSuccess: (state, action) => {
       console.log('Login successful, user data:', action.payload);
       state.userId = action.payload.userId;
@@ -128,18 +131,18 @@ const userSlice = createSlice({
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
       state.email = action.payload.email;
-      state.serviceName = action.payload.serviceName;
       state.error = null;
     },
+    // Reducer for login failure
     loginFailure: (state, action) => {
       state.username = null;
       state.userId = null;
       state.firstName = null;
       state.lastName = null;
       state.email = null;
-      state.serviceName = null;
       state.error = action.payload;
     },
+    // Reducer for successful signup
     signupSuccess: (state, action) => {
       console.log('Signup successful, user data:', action.payload);
       state.userId = action.payload.userId;
@@ -147,28 +150,29 @@ const userSlice = createSlice({
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
       state.email = action.payload.email;
-      state.serviceName = action.payload.serviceName;
       state.error = null;
     },
+    // Reducer for signup failure
     signupFailure: (state, action) => {
       state.username = null;
       state.userId = null;
       state.firstName = null;
       state.lastName = null;
       state.email = null;
-      state.serviceName = null;
       state.error = action.payload;
     },
+    // Reducer for setting the service name
     setServiceName: (state, action) => {
       state.serviceName = action.payload;
     },
+    // Reducer for updating user profile
     updateProfile: (state, action) => {
       state.username = action.payload.username;
-      state.password = action.payload.password;
       state.firstName = action.payload.firstName;
       state.lastName = action.payload.lastName;
-      //state.email = action.payload.email;
+      state.email = action.payload.email;
     },
+    // Reducer for logging out the user
     logout: (state) => {
       state.userId = null;
       state.username = null;
@@ -178,7 +182,7 @@ const userSlice = createSlice({
       state.lastName = null;
       state.error = null;
     },
-    // New reducers for account data
+   // Reducers for account data
     fetchAccountsSuccess: (state, action) => {
       // Store root and subaccounts including necessary fields
       state.rootAccounts = action.payload.root.map((account) => ({
@@ -187,6 +191,7 @@ const userSlice = createSlice({
         status: account.status || 'N/A',
         id: account.id || 'N/A',
       }));
+      // Map through the subaccounts in the payload and ensure required fields are populated
       state.subAccounts = action.payload.subaccount.map((account) => ({
         ...account,
         email: account.email || 'N/A',
@@ -196,44 +201,61 @@ const userSlice = createSlice({
       state.accountsLoading = false;
       state.accountsError = null;
     },
+    // Reducer to handle fetch accounts failure
     fetchAccountsFailure: (state, action) => {
       state.accountsLoading = false;
       state.accountsError = action.payload;
     },
+    // Reducer to handle pending fetch accounts request
     fetchAccountsPending: (state) => {
       state.accountsLoading = true;
       state.accountsError = null;
     },
+    // Reducer to handle account selection
     selectAccount(state, action) {
       const { account, accountType } = action.payload;
+      state.selectedAccount = account.account_name;
       if (accountType === 'Root') {
-        state.selectedSubAccountDetails = [];
+        state.selectedAccountType = 'Root';
+        // state.selectedSubAccountDetails = [];
+        state.clusters = [];  
+      } else {
+        state.selectedAccountType = 'Sub';
+        state.subAccounts = [];
       }
     },
+    // Reducer to clear the selected account
     clearSelectedAccount(state) {
       state.selectedAccount = null;
       state.selectedAccountType = null;
     },
+    // Reducer to set the user ID
     setUserId: (state, action) => {
       state.userId = action.payload;
     },
+    // Reducer to select a cluster
     selectCluster: (state, action) => {
       state.selectedCluster = action.payload;
     },
   },
+  // Extra reducers for handling asynchronous actions
   extraReducers: (builder) => {
     builder
+    // Handle fetchAccounts pending state
       .addCase(fetchAccounts.pending, (state) => {
         state.accountsLoading = true;
         state.accountsError = null;
       })
+      // Handle fetchAccounts fulfilled state
       .addCase(fetchAccounts.fulfilled, (state, action) => {
+        // Map through the root accounts and ensure required fields are populated
         state.rootAccounts = action.payload.root.map((account) => ({
           ...account,
           email: account.email || 'N/A',
           status: account.status || 'N/A',
           id: account.id || 'N/A',
         }));
+        // Map through the subaccounts and ensure required fields are populated
         state.subAccounts = action.payload.subaccount.map((account) => ({
           ...account,
           email: account.email || 'N/A',
@@ -243,13 +265,16 @@ const userSlice = createSlice({
         state.accountsLoading = false;
         state.accountsError = null;
       })
+      // Handle fetchAccounts rejected state
       .addCase(fetchAccounts.rejected, (state, action) => {
         state.accountsLoading = false;
         state.accountsError = action.payload;
       })
+      // Handle fetchSubAccountDetails pending state
       .addCase(fetchSubAccountDetails.pending, (state) => {
         state.accountsLoading = true;
       })
+      // Handle fetchSubAccountDetails fulfilled state
       .addCase(fetchSubAccountDetails.fulfilled, (state, action) => {
         state.accountsLoading = false;
         state.selectedSubAccountDetails = action.payload.details.map(
@@ -259,18 +284,22 @@ const userSlice = createSlice({
           })
         );
       })
+      // Handle fetchSubAccountDetails rejected state
       .addCase(fetchSubAccountDetails.rejected, (state, action) => {
         state.accountsLoading = false;
         state.accountsError = action.error.message;
       })
+      // Handle fetchClusters pending state
       .addCase(fetchClusters.pending, (state) => {
         state.clustersLoading = true;
         state.clustersError = null;
       })
+       // Handle fetchClusters fulfilled state
       .addCase(fetchClusters.fulfilled, (state, action) => {
         state.clustersLoading = false;
         state.clusters = action.payload;
       })
+      // Handle fetchClusters rejected state
       .addCase(fetchClusters.rejected, (state, action) => {
         state.clustersLoading = false;
         state.clustersError = action.payload;

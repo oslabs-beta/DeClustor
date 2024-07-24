@@ -2,14 +2,21 @@ import { useEffect, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { setReceivedNotifications } from '../redux/notificationSlice';
 
+/**
+ * Custom hook for managing WebSocket connections for metrics and notifications.
+ * Connects to WebSocket endpoints to receive real-time metric and notification data.
+ */
 const useWebSocketNotifications = () => {
   const dispatch = useDispatch();
 
+  // Reference to hold WebSocket connections
   const metricSocketsRef = useRef([]);
+  // Reference to hold WebSocket connection for notifications
   const notificationSocketRef = useRef(null);
 
   useEffect(() => {
     if (metricSocketsRef.current.length === 0 && !notificationSocketRef.current) {
+      // URLs for WebSocket connections to receive metric data
       const metricURLs = [
         'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization',
         'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=MemoryUtilization',
@@ -17,8 +24,15 @@ const useWebSocketNotifications = () => {
         'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=NetworkRxBytes'
       ];
 
+      // URL for WebSocket connection to receive notifications
       const notificationURL = 'ws://localhost:3000/checkNotifications?userId=1';
 
+      /**
+       * Function to create a WebSocket connection.
+       * @param {string} url - The WebSocket URL to connect to.
+       * @param {boolean} [isNotification=false] - Flag to indicate if the WebSocket is for notifications.
+       * @returns {WebSocket} - The WebSocket connection.
+       */
       function createWebSocket(url, isNotification = false) {
         const ws = new WebSocket(url);
 
@@ -57,6 +71,7 @@ const useWebSocketNotifications = () => {
 
         ws.onclose = () => {
           console.log(`WebSocket connection closed: ${url}`);
+          // Reconnect the WebSocket after a delay
           setTimeout(() => {
             if (isNotification) {
               notificationSocketRef.current = createWebSocket(url, true);
@@ -74,11 +89,13 @@ const useWebSocketNotifications = () => {
         return ws;
       }
 
-      // create and store WebSocket connections
+      // Create and store WebSocket connections for metrics
       metricSocketsRef.current = metricURLs.map((url) => createWebSocket(url));
+      // Create and store WebSocket connection for notifications
       notificationSocketRef.current = createWebSocket(notificationURL, true);
     }
 
+    // Cleanup function to close WebSocket connections when the component unmounts
     return () => {
       metricSocketsRef.current.forEach((ws) => ws.close());
       if (notificationSocketRef.current) {

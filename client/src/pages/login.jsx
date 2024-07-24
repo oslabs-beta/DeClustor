@@ -12,7 +12,6 @@ import {
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
-import { useTheme } from '@mui/material/styles';
 import Google from '../assets/logingoogle.png';
 import GitHub from '../assets/signupgithub.png';
 import Navbar from '../components/Navbar';
@@ -20,14 +19,13 @@ import Navbar from '../components/Navbar';
 // Login component
 const Login = () => {
   // State for username and password input fields
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   // State for handling error messages
   const [error, setError] = useState('');
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const theme = useTheme();
 
   // Function to handle Google OAuth login
   const google = () => {
@@ -49,7 +47,7 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -63,8 +61,10 @@ const Login = () => {
         dispatch(
           loginSuccess({
             userId: data.userId,
-            username,
-            serviceName: data.serviceName,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            username: data.userName,
+            email: data.email
           })
         );
         navigate('/dashboard');
@@ -135,12 +135,12 @@ const Login = () => {
               gap: 2,
             }}
           >
-            {/* Username input field */}
+            {/* Email input field */}
             <TextField
               variant='outlined'
-              label='Username'
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              label='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               fullWidth
             />

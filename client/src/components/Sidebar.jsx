@@ -18,18 +18,16 @@ import {
   HomeOutlined,
   CalendarMonthOutlined,
   AdminPanelSettingsOutlined,
-  TrendingUpOutlined,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlexBetween from './FlexBetween';
 import profileImage from '../assets/profile.png';
 import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import logo from '../assets/logo.png';
 import { useSelector } from 'react-redux';
 
-// passin props from Layout
+// Sidebar component
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
@@ -51,6 +49,7 @@ const Sidebar = ({
     setActive(pathname.substring(1));
   }, [pathname]);
 
+  // Navigation items
   const navItems = [
     {
       text: 'Dashboard',
@@ -64,10 +63,6 @@ const Sidebar = ({
       text: 'Cluster Metics',
       icon: <SsidChartOutlinedIcon />,
     },
-    // {
-    //   text: 'Service',
-    //   icon: <AssignmentOutlinedIcon />,
-    // },
     {
       text: 'Logs',
       icon: <CalendarMonthOutlined />,
@@ -80,16 +75,13 @@ const Sidebar = ({
       text: 'Setting',
       icon: <AdminPanelSettingsOutlined />,
     },
-    // {
-    //   text: 'Performance',
-    //   icon: <TrendingUpOutlined />,
-    // },
   ];
 
   return (
     // react drawer from react dom
     // persistenr drawer
     <Box component='nav'>
+      {/* Conditional rendering for Drawer */}
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
@@ -98,7 +90,6 @@ const Sidebar = ({
           anchor='left'
           sx={{
             width: drawerWidth,
-            // class name ที่ MUI ใช้กำหนดสำหรับส่วนของ Drawer component ที่ประพฤติเหมือนกระดาษ (paper), โดยปกติจะเป็นส่วนที่เลื่อนเข้าออกได้.
             '& .MuiDrawer-paper': {
               color: theme.palette.secondary[200],
               backgroundColor: theme.palette.background.alt,
@@ -107,8 +98,9 @@ const Sidebar = ({
             },
           }}
         >
+           {/* Drawer content */}
           <Box width='230px'>
-            {/* t r b l */}
+            {/* Logo section */}
             <Box margin='1.2rem 1.8rem 0.8rem 1rem'>
               <FlexBetween color={theme.palette.secondary.main}>
                 <Box
@@ -131,13 +123,8 @@ const Sidebar = ({
                     cursor: 'pointer',
                   }}
                 />
-                {/* <Box display="flex" alignItems="center" gap="0.5rem">
-                  <Typography variant="h3" fontWeight="bold">
-                    DeClustor
-                  </Typography>
-                </Box> */}
-
                 {/* responsive for mobile , it's will pop up the left arrow */}
+                 {/* Close button for mobile view */}
                 {!isNonMobile && (
                   <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     <ChevronLeft />
@@ -229,12 +216,6 @@ const Sidebar = ({
                   {user ? user.username : 'No User Data'}
                 </Typography>
               </Box>
-              {/* <SettingsOutlined
-                sx={{
-                  color: theme.palette.secondary[300],
-                  fontSize: "25px ",
-                }}
-              /> */}
             </FlexBetween>
           </Box>
         </Drawer>

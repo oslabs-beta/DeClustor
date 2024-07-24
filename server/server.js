@@ -214,20 +214,19 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // User-related routes
 app.post('/signup', userController.createUser, (req, res) => {
-  const userId = res.locals.userId;
-  res.status(200).json({ userId: userId, message: 'user created' });
+  const user = res.locals.user;
+  res.status(200).json({ userId: user.id, firstName: user.first_name, lastName: user.last_name, userName: user.user_name, email: user.email, message: 'user created' });
 });
 app.post('/login', userController.verifyUser, (req, res) => {
-  const userId = res.locals.userId;
-  const username = req.body.username;
-  const serviceName = 'service1'; // default name
+  const user = res.locals.user;
   res
     .status(200)
-    .json({ userId, username, serviceName, message: 'logged in!' });
+    .json({ userId: user.id, firstName: user.first_name, lastName: user.last_name, userName: user.user_name, email: user.email, message: 'logged in!' });
 });
 app.post('/verify-email', userController.verifyEmail);
 app.post('/request-password-reset', userController.requestPasswordReset);
 app.post('/reset-password', userController.resetPassword);
+app.post('/reset-email-username', userController.resetEmailAndUserName);
 
 // Credentials handling
 app.post('/credentials', credentialsController.saveCredentials, (req, res) => {

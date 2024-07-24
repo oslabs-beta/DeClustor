@@ -275,9 +275,11 @@ const Setting = () => {
 
   return (
     <React.Fragment>
+      {/* Icon button to open settings dialog */}
       <IconButton onClick={handleClickOpen}>
         <SettingsOutlinedIcon sx={{ fontSize: '25px' }} />
       </IconButton>
+      {/* Dialog for notification settings */}
       <Dialog fullWidth={true} maxWidth="md" open={open} onClose={handleClose}>
         <DialogTitle>Notification Settings</DialogTitle>
         <DialogContent>
@@ -287,7 +289,7 @@ const Setting = () => {
             <br />
           </DialogContentText>
 
-          {/* Notification settings */}
+          {/* Notification settings form */}
           <Box
             component="form"
             sx={{
@@ -297,9 +299,11 @@ const Setting = () => {
               width: '100%',
             }}
           >
+            {/* Loop through notifications and render settings for each metric */}
             {notifications.map((metric, index) => (
               <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={metric.metric}>
                 <Grid item xs={12}>
+                   {/* Tooltip and switch to enable/disable notifications for the metric */}
                   <Tooltip title={getTooltipTitle(metric.isEnable)}>
                     <FormControlLabel
                       control={
@@ -312,8 +316,10 @@ const Setting = () => {
                     />
                   </Tooltip>
                 </Grid>
+                {/* Settings for metrics other than CPU or Memory Utilization */}
                 {metric.isEnable && ['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
                   <>
+                    {/* Settings for applying to all services */}
                     <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={`${metric.metric}-apply-to-all`} style={{ padding: '0 16px' }}>
                       <Grid item xs={3} container alignItems="center" justifyContent="flex-start">
                         <FormControlLabel
@@ -327,6 +333,7 @@ const Setting = () => {
                           style={{ marginRight: 0 }}
                         />
                       </Grid>
+                       {/* Settings for threshold and operator if applying to all services */}
                       {serviceSpecificSettings[metric.metric].applyToAll && (
                         <>
                           <Grid item xs={4}>
@@ -370,11 +377,14 @@ const Setting = () => {
                         </>
                       )}
                     </Grid>
+                     {/* Settings for specific services if not applying to all */}
                     {!serviceSpecificSettings[metric.metric].applyToAll && (
                       <>
+                        {/* Loop through each service-specific setting */}
                         {serviceSpecificSettings[metric.metric].services.map((service, idx) => (
                           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={idx} style={{ paddingLeft: 16 }}>
                             <Grid item xs={3}>
+                              {/* Form control for selecting a service */}
                               <FormControl fullWidth error={!!errors[`serviceName-${index}-${idx}`]}>
                                 <InputLabel htmlFor={`${metric.metric}-service-${idx}`}>Service</InputLabel>
                                 <Select
@@ -383,6 +393,7 @@ const Setting = () => {
                                   onChange={(e) => handleServiceChange(metric.metric, idx, 'serviceName', e.target.value)}
                                   label="Service"
                                 >
+                                  {/* Populate dropdown with service names */}
                                   {serviceNames.map((serviceName) => (
                                     <MenuItem
                                       key={serviceName}
@@ -400,6 +411,7 @@ const Setting = () => {
                               </FormControl>
                             </Grid>
                             <Grid item xs={3}>
+                              {/* Form control for selecting an operator */}
                               <FormControl fullWidth error={!!errors[`serviceOperator-${index}-${idx}`]}>
                                 <InputLabel>Operator</InputLabel>
                                 <Select
@@ -407,6 +419,7 @@ const Setting = () => {
                                   onChange={(e) => handleServiceChange(metric.metric, idx, 'operator', e.target.value)}
                                   label="Operator"
                                 >
+                                   {/* Populate dropdown with operator options */}
                                   {operators.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                       {option.label}
@@ -419,6 +432,7 @@ const Setting = () => {
                                 <FormHelperText>Please select an operator</FormHelperText>
                               </FormControl>
                             </Grid>
+                             {/* TextField for setting the threshold */}
                             <Grid item xs={3}>
                               <TextField
                                 label="Threshold"
@@ -438,12 +452,14 @@ const Setting = () => {
                               />
                             </Grid>
                             <Grid item xs={3}>
+                              {/* Button to delete the service-specific setting */}
                               <Button variant="contained" color="secondary" onClick={() => handleDeleteService(metric.metric, idx)}>
                                 Delete
                               </Button>
                             </Grid>
                           </Grid>
                         ))}
+                        {/* Button to add a new service-specific setting */}
                         <Grid item xs={12} style={{ paddingLeft: 16 }}>
                           <Button variant="outlined" onClick={() => handleAddService(metric.metric)}>
                             + Add service
@@ -453,9 +469,11 @@ const Setting = () => {
                     )}
                   </>
                 )}
+                 {/* Settings for metrics other than CPU or Memory Utilization */}
                 {metric.isEnable && !['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
                   <>
                     <Grid item xs={6}>
+                         {/* FormController for selecting an operator */}
                       <FormControl fullWidth error={!!errors[`operator-${index}`]}>
                         <InputLabel>Operator</InputLabel>
                         <Select
@@ -477,6 +495,7 @@ const Setting = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={6}>
+                      {/* TextField for setting the threshold */}
                       <TextField
                         id={`${metric.metric}-number`}
                         label="Threshold"
@@ -506,12 +525,15 @@ const Setting = () => {
         </DialogContent>
 
         <DialogActions>
+          {/* Button to close the settings dialog */}
           <Button onClick={handleClose}>Close</Button>
+          {/* Button to save the notification settings */}
           <Button onClick={handleSave} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
 
       <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
+         {/* Alert to display success message when notification settings are saved */}
         <Alert onClose={handleAlertClose} severity="success" sx={{ width: '100%' }}>
           Notification settings have been set successfully!
         </Alert>
