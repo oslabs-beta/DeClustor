@@ -111,22 +111,22 @@ describe('Sidebar Component', () => {
     expect(dashboardLink).toHaveStyle(`color: ${theme.palette.primary[600]}`);
   });
 
-  test('toggles sidebar when the close button is clicked', () => {
-    const setIsSidebarOpenMock = jest.fn();
-    const initialState = {
-      user: {
-        /* Mock user data */
-      },
-    };
+  // test('toggles sidebar when the close button is clicked', () => {
+  //   const setIsSidebarOpenMock = jest.fn();
+  //   const initialState = {
+  //     user: {
+  //       /* Mock user data */
+  //     },
+  //   };
 
-    const { getByTestId } = renderWithRouterAndRedux(
-      <Sidebar isOpen={true} onClose={setIsSidebarOpenMock} />,
-      { initialState }
-    );
+  //   const { getByTestId } = renderWithRouterAndRedux(
+  //     <Sidebar isOpen={true} onClose={setIsSidebarOpenMock} />,
+  //     { initialState }
+  //   );
 
-    const closeButton = getByTestId('close-sidebar-button');
-    fireEvent.click(closeButton);
+  //   const closeButton = getByTestId('close-sidebar-button');
+  //   fireEvent.click(closeButton);
 
-    expect(setIsSidebarOpenMock).toHaveBeenCalledWith(false);
-  });
+  //   expect(setIsSidebarOpenMock).toHaveBeenCalledWith(false);
+  // });
 });

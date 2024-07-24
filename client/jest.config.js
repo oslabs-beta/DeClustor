@@ -9,9 +9,7 @@ module.exports = {
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
   },
-  transformIgnorePatterns: [
-    '/node_modules/(?!d3-interpolate|d3-scale|d3-axis|d3-shape|@nivo/).+\\.js$',
-  ],
+  transformIgnorePatterns: ['/node_modules/(?!d3-.*|@nivo/.*)'],
 
   moduleFileExtensions: ['js', 'jsx', 'ts', 'tsx', 'json'],
 };
