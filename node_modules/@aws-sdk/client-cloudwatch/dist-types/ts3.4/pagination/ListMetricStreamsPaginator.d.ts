@@ -1,0 +1,11 @@
+import { Paginator } from "@smithy/types";
+import {
+  ListMetricStreamsCommandInput,
+  ListMetricStreamsCommandOutput,
+} from "../commands/ListMetricStreamsCommand";
+import { CloudWatchPaginationConfiguration } from "./Interfaces";
+export declare const paginateListMetricStreams: (
+  config: CloudWatchPaginationConfiguration,
+  input: ListMetricStreamsCommandInput,
+  ...rest: any[]
+) => Paginator<ListMetricStreamsCommandOutput>;
