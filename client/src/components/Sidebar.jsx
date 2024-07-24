@@ -26,7 +26,7 @@ import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import logo from '../assets/logo.png';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchAccounts } from '../redux/userSlice';
+import { fetchAccounts, selectAccount, fetchSubAccountDetails } from '../redux/userSlice';
 import AccountsSection from './accSection';
 
 // Sidebar component

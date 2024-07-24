@@ -59,21 +59,50 @@ const ClusterDetails = ({ cluster = {} }) => {
           >
             {clusterName || 'No cluster name'}
           </Typography>
-          <Typography variant='body2' color='textSecondary'>
-            {`Status: ${status || 'N/A'}`}
-          </Typography>
-          <Typography variant='body2' color='textSecondary'>
-            {`Active Services Count: ${activeServicesCount || 0}`}
-          </Typography>
-          <Typography variant='body2' color='textSecondary'>
-            {`Running Task Count: ${runningTasksCount || 0}`}
-          </Typography>
-          <Typography variant='body2' color='textSecondary'>
-            {`Pending Task Count: ${pendingTasksCount || 0}`}
-          </Typography>
-          <Typography variant='body2' color='textSecondary'>
-            {`Capacity Providers: ${capacityProviders?.join(', ') || 'N/A'}`}
-          </Typography>
+          <Box component="table" sx={{ width: '100%', tableLayout: 'fixed' }}>
+            <Box component="tbody">
+              <Box component="tr">
+                <Box component="td" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  Status:
+                </Box>
+                <Box component="td" sx={{ fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  {status || 'N/A'}
+                </Box>
+              </Box>
+              <Box component="tr">
+                <Box component="td" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  Active Services Count:
+                </Box>
+                <Box component="td" sx={{ fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  {activeServicesCount || 0}
+                </Box>
+              </Box>
+              <Box component="tr">
+                <Box component="td" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  Running Task Count:
+                </Box>
+                <Box component="td" sx={{ fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  {runningTasksCount || 0}
+                </Box>
+              </Box>
+              <Box component="tr">
+                <Box component="td" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  Pending Task Count:
+                </Box>
+                <Box component="td" sx={{ fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  {pendingTasksCount || 0}
+                </Box>
+              </Box>
+              <Box component="tr">
+                <Box component="td" sx={{ fontWeight: 'bold', paddingRight: '8px', fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  Capacity Providers:
+                </Box>
+                <Box component="td" sx={{ fontSize: '1.1rem', color: theme.palette.secondary[100] }}>
+                  {capacityProviders?.join(', ') || 'N/A'}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
         </CardContent>
       </CardActionArea>
     </Card>
