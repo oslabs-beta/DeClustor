@@ -1,10 +1,7 @@
 // connet web socket to the Line chart
-export function connectWebSocketToLineChart(userId, serviceName, metricNames, onMessage, onError, onClose) {
+export function connectWebSocketToLineChart(userId, accountName, region, clusterName, serviceName, metricNames, onMessage, onError, onClose) {
   // Construct the WebSocket URL based on the provided parameters
-  const url = `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=${metricNames.join(',')}`;
-  if ( !serviceName ) {
-    url = `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&metricName=${metricNames.join(',')}`
-  }
+  const url = `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=${metricNames.join(',')}`;
   const ws = new WebSocket(url);
   // Event listener for when the WebSocket connection is opened
   ws.onopen = () => {

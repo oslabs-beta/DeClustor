@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchClusters } from '../redux/userSlice.js';
+import { fetchClusters, setAccountName, setClusterName, setRegion } from '../redux/userSlice.js';
 import ClusterDetails from '../components/clusterDetails';
 import BreadcrumbsNav from '../components/breadcrumbs.jsx';
 
@@ -31,25 +31,33 @@ const Clusters2 = () => {
   const [selectedRegion, setSelectedRegion] = useState('');
 
   useEffect(() => {
+    if (accountName) {
+      dispatch(setAccountName(accountName)); 
+    }
+  }, [accountName, dispatch]);
+
+  useEffect(() => {
     if (userId && accountName) {
       dispatch(fetchClusters({ userId, accountName }))
         .unwrap()
         .then((data) => {
-          if (data.clusters.length === 0) {
-            navigate('/credentials');
+          if (Array.isArray(data) && data.length === 0) {
+            alert('No cluster there');
           }
         })
         .catch((error) => {
-          console.error('Error fetching clusters:', error);
+          alert('Enter credentials first');
+          navigate('/credentials');
         });
     }
   }, [dispatch, userId, accountName, navigate]);
 
   useEffect(() => {
-    if (clusters.length === 0) {
+    if (clustersError && clustersError.notInDatabase) {
+      alert('Enter credentials first');
       navigate('/credentials');
     }
-  }, [clusters, navigate]);
+  }, [clustersError, navigate]);
 
   if (clustersLoading) {
     return <Typography>Loading clusters...</Typography>;
@@ -57,11 +65,16 @@ const Clusters2 = () => {
 
   const handleRegionClick = (region) => {
     setSelectedRegion(region);
+    dispatch(setRegion(region)); 
   };
 
-  const regionClusters = clusters.find(
+  const handleClusterClick = (clusterName) => {
+    dispatch(setClusterName(clusterName));
+  }
+
+  const regionClusters = Array.isArray(clusters) ? clusters.find(
     (regionCluster) => regionCluster.region === selectedRegion
-  );
+  ) : null;
 
   const breadcrumbsNav = [
     { name: 'Credentials', path: '/credentials' },
@@ -124,7 +137,7 @@ const Clusters2 = () => {
             onChange={(e) => handleRegionClick(e.target.value)}
             label="Select Region"
           >
-            {clusters.map((regionCluster, index) => (
+            {Array.isArray(clusters) && clusters.map((regionCluster, index) => (
               <MenuItem key={index} value={regionCluster.region}>
                 {regionCluster.region}
               </MenuItem>
@@ -141,6 +154,7 @@ const Clusters2 = () => {
                 sm={6}
                 md={4}
                 key={`cluster-${cluster.clusterName}-${index}`}
+                onClick={() => handleClusterClick(cluster.clusterName)}
               >
                 <ClusterDetails cluster={cluster} />
               </Grid>

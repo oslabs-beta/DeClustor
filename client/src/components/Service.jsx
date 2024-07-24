@@ -19,7 +19,8 @@ import { setServiceName } from '../redux/userSlice.js'
  * @param {Object} props - Component properties.
  * @param {string} props.userId - The ID of the user.
  */
-const Service = ({ userId }) => {
+
+const Service = ({ userId, accountName, region, clusterName }) => {
   const theme = useTheme()
   const [serviceName, setServiceNameLocal] = useState(null)
   const [serviceNames, setServiceNames] = useState([])
@@ -30,13 +31,13 @@ const Service = ({ userId }) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (userId) {
+    if (userId && accountName && region && clusterName) {
       setLoading(true)
       setError(null)
 
       // Fetch the list of services for the given userId
       fetch(
-        `http://localhost:3000/list/AllServices?userId=1&accountName=AriaLiang&clusterName=DeClustor&region=us-east-2`
+        `http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -59,13 +60,13 @@ const Service = ({ userId }) => {
   }, [userId])
 
   useEffect(() => {
-    if (userId && serviceName) {
+    if (userId && accountName && region && clusterName && serviceName) {
       setLoading(true)
       setError(null)
 
       // change to redux later:
       const ws = new WebSocket(
-        `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=serviceStatus`
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=serviceStatus`
       )
       ws.onopen = () => {
         console.log('WebSocket connection opened')

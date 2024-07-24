@@ -1,7 +1,7 @@
 // connect web socket to Pie Chart
-export function connectWebSocketToPieChart(userId, serviceName, onMessage, onError, onClose) {
+export function connectWebSocketToPieChart(userId, accountName, region, clusterName, serviceName, onMessage, onError, onClose) {
   // Create a new WebSocket connection with the specified parameters
-  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=totalTasks`); 
+  const ws = new WebSocket(`ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=totalTasks`); 
   // Event listener for when the WebSocket connection is opened  
   ws.onopen = () => {
       console.log('WebSocket connection opened');

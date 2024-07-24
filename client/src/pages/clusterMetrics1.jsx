@@ -11,7 +11,7 @@ import {
 import LineChart from '../components/LineChart.jsx';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { setServiceName, setAccountName, setClusterName, fetchAccounts, fetchClusters } from '../redux/userSlice.js';
+import { setServiceName, setAccountName, setClusterName } from '../redux/userSlice.js';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -47,9 +47,7 @@ const ClusterMetrics = () => {
   const [inputValueService, setInputValueService] = useState('');
   const [inputValueAccount, setInputValueAccount] = useState('');
   const [inputValueCluster, setInputValueCluster] = useState('');
-  const [serviceNames, setServiceNames] = useState([]); 
-  const [accountNames, setAccountNames] = useState([]);
-  const [clusterNames, setClusterNames] = useState([]);
+  const [serviceNames, setServiceNames] = useState([]); // 本地状态
   const dispatch = useDispatch();
 
   const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
@@ -59,37 +57,6 @@ const ClusterMetrics = () => {
     clusterName: state.user.clusterName,
     serviceName: state.user.serviceName,
   }));
-
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchAccounts(userId))
-        .unwrap()
-        .then((data) => {
-          const combinedAccountNames = [
-            ...data.root.map(account => account.account_name),
-            ...data.subaccount.map(account => account.account_name)
-          ];
-          setAccountNames(combinedAccountNames);
-        })
-        .catch((error) => {
-          console.error('Error fetching account names:', error);
-        });
-    }
-  }, [userId, dispatch]);
-
-  useEffect(() => {
-    if (userId && accountName) {
-      dispatch(fetchClusters({ userId, accountName }))
-        .unwrap()
-        .then((data) => {
-          const clusterNames = data.flatMap(regionData => regionData.clusters.map(cluster => cluster.clusterName));
-          setClusterNames(clusterNames);
-        })
-        .catch((error) => {
-          console.error('Error fetching cluster names:', error);
-        });
-    }
-  }, [userId, accountName, dispatch]);
 
   useEffect(() => {
     if (userId && accountName && clusterName) {
@@ -103,8 +70,6 @@ const ClusterMetrics = () => {
             setServiceNames(data);
             dispatch(setServiceName(data[0])); // Update Redux state
           } else {
-            setServiceNames([]); // Clear service names
-            dispatch(setServiceName(null)); // Clear service name in Redux
             throw new Error('No services found');
           }
         })
@@ -133,7 +98,7 @@ const ClusterMetrics = () => {
             setInputValueAccount(newInputValue);
           }}
           id="account-name-dropdown"
-          options={accountNames}
+          options={['Aria Liang']}
           sx={{ minWidth: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Choose your account name" />
@@ -151,7 +116,7 @@ const ClusterMetrics = () => {
             setInputValueCluster(newInputValue);
           }}
           id="cluster-name-dropdown"
-          options={clusterNames}
+          options={['']}
           sx={{ minWidth: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Choose your cluster name" />

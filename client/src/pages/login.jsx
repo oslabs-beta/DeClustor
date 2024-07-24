@@ -24,6 +24,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme(); 
 
   const google = () => {
     window.open('http://localhost:3000/auth/google', '_self');

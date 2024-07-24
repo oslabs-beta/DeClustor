@@ -175,7 +175,7 @@ listController.Clusters = (req, res) => {
       }
       if (!account) {
         return res
-          .status(404)
+          .status(500)
           .json({ error: 'Account not found', notInDatabase: true });
       }
       const { access_key, secret_key } = account;
@@ -228,7 +228,7 @@ async function listClustersForRegion(client, region) {
     const describeResponse = await client.send(describeCommand);
     return describeResponse.clusters;
   } catch (error) {
-    console.error(`Error listing clusters in region ${region}:`, error);
+    // console.error(`Error listing clusters in region ${region}:`, error);
     throw new Error(`Error listing clusters in region ${region} from AWS ECS`);
   }
 }
