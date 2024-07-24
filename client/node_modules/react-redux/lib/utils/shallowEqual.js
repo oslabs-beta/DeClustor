@@ -1,7 +1,7 @@
 "use strict";
 
 exports.__esModule = true;
-exports.default = shallowEqual;
+exports["default"] = shallowEqual;
 
 function is(x, y) {
   if (x === y) {
@@ -18,11 +18,11 @@ function shallowEqual(objA, objB) {
     return false;
   }
 
-  const keysA = Object.keys(objA);
-  const keysB = Object.keys(objB);
+  var keysA = Object.keys(objA);
+  var keysB = Object.keys(objB);
   if (keysA.length !== keysB.length) return false;
 
-  for (let i = 0; i < keysA.length; i++) {
+  for (var i = 0; i < keysA.length; i++) {
     if (!Object.prototype.hasOwnProperty.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
       return false;
     }
