@@ -197,7 +197,7 @@ listController.Clusters = (req, res) => {
             });
           }
         } catch (error) {
-          console.error(`Error listing clusters for region ${region}:`, error);
+          //console.error(`Error listing clusters for region ${region}:`, error);
         }
       });
       await Promise.all(promises);

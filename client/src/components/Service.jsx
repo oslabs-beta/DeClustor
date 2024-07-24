@@ -11,7 +11,7 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { useTheme } from '@emotion/react'
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { setServiceName } from '../redux/userSlice.js'
 
 /** 

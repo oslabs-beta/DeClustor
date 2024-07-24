@@ -20,7 +20,6 @@ import Navbar from '../components/Navbar.jsx';
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
-  const [clusterName, setClusterName] = useState('');
   const [accountType, setAccType] = useState('');
   const [accountName, setAccName] = useState('');
   const navigate = useNavigate();

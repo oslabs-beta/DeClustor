@@ -17,17 +17,19 @@ import {
   ChevronRightOutlined,
   HomeOutlined,
   CalendarMonthOutlined,
-  TrendingUpOutlined,
+  AdminPanelSettingsOutlined,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlexBetween from './FlexBetween';
 import profileImage from '../assets/profile.png';
+import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
+import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import logo from '../assets/logo.png';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchAccounts, selectAccount, fetchSubAccountDetails } from '../redux/userSlice';
 import AccountsSection from './accSection';
 
-// passin props from Layout
+// Sidebar component
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
@@ -52,23 +54,37 @@ const Sidebar = ({
     setActive(pathname.substring(1));
   }, [pathname]);
 
-  // fetchAccounts from store
-  useEffect(() => {
-    if (userId) {
-      dispatch(fetchAccounts(userId));
-    }
-  }, [dispatch, userId]);
-
+  // Navigation items
   const navItems = [
-    { text: 'Dashboard', icon: <HomeOutlined /> },
-    { text: 'Task Overview', icon: <CalendarMonthOutlined /> },
-    { text: 'Cluster Metrics', icon: <TrendingUpOutlined /> },
-    { text: 'Logs', icon: <CalendarMonthOutlined /> },
-    // { text: 'Setting', icon: <AdminPanelSettingsOutlined /> },
+    {
+      text: 'Dashboard',
+      icon: <HomeOutlined />,
+    },
+    {
+      text: 'Task Overview',
+      icon: <LanOutlinedIcon />,
+    },
+    {
+      text: 'Cluster Metics',
+      icon: <SsidChartOutlinedIcon />,
+    },
+    {
+      text: 'Logs',
+      icon: <CalendarMonthOutlined />,
+    },
+    {
+      text: 'Account Management',
+      icon: null,
+    },
+    {
+      text: 'Setting',
+      icon: <AdminPanelSettingsOutlined />,
+    },
   ];
 
   return (
     <Box component='nav'>
+      {/* Conditional rendering for Drawer */}
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
@@ -85,7 +101,9 @@ const Sidebar = ({
             },
           }}
         >
+           {/* Drawer content */}
           <Box width='230px'>
+            {/* Logo section */}
             <Box margin='1.2rem 1.8rem 0.8rem 1rem'>
               <FlexBetween color={theme.palette.secondary.main}>
                 <Box
@@ -106,6 +124,8 @@ const Sidebar = ({
                     cursor: 'pointer',
                   }}
                 />
+                {/* responsive for mobile , it's will pop up the left arrow */}
+                 {/* Close button for mobile view */}
                 {!isNonMobile && (
                   <IconButton onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     <ChevronLeft />

@@ -18,12 +18,12 @@ import GitHub from '../assets/gh2.jpg';
 import Navbar from '../components/Navbar';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  // State for username and password input fields
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const theme = useTheme();
 
   const google = () => {
     window.open('http://localhost:3000/auth/google', '_self');
@@ -42,7 +42,7 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -61,8 +61,10 @@ const Login = () => {
         dispatch(
           loginSuccess({
             userId: data.userId,
-            username,
-            serviceName: data.serviceName,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            username: data.userName,
+            email: data.email
           })
         );
         navigate('/dashboard');
@@ -128,11 +130,12 @@ const Login = () => {
               gap: 2,
             }}
           >
+            {/* Email input field */}
             <TextField
-              variant="outlined"
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              variant='outlined'
+              label='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               fullWidth
             />
