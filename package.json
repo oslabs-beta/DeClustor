@@ -19,6 +19,7 @@
     "@aws-sdk/credential-provider-env": "^3.609.0",
     "@reduxjs/toolkit": "^2.2.6",
     "aws-sdk": "^2.1654.0",
+    "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
     "cors": "^2.8.5",
@@ -38,7 +39,11 @@
     "ws": "^8.18.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.24.9",
+    "@babel/preset-env": "^7.24.8",
+    "@babel/preset-react": "^7.24.7",
     "@eslint/js": "^9.7.0",
+    "babel-eslint": "^10.1.0",
     "eslint": "^9.7.0",
     "eslint-plugin-react": "^7.35.0",
     "globals": "^15.8.0",

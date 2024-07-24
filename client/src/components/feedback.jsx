@@ -10,13 +10,15 @@ import {
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import CloseIcon from '@mui/icons-material/Close';
 
+// Feedback component
 const Feedback = () => {
+  // State to track if the drawer is open or closed
   const [open, setOpen] = useState(false);
-
+  // Function to toggle the drawer state
   const toggleDrawer = (state) => () => {
     setOpen(state);
   };
-
+  // Function to handle form submission
   const handleSubmit = (event) => {
     event.preventDefault();
     setOpen(false);
@@ -24,6 +26,7 @@ const Feedback = () => {
 
   return (
     <>
+      {/* Button to open the feedback drawer */}
       <Button
         variant='contained'
         color='secondary'
@@ -38,8 +41,10 @@ const Feedback = () => {
       >
         Give Feedback
       </Button>
+      {/* Drawer component for feedback form */}
       <Drawer anchor='right' open={open} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 300, p: 2 }}>
+          {/* Drawer header with title and close button */}
           <Box
             sx={{
               display: 'flex',
@@ -52,6 +57,7 @@ const Feedback = () => {
               <CloseIcon />
             </IconButton>
           </Box>
+          {/* Feedback form */}
           <Box component='form' onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <TextField
               fullWidth

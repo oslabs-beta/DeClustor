@@ -28,7 +28,7 @@ app.post('/setNotification', notificationController.setNotification, (req, res) 
     res.status(200).send('Notification settings saved');
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     res.status(err.status || 500).json({ message: err.message });
 });
 

@@ -18,18 +18,22 @@ import {
   HomeOutlined,
   CalendarMonthOutlined,
   AdminPanelSettingsOutlined,
-  TrendingUpOutlined,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import FlexBetween from './FlexBetween';
 import profileImage from '../assets/profile.png';
 import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
-import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import logo from '../assets/logo.png';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  fetchAccounts,
+  selectAccount,
+  fetchSubAccountDetails,
+} from '../redux/userSlice';
+import AccountsSection from './accSection';
 
-// passin props from Layout
+// Sidebar component
 const Sidebar = ({
   isNonMobile,
   drawerWidth,
@@ -45,12 +49,16 @@ const Sidebar = ({
   const theme = useTheme();
   const user = useSelector((state) => state.user);
   console.log('user login -->', user);
+  const dispatch = useDispatch();
+  const userId = useSelector((state) => state.user.userId);
+
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
     setActive(pathname.substring(1));
   }, [pathname]);
 
+  // Navigation items
   const navItems = [
     {
       text: 'Dashboard',
@@ -61,12 +69,8 @@ const Sidebar = ({
       icon: <LanOutlinedIcon />,
     },
     {
-      text: 'Cluster Metics',
+      text: 'Cluster Metrics',
       icon: <SsidChartOutlinedIcon />,
-    },
-    {
-      text: 'Service',
-      icon: <AssignmentOutlinedIcon />,
     },
     {
       text: 'Logs',
@@ -80,16 +84,11 @@ const Sidebar = ({
       text: 'Setting',
       icon: <AdminPanelSettingsOutlined />,
     },
-    {
-      text: 'Performance',
-      icon: <TrendingUpOutlined />,
-    },
   ];
 
   return (
-    // react drawer from react dom
-    // persistenr drawer
     <Box component="nav">
+      {/* Conditional rendering for Drawer */}
       {isSidebarOpen && (
         <Drawer
           open={isSidebarOpen}
@@ -98,7 +97,6 @@ const Sidebar = ({
           anchor="left"
           sx={{
             width: drawerWidth,
-            // class name ที่ MUI ใช้กำหนดสำหรับส่วนของ Drawer component ที่ประพฤติเหมือนกระดาษ (paper), โดยปกติจะเป็นส่วนที่เลื่อนเข้าออกได้.
             '& .MuiDrawer-paper': {
               color: theme.palette.secondary[200],
               backgroundColor: theme.palette.background.alt,
@@ -107,17 +105,16 @@ const Sidebar = ({
             },
           }}
         >
+          {/* Drawer content */}
           <Box width="230px">
-            {/* t r b l */}
+            {/* Logo section */}
             <Box margin="1.2rem 1.8rem 0.8rem 1rem">
               <FlexBetween color={theme.palette.secondary.main}>
                 <Box
                   component="img"
                   alt="logo"
                   src={logo}
-                  onClick={() => {
-                    navigate('/');
-                  }}
+                  onClick={() => navigate('/')}
                   height="100px"
                   width="100px"
                   borderRadius="28%"
@@ -131,13 +128,8 @@ const Sidebar = ({
                     cursor: 'pointer',
                   }}
                 />
-                {/* <Box display="flex" alignItems="center" gap="0.5rem">
-                  <Typography variant="h3" fontWeight="bold">
-                    DeClustor
-                  </Typography>
-                </Box> */}
-
                 {/* responsive for mobile , it's will pop up the left arrow */}
+                {/* Close button for mobile view */}
                 {!isNonMobile && (
                   <IconButton
                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -148,23 +140,9 @@ const Sidebar = ({
                 )}
               </FlexBetween>
             </Box>
-            {/* creating nav items // loop thru the navItems function
-                check if icon is not existed
-                then set key to text */}
             <List>
               {navItems.map(({ text, icon }) => {
-                if (!icon) {
-                  return (
-                    <Typography key={text} sx={{ m: '2.25rem 0 1rem 3rem' }}>
-                      {text}
-                    </Typography>
-                  );
-                }
-
                 const lowerCaseText = text.toLowerCase().replace(' ', '');
-
-                // set the navagat by following the {text} navItems name
-                // swich the colors follow by if it's active?
                 return (
                   <ListItem key={text} disablePadding>
                     <ListItemButton
@@ -194,9 +172,7 @@ const Sidebar = ({
                       >
                         {icon}
                       </ListItemIcon>
-
                       <ListItemText primary={text} />
-                      {/* arrow right */}
                       {active === lowerCaseText && (
                         <ChevronRightOutlined sx={{ ml: 'auto' }} />
                       )}
@@ -205,9 +181,8 @@ const Sidebar = ({
                 );
               })}
             </List>
+            <AccountsSection userId={userId} />
           </Box>
-
-          {/* user profile need an update!*/}
           <Divider
             sx={{ width: '100%', maxWidth: '500px', marginTop: '230px' }}
           />
@@ -228,21 +203,13 @@ const Sidebar = ({
                   fontSize="0.9rem"
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  {/* change to user info !! call the api '/userProfile' ?*/}
                   {user ? user.username : 'No User Data'}
                 </Typography>
               </Box>
-              {/* <SettingsOutlined
-                sx={{
-                  color: theme.palette.secondary[300],
-                  fontSize: "25px ",
-                }}
-              /> */}
             </FlexBetween>
           </Box>
         </Drawer>
       )}
-      ;
     </Box>
   );
 };

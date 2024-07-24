@@ -9,22 +9,19 @@ import {
   Box,
   Typography,
   Paper,
-  IconButton,
-  Tooltip,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-
-// added button to add another credential // done
-// add redux , to passin user's credential info 
-
-
+import Navbar from '../components/Navbar.jsx';
 
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
-  const [region, setRegion] = useState('');
-  const [clusterName, setClusterName] = useState('');
+  const [accountType, setAccType] = useState('');
+  const [accountName, setAccName] = useState('');
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -34,7 +31,7 @@ const Credentials = () => {
 
   useEffect(() => {
     if (!userId) {
-      dispatch(fetchCurrentUser());  
+      dispatch(fetchCurrentUser());
     }
   }, [dispatch, userId]);
 
@@ -49,10 +46,10 @@ const Credentials = () => {
         },
         body: JSON.stringify({
           userId,
+          accountType,
           accessKey,
           secretKey,
-          region,
-          clusterName,
+          accountName,
         }),
       });
 
@@ -62,53 +59,53 @@ const Credentials = () => {
       }
 
       console.log('Credentials saved successfully');
-      navigate('/dashboard');
+      navigate('/accounts');
     } catch (error) {
       console.error('Error saving credentials:', error.message);
     }
   };
 
   return (
-    <Container maxWidth="sm">
+    <div>
+    <Navbar
+      showSidebar={false}
+      showSearch={false}
+      showNotification={false}
+      showUser={false}
+    />
+    <Container maxWidth='md'>
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
+          gap: 2,
           marginTop: 8,
         }}
       >
-        <Typography component="h1" variant="h4" gutterBottom>
-          Enter AWS Credentials
-        </Typography>
         <Paper
           elevation={3}
           sx={{
             width: '100%',
+            maxWidth: 600,
             padding: 4,
             borderRadius: 2,
             backgroundColor: 'transparent',
             color: theme.palette.primary.contrastText,
+            margin: '0 auto',
           }}
         >
-          {/* add more credential from  */}
-          <Box
+          <Typography
+            variant='h3'
             sx={{
-              display: 'flex',
-              alignItems: 'center',
-              mb: 3,
-              justifyContent: 'flex-end',
+              mb: 2,
+              textAlign: 'center',
+              color: theme.palette.secondary.main,
             }}
           >
-            <Tooltip title="Add more credential">
-              <IconButton>
-                <AddCircleIcon style={{ color: theme.palette.secondary[300] , justifyContent: 'flex-end' }} />
-              </IconButton>
-            </Tooltip>
-            </Box>
-
+            Enter AWS Credentials
+          </Typography>
           <Box
-            component="form"
+            component='form'
             onSubmit={handleSubmit}
             sx={{
               display: 'flex',
@@ -116,9 +113,27 @@ const Credentials = () => {
               gap: 3,
             }}
           >
+            <FormControl fullWidth required>
+              <InputLabel
+                id='accType-label'
+                sx={{ color: theme.palette.primary.contrastText }}
+              >
+                Account Type
+              </InputLabel>
+              <Select
+                labelId='accType-label'
+                value={accountType}
+                onChange={(e) => setAccType(e.target.value)}
+                label='Account Type'
+                sx={{ color: theme.palette.primary.contrastText }}
+              >
+                <MenuItem value='root'>Root</MenuItem>
+                <MenuItem value='subaccount'>Sub-account</MenuItem>
+              </Select>
+            </FormControl>
             <TextField
-              variant="outlined"
-              label="Access Key"
+              variant='outlined'
+              label='Access Key'
               value={accessKey}
               onChange={(e) => setAccessKey(e.target.value)}
               required
@@ -131,8 +146,8 @@ const Credentials = () => {
               }}
             />
             <TextField
-              variant="outlined"
-              label="Secret Key"
+              variant='outlined'
+              label='Secret Key'
               value={secretKey}
               onChange={(e) => setSecretKey(e.target.value)}
               required
@@ -145,24 +160,10 @@ const Credentials = () => {
               }}
             />
             <TextField
-              variant="outlined"
-              label="Region"
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              required
-              fullWidth
-              InputLabelProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-              InputProps={{
-                style: { color: theme.palette.primary.contrastText },
-              }}
-            />
-            <TextField
-              variant="outlined"
-              label="Cluster Name"
-              value={clusterName}
-              onChange={(e) => setClusterName(e.target.value)}
+              variant='outlined'
+              label='Account Name'
+              value={accountName}
+              onChange={(e) => setAccName(e.target.value)}
               required
               fullWidth
               InputLabelProps={{
@@ -173,23 +174,23 @@ const Credentials = () => {
               }}
             />
             <Button
-              type="submit"
-              variant="contained"
-              color="secondary"
+              type='submit'
+              variant='contained'
+              color='secondary'
               fullWidth
               sx={{ padding: 1.5 }}
             >
               Submit
             </Button>
-            <Typography variant="body2" align="center">
+            <Typography variant='body2' align='center'>
               Can't find it? Return to home and read our Get Started to access
               these information.
             </Typography>
             <Button
-              variant="outlined"
-              color="secondary"
+              variant='outlined'
+              color='secondary'
               fullWidth
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               sx={{ padding: 1.5 }}
             >
               Back to Home Page
@@ -198,6 +199,7 @@ const Credentials = () => {
         </Paper>
       </Box>
     </Container>
+    </div>
   );
 };
 

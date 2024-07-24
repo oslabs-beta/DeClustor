@@ -4,11 +4,9 @@ import { useTheme } from "@mui/material";
 import { connectWebSocketToPieChart } from '../webService/connectWebSocketToPieChart.js';
 import { useSelector } from 'react-redux';
 
-// transfrom raw data to pie chart format
 // Function to transform raw data to pie chart format
 const transformData = (rawData) => {
     if (!rawData || typeof rawData !== 'object') {
-        console.log('Expected rawData in the Pie Chart components to be an object, but got', rawData);
         return [];
     }
 
@@ -21,8 +19,6 @@ const transformData = (rawData) => {
         { id: 'PendingTasks', label: 'Pending Tasks', value: pendingTasks },
         { id: 'StoppedTasks', label: 'Stopped Tasks', value: stoppedTasks },
     ];
-
-    console.log('Pie transformed data -->', transformedData);
     return transformedData;
 };
 
@@ -31,9 +27,15 @@ const PieChart = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const userId = useSelector((state) => state.user.userId);
-    const serviceName = useSelector((state) => state.user.serviceName);
+    const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
+        userId: state.user.userId,
+        accountName: state.user.accountName,
+        region: state.user.region,
+        clusterName: state.user.clusterName,
+        serviceName: state.user.serviceName,
+      })); 
 
+    // custom tooltip for pie chart
     const CustomTooltip = ({ datum }) => (
         <div
             style={{
@@ -47,9 +49,9 @@ const PieChart = () => {
     );
 
     useEffect(() => {
-        if (userId && serviceName) {
-            const ws = connectWebSocketToPieChart(userId, serviceName, (rawData) => {
-                console.log('hi from pie chart im received the raw data --> ', rawData);
+        if (userId && serviceName && accountName && region && clusterName) {
+            // Connect to WebSocket using userId and serviceName
+            const ws = connectWebSocketToPieChart(userId, accountName, region, clusterName, serviceName, (rawData) => {
                 const transformedData = transformData(rawData);
                 setData(transformedData);
                 setLoading(false);
@@ -63,14 +65,12 @@ const PieChart = () => {
                 }
             );
 
-            // Cleanup
+            // Cleanup WebSocket on component unmount
             return () => {
                 ws.close();
             };
         }
-    }, [userId, serviceName]);
-
-    console.log('Pie Data: [userId, serviceName] --> ', [userId, serviceName]);
+    }, [userId, accountName, region, clusterName, serviceName]);
 
     // Loading state
     if (loading) {
@@ -82,12 +82,13 @@ const PieChart = () => {
         return <div>Error: {error}</div>;
     }
 
-
     return (
         <div style={{ height: "400px", width: "100%" }}>
         <ResponsivePie
+            // the data to be displayed in the pie chart
             data={data}
             margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
+            // radius for the innder circle(create a donut chart)
             innerRadius={0.5}
             padAngle={0.7}
             cornerRadius={3}
@@ -107,33 +108,6 @@ const PieChart = () => {
                 modifiers: [['darker', 2]]
             }}
             tooltip={CustomTooltip}           
-            // defs={[
-            //     {
-            //         id: 'dots',
-            //         type: 'patternDots',
-            //         background: 'inherit',
-            //         color: 'rgba(255, 255, 255, 0.3)',
-            //         size: 4,
-            //         padding: 1,
-            //         stagger: true
-            //     },
-            //     {
-            //         id: 'lines',
-            //         type: 'patternLines',
-            //         background: 'inherit',
-            //         color: 'rgba(255, 255, 255, 0.3)',
-            //         rotation: -45,
-            //         lineWidth: 6,
-            //         spacing: 10
-            //     }
-            // ]}
-            // fill={[
-            //     { match: { id: 'ruby' }, id: 'dots' },
-            //     { match: { id: 'c' }, id: 'dots' },
-            //     { match: { id: 'go' }, id: 'dots' },
-            //     { match: { id: 'python' }, id: 'dots' },
-            //     { match: { id: 'scala' }, id: 'lines' }
-            // ]}
             legends={[
                 {
                     anchor: 'bottom',

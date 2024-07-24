@@ -27,12 +27,15 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import { setServiceName } from '../redux/userSlice';
 import { updateNotification, saveNotifications } from '../redux/notificationSlice';
 
+// Setting component for managing user notification settings.
 const Setting = () => {
   const dispatch = useDispatch();
-  const userId = 1;
-  const accountName = "AriaLiang"; // change with redux later
-  const clusterName = "DeClustor"; // change with redux later
-  const region = "us-east-2"; // change with redux later
+  const { userId, accountName, region, clusterName } = useSelector((state) => ({
+    userId: state.user.userId,
+    accountName: state.user.accountName,
+    region: state.user.region,
+    clusterName: state.user.clusterName,
+  })); 
   const { notifications = [] } = useSelector((state) => state.notification);
 
   const [serviceNames, setServiceNames] = useState([]);
@@ -41,11 +44,13 @@ const Setting = () => {
   const [open, setOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
 
+  // Fetches the list of services for the given userId and updates the state.
   useEffect(() => {
     if (userId) {
       setLoading(true);
       setErrors({});
 
+      // Fetch the list of services for the given userId, accountName, clusterName, and region
       fetch(`http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`)
         .then(response => response.json())
         .then(data => {
@@ -66,18 +71,22 @@ const Setting = () => {
     }
   }, [userId, dispatch]);
 
+  // Handles opening the settings dialog.
   const handleClickOpen = () => {
     setOpen(true);
   };
 
+  // Handles closing the settings dialog.
   const handleClose = () => {
     setOpen(false);
   };
 
+  // Handles closing the alert Snackbar.
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
 
+  // Returns the tooltip title based on the switch state
   const getTooltipTitle = (isOn) => {
     return isOn ? 'Turn off' : 'Turn on';
   };
@@ -90,10 +99,12 @@ const Setting = () => {
     { value: 'equal', label: '=' }
   ];
 
+  // Handles saving the notification settings.
   const handleSave = async () => {
     const newErrors = {};
     let isValid = true;
 
+    // Validate each notification
     notifications.forEach((notification, index) => {
       if (!notification.isEnable) return;
 
@@ -133,6 +144,7 @@ const Setting = () => {
     setErrors(newErrors);
     if (!isValid) return;
 
+    // Prepare payload for saving notifications
     const payload = notifications.map(notification => {
       if (!notification.isEnable) {
         return { metric: notification.metric };
@@ -168,6 +180,7 @@ const Setting = () => {
       }
     })
 
+    // Save notifications using Redux action
     if (userId) {
       try {
         await dispatch(saveNotifications({ userId, accountName, clusterName, region, notifications: payload })).unwrap();
@@ -181,11 +194,16 @@ const Setting = () => {
     }
   };
 
+  // Handles toggling the "apply to all" setting for a metric.
   const [serviceSpecificSettings, setServiceSpecificSettings] = useState({
     CPUUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' },
     MemoryUtilization: { applyToAll: true, services: [], operator: 'greaterThan', threshold: '' }
   });
 
+   /**
+   * Handles toggling the "apply to all" setting for a metric.
+   * @param {string} metric - The metric name.
+   */
   const handleApplyToAllChange = (metric) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,
@@ -193,6 +211,10 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles adding a service-specific setting for a metric.
+   * @param {string} metric - The metric name.
+   */
   const handleAddService = (metric) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,
@@ -200,6 +222,13 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles changes to service-specific settings.
+   * @param {string} metric - The metric name.
+   * @param {number} index - The index of the service.
+   * @param {string} key - The key to update.
+   * @param {any} value - The new value.
+   */
   const handleServiceChange = (metric, index, key, value) => {
     const updatedServices = [...serviceSpecificSettings[metric].services];
     updatedServices[index][key] = value;
@@ -214,6 +243,11 @@ const Setting = () => {
     setErrors(newErrors);
   };
 
+  /**
+   * Handles deleting a service-specific setting for a metric.
+   * @param {string} metric - The metric name.
+   * @param {number} index - The index of the service.
+   */
   const handleDeleteService = (metric, index) => {
     const updatedServices = [...serviceSpecificSettings[metric].services];
     updatedServices.splice(index, 1);
@@ -223,6 +257,12 @@ const Setting = () => {
     }));
   };
 
+  /**
+   * Handles changes to the operator or threshold for a metric.
+   * @param {string} metric - The metric name.
+   * @param {string} key - The key to update.
+   * @param {any} value - The new value.
+   */
   const handleOperatorThresholdChange = (metric, key, value) => {
     setServiceSpecificSettings(prevSettings => ({
       ...prevSettings,
@@ -237,9 +277,11 @@ const Setting = () => {
 
   return (
     <React.Fragment>
+      {/* Icon button to open settings dialog */}
       <IconButton onClick={handleClickOpen}>
         <SettingsOutlinedIcon sx={{ fontSize: '25px' }} />
       </IconButton>
+      {/* Dialog for notification settings */}
       <Dialog fullWidth={true} maxWidth="md" open={open} onClose={handleClose}>
         <DialogTitle>Notification Settings</DialogTitle>
         <DialogContent>
@@ -249,7 +291,7 @@ const Setting = () => {
             <br />
           </DialogContentText>
 
-          {/* Notification settings */}
+          {/* Notification settings form */}
           <Box
             component="form"
             sx={{
@@ -259,9 +301,11 @@ const Setting = () => {
               width: '100%',
             }}
           >
+            {/* Loop through notifications and render settings for each metric */}
             {notifications.map((metric, index) => (
               <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={metric.metric}>
                 <Grid item xs={12}>
+                   {/* Tooltip and switch to enable/disable notifications for the metric */}
                   <Tooltip title={getTooltipTitle(metric.isEnable)}>
                     <FormControlLabel
                       control={
@@ -274,8 +318,10 @@ const Setting = () => {
                     />
                   </Tooltip>
                 </Grid>
+                {/* Settings for metrics other than CPU or Memory Utilization */}
                 {metric.isEnable && ['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
                   <>
+                    {/* Settings for applying to all services */}
                     <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={`${metric.metric}-apply-to-all`} style={{ padding: '0 16px' }}>
                       <Grid item xs={3} container alignItems="center" justifyContent="flex-start">
                         <FormControlLabel
@@ -289,6 +335,7 @@ const Setting = () => {
                           style={{ marginRight: 0 }}
                         />
                       </Grid>
+                       {/* Settings for threshold and operator if applying to all services */}
                       {serviceSpecificSettings[metric.metric].applyToAll && (
                         <>
                           <Grid item xs={4}>
@@ -332,11 +379,14 @@ const Setting = () => {
                         </>
                       )}
                     </Grid>
+                     {/* Settings for specific services if not applying to all */}
                     {!serviceSpecificSettings[metric.metric].applyToAll && (
                       <>
+                        {/* Loop through each service-specific setting */}
                         {serviceSpecificSettings[metric.metric].services.map((service, idx) => (
                           <Grid container spacing={2} alignItems="center" sx={{ mt: 2 }} key={idx} style={{ paddingLeft: 16 }}>
                             <Grid item xs={3}>
+                              {/* Form control for selecting a service */}
                               <FormControl fullWidth error={!!errors[`serviceName-${index}-${idx}`]}>
                                 <InputLabel htmlFor={`${metric.metric}-service-${idx}`}>Service</InputLabel>
                                 <Select
@@ -345,6 +395,7 @@ const Setting = () => {
                                   onChange={(e) => handleServiceChange(metric.metric, idx, 'serviceName', e.target.value)}
                                   label="Service"
                                 >
+                                  {/* Populate dropdown with service names */}
                                   {serviceNames.map((serviceName) => (
                                     <MenuItem
                                       key={serviceName}
@@ -362,6 +413,7 @@ const Setting = () => {
                               </FormControl>
                             </Grid>
                             <Grid item xs={3}>
+                              {/* Form control for selecting an operator */}
                               <FormControl fullWidth error={!!errors[`serviceOperator-${index}-${idx}`]}>
                                 <InputLabel>Operator</InputLabel>
                                 <Select
@@ -369,6 +421,7 @@ const Setting = () => {
                                   onChange={(e) => handleServiceChange(metric.metric, idx, 'operator', e.target.value)}
                                   label="Operator"
                                 >
+                                   {/* Populate dropdown with operator options */}
                                   {operators.map((option) => (
                                     <MenuItem key={option.value} value={option.value}>
                                       {option.label}
@@ -381,6 +434,7 @@ const Setting = () => {
                                 <FormHelperText>Please select an operator</FormHelperText>
                               </FormControl>
                             </Grid>
+                             {/* TextField for setting the threshold */}
                             <Grid item xs={3}>
                               <TextField
                                 label="Threshold"
@@ -400,12 +454,14 @@ const Setting = () => {
                               />
                             </Grid>
                             <Grid item xs={3}>
+                              {/* Button to delete the service-specific setting */}
                               <Button variant="contained" color="secondary" onClick={() => handleDeleteService(metric.metric, idx)}>
                                 Delete
                               </Button>
                             </Grid>
                           </Grid>
                         ))}
+                        {/* Button to add a new service-specific setting */}
                         <Grid item xs={12} style={{ paddingLeft: 16 }}>
                           <Button variant="outlined" onClick={() => handleAddService(metric.metric)}>
                             + Add service
@@ -415,9 +471,11 @@ const Setting = () => {
                     )}
                   </>
                 )}
+                 {/* Settings for metrics other than CPU or Memory Utilization */}
                 {metric.isEnable && !['CPUUtilization', 'MemoryUtilization'].includes(metric.metric) && (
                   <>
                     <Grid item xs={6}>
+                         {/* FormController for selecting an operator */}
                       <FormControl fullWidth error={!!errors[`operator-${index}`]}>
                         <InputLabel>Operator</InputLabel>
                         <Select
@@ -439,6 +497,7 @@ const Setting = () => {
                       </FormControl>
                     </Grid>
                     <Grid item xs={6}>
+                      {/* TextField for setting the threshold */}
                       <TextField
                         id={`${metric.metric}-number`}
                         label="Threshold"
@@ -468,12 +527,15 @@ const Setting = () => {
         </DialogContent>
 
         <DialogActions>
+          {/* Button to close the settings dialog */}
           <Button onClick={handleClose}>Close</Button>
+          {/* Button to save the notification settings */}
           <Button onClick={handleSave} color="primary">Save</Button>
         </DialogActions>
       </Dialog>
 
       <Snackbar open={alertOpen} autoHideDuration={6000} onClose={handleAlertClose}>
+         {/* Alert to display success message when notification settings are saved */}
         <Alert onClose={handleAlertClose} severity="success" sx={{ width: '100%' }}>
           Notification settings have been set successfully!
         </Alert>

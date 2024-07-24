@@ -13,17 +13,18 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import { loginSuccess, loginFailure } from '../redux/userSlice';
 import { useDispatch } from 'react-redux';
 import { useTheme } from '@mui/material/styles';
-import Google from '../assets/logingoogle.png';
-import GitHub from '../assets/signupgithub.png';
+import Google from '../assets/g.jpg';
+import GitHub from '../assets/gh2.jpg';
 import Navbar from '../components/Navbar';
 
 const Login = () => {
-  const [username, setUsername] = useState('');
+  // State for username and password input fields
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const theme = useTheme();
+  const theme = useTheme(); 
 
   const google = () => {
     window.open('http://localhost:3000/auth/google', '_self');
@@ -42,7 +43,7 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -61,8 +62,10 @@ const Login = () => {
         dispatch(
           loginSuccess({
             userId: data.userId,
-            username,
-            serviceName: data.serviceName,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            username: data.userName,
+            email: data.email
           })
         );
         navigate('/dashboard');
@@ -90,7 +93,7 @@ const Login = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginTop: 8,
+            marginTop: 0,
           }}
         >
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
@@ -128,11 +131,12 @@ const Login = () => {
               gap: 2,
             }}
           >
+            {/* Email input field */}
             <TextField
-              variant="outlined"
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              variant='outlined'
+              label='email'
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               fullWidth
             />
@@ -154,6 +158,64 @@ const Login = () => {
             >
               Login
             </Button>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: 2,
+                mt: 2,
+              }}
+            >
+              <Button
+                onClick={google}
+                sx={{
+                  borderRadius: '50%',
+                  padding: 0,
+                  minWidth: '60px',
+                  minHeight: '60px',
+                  width: '60px',
+                  height: '60px',
+                  backgroundColor: theme.palette.background.default,
+                  overflow: 'hidden',
+                }}
+              >
+                <img
+                  src={Google}
+                  alt="Google"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '50%',
+                  }}
+                />
+              </Button>
+              <Button
+                onClick={github}
+                sx={{
+                  borderRadius: '50%',
+                  padding: 0,
+                  minWidth: '60px',
+                  minHeight: '60px',
+                  width: '60px',
+                  height: '60px',
+                  backgroundColor: theme.palette.background.default,
+                  overflow: 'hidden',
+                }}
+              >
+                <img
+                  src={GitHub}
+                  alt="GitHub"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '50%',
+                  }}
+                />
+              </Button>
+            </Box>
             <Button
               onClick={() => alert('Redirect to forgot password page')}
               color="secondary"
@@ -167,12 +229,6 @@ const Login = () => {
               sx={{ mt: 0.5 }}
             >
               Don't have an account? Sign up!
-            </Button>
-            <Button onClick={google}>
-              <img src={Google} alt="Google" style={{ width: '60%' }} />
-            </Button>
-            <Button onClick={github} style={{ paddingBottom: '15px' }}>
-              <img src={GitHub} alt="GitHub" style={{ width: '60%' }} />
             </Button>
           </Box>
         </Box>

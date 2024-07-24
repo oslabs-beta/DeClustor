@@ -11,10 +11,16 @@ import {
   CircularProgress,
 } from '@mui/material'
 import { useTheme } from '@emotion/react'
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { setServiceName } from '../redux/userSlice.js'
 
-const Service = ({ userId }) => {
+/** 
+ * Service component that allows users to select a service and view its status.
+ * @param {Object} props - Component properties.
+ * @param {string} props.userId - The ID of the user.
+ */
+
+const Service = ({ userId, accountName, region, clusterName }) => {
   const theme = useTheme()
   const [serviceName, setServiceNameLocal] = useState(null)
   const [serviceNames, setServiceNames] = useState([])
@@ -25,13 +31,13 @@ const Service = ({ userId }) => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    if (userId) {
+    if (userId && accountName && region && clusterName) {
       setLoading(true)
       setError(null)
 
-      // change to redux later
+      // Fetch the list of services for the given userId
       fetch(
-        `http://localhost:3000/list/AllServices?userId=1&accountName=AriaLiang&clusterName=DeClustor&region=us-east-2`
+        `http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`
       )
         .then((response) => response.json())
         .then((data) => {
@@ -54,14 +60,13 @@ const Service = ({ userId }) => {
   }, [userId])
 
   useEffect(() => {
-    if (userId && serviceName) {
+    if (userId && accountName && region && clusterName && serviceName) {
       setLoading(true)
       setError(null)
 
       // change to redux later:
-      // ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization
       const ws = new WebSocket(
-        `ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=${serviceName}&metricName=serviceStatus`
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=serviceStatus`
       )
       ws.onopen = () => {
         console.log('WebSocket connection opened')
@@ -69,7 +74,6 @@ const Service = ({ userId }) => {
 
       ws.onmessage = (event) => {
         const data = JSON.parse(event.data)
-        console.log('Fetching service status -->', data)
         setServiceStatus(data[0] || 'UNKNOWN')
         setLoading(false)
       }
@@ -84,6 +88,7 @@ const Service = ({ userId }) => {
         console.log('WebSocket connection closed:', event)
       }
 
+      // Cleanup WebSocket on component unmount
       return () => {
         ws.close()
       }

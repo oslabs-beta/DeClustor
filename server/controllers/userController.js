@@ -37,7 +37,7 @@ userController.createUser = (req, res, next) => {
   userdb.get(
     'SELECT user_name FROM Users WHERE user_name = ?',
     [username],
-    (err, row) => {
+    async (err, row) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: 'Internal server error' });
@@ -58,7 +58,7 @@ userController.createUser = (req, res, next) => {
           }
       
           userdb.get(
-            'SELECT id FROM Users WHERE user_name = ?',
+            'SELECT id, first_name, last_name, user_name, email FROM Users WHERE user_name = ?',
             [username],
             (err, row) => {
               if (err) {
@@ -66,8 +66,13 @@ userController.createUser = (req, res, next) => {
               }
 
               if (row) {
-                console.log(row.id);
-                res.locals.userId = row.id;
+                res.locals.user = {
+                  id: row.id,
+                  first_name: row.first_name,
+                  last_name: row.last_name,
+                  user_name: row.user_name,
+                  email: row.email
+                };
                 const mailOptions = {
                   from: 'diweizhi@gmail.com',
                   to: email,
@@ -99,12 +104,10 @@ userController.createUser = (req, res, next) => {
  */
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
-  // console.log(email, password);
   userdb.get(
     'SELECT * FROM Users WHERE email = ? AND password = ?',
     [email, password],
-    (err, row) => {
-      console.log(row);
+    async (err, row) => {
       if (err) {
         return res.status(500).json({ message: 'Database error' });
       }
@@ -113,7 +116,13 @@ userController.verifyUser = (req, res, next) => {
           .status(400)
           .json({ message: 'Incorrect email or password' });
       }
-      res.locals.userId = row.id;
+      res.locals.user = {
+        id: row.id,
+        first_name: row.first_name,
+        last_name: row.last_name,
+        user_name: row.user_name,
+        email: row.email
+      };
       next();
     }
   );
@@ -223,6 +232,22 @@ userController.resetPassword = (req, res) => {
       }
     }
   );
+};
+
+userController.resetEmailAndUserName = (req, res) => {
+  const {userId, username, email} = req.body;
+  const searchQuery = `UPDATE Users SET user_name = ?, email = ? WHERE id = ?`;
+  userdb.run(searchQuery, [username, email, userId], function(err) {
+    if (err) {
+      res.status(500).json({ message: 'Failed to update profile.' });
+    } else {
+      if (this.changes === 0) {
+        res.status(404).json({ message: 'User not found.' });
+      } else {
+        res.status(200).json({ message: 'Profile updated successfully!' });
+      }
+    }
+  });
 };
 
 module.exports = userController;
