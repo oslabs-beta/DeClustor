@@ -15,13 +15,13 @@ import {
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import FlexBetween from '../components/FlexBetween';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import {
   fetchAccounts,
   fetchSubAccountDetails,
   selectAccount,
-  fetchClusters
 } from '../redux/userSlice.js';
 import AccountDetails from '../components/accountDetails';
 import BreadcrumbsNav from '../components/breadcrumbs.jsx';
@@ -52,15 +52,11 @@ const Accounts = () => {
   const handleAccountClick = (account, accountType) => {
     if (account) {
       dispatch(selectAccount({ account, accountType }));
-      // if (accountType === 'Root') {
-      //   dispatch(
-      //     fetchSubAccountDetails({ userId, accountName: account.account_name })
-      //   );
-      // } else {
-      //   dispatch(
-      //     fetchClusters({userId, accountName: account.account_name})
-      //   )
-      // }
+      if (accountType === 'Root') {
+        dispatch(
+          fetchSubAccountDetails({ userId, accountName: account.account_name })
+        );
+      }
     }
   };
 

@@ -23,7 +23,7 @@ import GetStarted from './pages/getstarted'
 import LogsNotification from './pages/LogsNotification'
 import ClusterMetrics from './pages/ClusterMetrics'
 import Overview from './pages/Overview';
-import Accounts from './pages/Accounts';
+import Accounts from './pages/accounts';
 import AccountDetails from './components/accountDetails';
 import Clusters from './pages/clusters';
 import ClusterDetails from './components/clusterDetails';
