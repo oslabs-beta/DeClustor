@@ -25,7 +25,9 @@ import profileImage from '../assets/profile.png';
 import SsidChartOutlinedIcon from '@mui/icons-material/SsidChartOutlined';
 import LanOutlinedIcon from '@mui/icons-material/LanOutlined';
 import logo from '../assets/logo.png';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchAccounts } from '../redux/userSlice';
+import AccountsSection from './accSection';
 
 // Sidebar component
 const Sidebar = ({
@@ -43,6 +45,9 @@ const Sidebar = ({
   const theme = useTheme();
   const user = useSelector((state) => state.user);
   console.log('user login -->', user);
+  const dispatch = useDispatch();
+  const userId = useSelector((state) => state.user.userId);
+
   // everytime path name has changed , set the active to the current page
   useEffect(() => {
     // set to currect url and determain which page we are on
@@ -78,8 +83,6 @@ const Sidebar = ({
   ];
 
   return (
-    // react drawer from react dom
-    // persistenr drawer
     <Box component='nav'>
       {/* Conditional rendering for Drawer */}
       {isSidebarOpen && (
@@ -107,9 +110,7 @@ const Sidebar = ({
                   component='img'
                   alt='logo'
                   src={logo}
-                  onClick={() => {
-                    navigate('/');
-                  }}
+                  onClick={() => navigate('/')}
                   height='100px'
                   width='100px'
                   borderRadius='28%'
@@ -132,23 +133,9 @@ const Sidebar = ({
                 )}
               </FlexBetween>
             </Box>
-            {/* creating nav items // loop thru the navItems function
-                check if icon is not existed
-                then set key to text */}
             <List>
               {navItems.map(({ text, icon }) => {
-                if (!icon) {
-                  return (
-                    <Typography key={text} sx={{ m: '2.25rem 0 1rem 3rem' }}>
-                      {text}
-                    </Typography>
-                  );
-                }
-
                 const lowerCaseText = text.toLowerCase().replace(' ', '');
-
-                // set the navagat by following the {text} navItems name
-                // swich the colors follow by if it's active?
                 return (
                   <ListItem key={text} disablePadding>
                     <ListItemButton
@@ -178,9 +165,7 @@ const Sidebar = ({
                       >
                         {icon}
                       </ListItemIcon>
-
                       <ListItemText primary={text} />
-                      {/* arrow right */}
                       {active === lowerCaseText && (
                         <ChevronRightOutlined sx={{ ml: 'auto' }} />
                       )}
@@ -189,9 +174,8 @@ const Sidebar = ({
                 );
               })}
             </List>
+            <AccountsSection userId={userId} />
           </Box>
-
-          {/* user profile need an update!*/}
           <Divider
             sx={{ width: '100%', maxWidth: '500px', marginTop: '230px' }}
           />
@@ -212,7 +196,6 @@ const Sidebar = ({
                   fontSize='0.9rem'
                   sx={{ color: theme.palette.secondary[100] }}
                 >
-                  {/* change to user info !! call the api '/userProfile' ?*/}
                   {user ? user.username : 'No User Data'}
                 </Typography>
               </Box>
@@ -220,7 +203,6 @@ const Sidebar = ({
           </Box>
         </Drawer>
       )}
-      ;
     </Box>
   );
 };
