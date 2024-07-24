@@ -241,6 +241,9 @@ async function listClustersForRegion(client, region) {
  */
 listController.Services = (req, res) => {
   const { userId, accountName, clusterName, region } = req.query;
+  if (!accountName || !userId || !clusterName || !region) {
+    return res.status(400).json({ error: 'missing required parameter' });
+  }
   db.get(
     `SELECT access_key, secret_key FROM Accounts WHERE account_name = ? AND user_id = ?  `,
     [accountName, userId],
