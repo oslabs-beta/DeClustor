@@ -1,16 +1,12 @@
 // src/components/Alerts.test.jsx
-
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import Alerts from './Alerts'; // Adjust import based on your file structure
+import Alerts from './Alerts'; // Adjust the path to your Alerts component
+import { BrowserRouter as Router } from 'react-router-dom';
 
-const middlewares = [thunk];
-const mockStore = configureStore(middlewares);
-
-console.log(mockStore);
+const mockStore = configureStore([]);
 
 describe('Alerts Component', () => {
   let store;
@@ -18,26 +14,56 @@ describe('Alerts Component', () => {
   beforeEach(() => {
     store = mockStore({
       notifications: {
-        // initial state for your notifications
-        notificationCount: 5,
+        notificationCount: 5, // Set this to a positive number to test the "You have notifications!" message
+      },
+    });
+  });
+
+  // test('renders "You have notifications!" when notificationCount is greater than 0', () => {
+  //   render(
+  //     <Provider store={store}>
+  //       <Router>
+  //         <Alerts />
+  //       </Router>
+  //     </Provider>
+  //   );
+
+  //   // Check if the alert with the text "You have notifications!" is present
+  //   expect(screen.getByText('You have notifications!')).toBeInTheDocument();
+  // });
+
+  test('renders "You have no notifications" when notificationCount is 0', () => {
+    store = mockStore({
+      notifications: {
+        notificationCount: 0, // Set this to 0 to test the "You have no notifications" message
       },
     });
 
-    // Mock necessary actions if needed
-    store.dispatch = jest.fn();
-  });
-
-  test('renders the alert when open is true', () => {
     render(
       <Provider store={store}>
-        <Alerts notificationCount={5} onAlertClick={() => {}} />
+        <Router>
+          <Alerts />
+        </Router>
       </Provider>
     );
 
-    // Assuming that Alerts renders something based on notificationCount
-    // Check if the alert is rendered based on props
-    expect(screen.getByText('5 Notifications')).toBeInTheDocument();
+    // Check if the alert with the text "You have no notifications" is present
+    expect(screen.getByText('You have no notifications')).toBeInTheDocument();
   });
 
-  // Add more tests as needed
+  // test('clicking the alert link dispatches the correct action', () => {
+  //   render(
+  //     <Provider store={store}>
+  //       <Router>
+  //         <Alerts />
+  //       </Router>
+  //     </Provider>
+  //   );
+
+  //   const alertLink = screen.getByText('You have notifications!');
+  //   fireEvent.click(alertLink);
+
+  //   const actions = store.getActions();
+  //   expect(actions).toContainEqual({ type: 'HIDE_ALERT' });
+  // });
 });

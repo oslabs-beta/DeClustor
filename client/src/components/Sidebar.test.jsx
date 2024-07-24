@@ -6,8 +6,8 @@ import configureStore from 'redux-mock-store';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { BrowserRouter as Router } from 'react-router-dom';
 import Sidebar from './Sidebar';
-import rootReducer from '../redux/store'; // Adjust the path
 
+import { renderWithRouterAndRedux } from './mockStore.js';
 // Mock theme
 const theme = createTheme({
   palette: {
@@ -113,9 +113,15 @@ describe('Sidebar Component', () => {
 
   test('toggles sidebar when the close button is clicked', () => {
     const setIsSidebarOpenMock = jest.fn();
+    const initialState = {
+      user: {
+        /* Mock user data */
+      },
+    };
 
-    const { getByTestId } = renderWithRouter(
-      <Sidebar isOpen={true} onClose={setIsSidebarOpenMock} />
+    const { getByTestId } = renderWithRouterAndRedux(
+      <Sidebar isOpen={true} onClose={setIsSidebarOpenMock} />,
+      { initialState }
     );
 
     const closeButton = getByTestId('close-sidebar-button');
