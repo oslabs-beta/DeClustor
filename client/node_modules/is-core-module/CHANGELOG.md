@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.15.0](https://github.com/inspect-js/is-core-module/compare/v2.14.0...v2.15.0) - 2024-07-17
+
+### Commits
+
+- [New] add `node:sea` [`2819fb3`](https://github.com/inspect-js/is-core-module/commit/2819fb3eae312fa64643bc5430ebd06ec0f3fb88)
+
 ## [v2.14.0](https://github.com/inspect-js/is-core-module/compare/v2.13.1...v2.14.0) - 2024-06-20
 
 ### Commits

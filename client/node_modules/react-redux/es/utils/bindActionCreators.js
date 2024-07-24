@@ -1,12 +1,18 @@
 export default function bindActionCreators(actionCreators, dispatch) {
-  const boundActionCreators = {};
+  var boundActionCreators = {};
 
-  for (const key in actionCreators) {
-    const actionCreator = actionCreators[key];
+  var _loop = function _loop(key) {
+    var actionCreator = actionCreators[key];
 
     if (typeof actionCreator === 'function') {
-      boundActionCreators[key] = (...args) => dispatch(actionCreator(...args));
+      boundActionCreators[key] = function () {
+        return dispatch(actionCreator.apply(void 0, arguments));
+      };
     }
+  };
+
+  for (var key in actionCreators) {
+    _loop(key);
   }
 
   return boundActionCreators;
