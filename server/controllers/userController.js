@@ -3,7 +3,6 @@ const path = require('path');
 const sqlite3 = require('sqlite3');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
-const bcrypt = require('bcrypt');
 const userdbPath = path.resolve(__dirname, '../database/Users.db');
 const userdb = new sqlite3.Database(userdbPath);
 require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
@@ -48,12 +47,10 @@ userController.createUser = (req, res, next) => {
         return res.status(400).json({ message: 'Username already exists' });
       }
 
-      // Hash the password before inserting it into the database
-      const hashedPassword = await bcrypt.hash(password, 10);
       // Insert new user into the database
       userdb.run(
         'INSERT INTO Users (first_name, last_name, user_name, password, email, verification_code, verified) VALUES (?, ?, ?, ?, ?, ?, ?)',
-        [firstname, lastname, username, hashedPassword, email, verificationCode],
+        [firstname, lastname, username, password, email, verificationCode],
         (err) => {
           if (err) {
             console.log(err);
@@ -108,8 +105,8 @@ userController.createUser = (req, res, next) => {
 userController.verifyUser = (req, res, next) => {
   const { email, password } = req.body;
   userdb.get(
-    'SELECT * FROM Users WHERE email = ?',
-    [email],
+    'SELECT * FROM Users WHERE email = ? AND password = ?',
+    [email, password],
     async (err, row) => {
       if (err) {
         return res.status(500).json({ message: 'Database error' });
@@ -118,11 +115,6 @@ userController.verifyUser = (req, res, next) => {
         return res
           .status(400)
           .json({ message: 'Incorrect email or password' });
-      }
-      // Compare the hashed password
-      const match = await bcrypt.compare(password, row.password);
-      if (!match) {
-        return res.status(400).json({ message: 'Incorrect email or password' });
       }
       res.locals.user = {
         id: row.id,

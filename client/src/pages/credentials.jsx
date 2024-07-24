@@ -190,7 +190,7 @@ const Credentials = () => {
               variant='outlined'
               color='secondary'
               fullWidth
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/dashboard')}
               sx={{ padding: 1.5 }}
             >
               Back to Home Page

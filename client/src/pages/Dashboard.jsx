@@ -20,7 +20,13 @@ const Dashboard = () => {
   const isTabletScreen = useMediaQuery(
     '(min-width: 600px) and (max-width: 1199px)'
   ); // Tablet screens
-  const userId = useSelector((state) => state.user.userId); // Get userId from Redux store
+  const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
+    userId: state.user.userId,
+    accountName: state.user.accountName,
+    region: state.user.region,
+    clusterName: state.user.clusterName,
+    serviceName: state.user.serviceName,
+  })); 
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -28,8 +34,6 @@ const Dashboard = () => {
       dispatch(fetchCurrentUser());
     }
   }, [dispatch, userId]);
-
-  const serviceName = useSelector((state) => state.user.serviceName); // Get serviceName from Redux store
 
   const breadcrumbsNav = [
     { name: 'Credentials', path: '/credentials' },
@@ -75,7 +79,7 @@ const Dashboard = () => {
                 fontSize='1.5rem'
                 sx={{ color: theme.palette.secondary[300] }}
               >
-                Cluster: DeClustor
+                Cluster: {clusterName}
               </Typography>
               <Typography
                 component='div'
@@ -83,7 +87,12 @@ const Dashboard = () => {
                 fontSize='1rem'
                 sx={{ color: theme.palette.secondary[100] }}
               >
-                <Service userId={userId} />
+                <Service
+                  userId={userId}
+                  accountName={accountName}
+                  region={region}
+                  clusterName={clusterName}
+                />
               </Typography>
             </Box>
             <Box flex='1' sx={{ marginTop: '50px' }}>
@@ -107,7 +116,13 @@ const Dashboard = () => {
               sx={{ color: theme.palette.secondary[100] }}
             >
               Tasks Overview
-              <PieChart userId={userId} serviceName={serviceName} />
+              <PieChart
+                userId={userId}
+                serviceName={serviceName}
+                accountName={accountName}
+                region={region}
+                clusterName={clusterName}
+              />
             </Typography>
           </Box>
         </Box>
@@ -138,6 +153,9 @@ const Dashboard = () => {
               <LineChart
                 userId={userId}
                 serviceName={serviceName}
+                accountName={accountName}
+                region={region}
+                clusterName={clusterName}
                 metricNames={['CPUUtilization']}
               />
             </Typography>
@@ -162,6 +180,9 @@ const Dashboard = () => {
               <LineChart
                 userId={userId}
                 serviceName={serviceName}
+                accountName={accountName}
+                region={region}
+                clusterName={clusterName}
                 metricNames={['MemoryUtilization']}
               />
             </Typography>
@@ -194,6 +215,9 @@ const Dashboard = () => {
               <LineChart
                 userId={userId}
                 serviceName={serviceName}
+                accountName={accountName}
+                region={region}
+                clusterName={clusterName}
                 metricNames={['NetworkRxBytes']}
               />
             </Typography>
@@ -218,6 +242,9 @@ const Dashboard = () => {
               <LineChart
                 userId={userId}
                 serviceName={serviceName}
+                accountName={accountName}
+                region={region}
+                clusterName={clusterName}
                 metricNames={['NetworkTxBytes']}
               />
             </Typography>

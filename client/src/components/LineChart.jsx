@@ -54,13 +54,18 @@ const LineChart = ({ metricNames }) => {
     const [error, setError] = useState(null); 
 
     // Get userId and serviceName from Redux store
-    const userId = useSelector((state) => state.user.userId); 
-    const serviceName = useSelector((state) => state.user.serviceName);
+    const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
+        userId: state.user.userId,
+        accountName: state.user.accountName,
+        region: state.user.region,
+        clusterName: state.user.clusterName,
+        serviceName: state.user.serviceName,
+      })); 
 
     // useEffect to connect to WebSocket and fetch data
     useEffect(() => {
         // Check if userId or serviceName is undefined
-        if (!userId || !serviceName) {
+        if (!userId || !accountName || !region || !clusterName || !serviceName) {
             console.error("userId or serviceName is undefined");
             // Set loading to false since we cannot proceed
             setLoading(false);
@@ -70,6 +75,9 @@ const LineChart = ({ metricNames }) => {
         // Connect to the WebSocket for fetching line chart data
         const ws = connectWebSocketToLineChart(
             userId,
+            accountName,
+            region,
+            clusterName,
             serviceName,
             metricNames,
             (rawData) => {
@@ -91,7 +99,7 @@ const LineChart = ({ metricNames }) => {
         return () => {
             ws.close();
         };
-    }, [userId, serviceName, metricNames]); // Dependencies array: re-run the effect when userId, serviceName, or metricNames change
+    }, [userId, accountName, region, clusterName, serviceName, metricNames]); // Dependencies array: re-run the effect when userId, serviceName, or metricNames change
 
     // Handle case where userId or serviceName is not defined
     if (!userId || !serviceName) {

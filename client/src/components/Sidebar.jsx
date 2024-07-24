@@ -65,7 +65,7 @@ const Sidebar = ({
       icon: <LanOutlinedIcon />,
     },
     {
-      text: 'Cluster Metics',
+      text: 'Cluster Metrics',
       icon: <SsidChartOutlinedIcon />,
     },
     {

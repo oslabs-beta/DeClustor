@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux';
 // Function to transform raw data to pie chart format
 const transformData = (rawData) => {
     if (!rawData || typeof rawData !== 'object') {
-        console.log('Expected rawData in the Pie Chart components to be an object, but got', rawData);
         return [];
     }
 
@@ -28,8 +27,13 @@ const PieChart = () => {
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const userId = useSelector((state) => state.user.userId);
-    const serviceName = useSelector((state) => state.user.serviceName);
+    const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
+        userId: state.user.userId,
+        accountName: state.user.accountName,
+        region: state.user.region,
+        clusterName: state.user.clusterName,
+        serviceName: state.user.serviceName,
+      })); 
 
     // custom tooltip for pie chart
     const CustomTooltip = ({ datum }) => (
@@ -45,9 +49,9 @@ const PieChart = () => {
     );
 
     useEffect(() => {
-        if (userId && serviceName) {
+        if (userId && serviceName && accountName && region && clusterName) {
             // Connect to WebSocket using userId and serviceName
-            const ws = connectWebSocketToPieChart(userId, serviceName, (rawData) => {
+            const ws = connectWebSocketToPieChart(userId, accountName, region, clusterName, serviceName, (rawData) => {
                 const transformedData = transformData(rawData);
                 setData(transformedData);
                 setLoading(false);
@@ -66,7 +70,7 @@ const PieChart = () => {
                 ws.close();
             };
         }
-    }, [userId, serviceName]);
+    }, [userId, accountName, region, clusterName, serviceName]);
 
     // Loading state
     if (loading) {

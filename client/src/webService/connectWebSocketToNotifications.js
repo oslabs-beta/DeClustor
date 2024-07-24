@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { setReceivedNotifications } from '../redux/notificationSlice';
 
 /**
@@ -9,6 +9,14 @@ import { setReceivedNotifications } from '../redux/notificationSlice';
 const useWebSocketNotifications = () => {
   const dispatch = useDispatch();
 
+  const { userId, accountName, region, clusterName, serviceName } = useSelector((state) => ({
+    userId: state.user.userId,
+    accountName: state.user.accountName,
+    region: state.user.region,
+    clusterName: state.user.clusterName,
+    serviceName: state.user.serviceName
+  })); 
+  
   // Reference to hold WebSocket connections
   const metricSocketsRef = useRef([]);
   // Reference to hold WebSocket connection for notifications
@@ -18,14 +26,14 @@ const useWebSocketNotifications = () => {
     if (metricSocketsRef.current.length === 0 && !notificationSocketRef.current) {
       // URLs for WebSocket connections to receive metric data
       const metricURLs = [
-        'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=CPUUtilization',
-        'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=MemoryUtilization',
-        'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=NetworkTxBytes',
-        'ws://localhost:3000/getMetricData?userId=1&accountName=AriaLiang&region=us-east-2&clusterName=DeClustor&serviceName=v1&metricName=NetworkRxBytes'
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=CPUUtilization`,
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=MemoryUtilization`,
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=NetworkTxBytes`,
+        `ws://localhost:3000/getMetricData?userId=${userId}&accountName=${accountName}&region=${region}&clusterName=${clusterName}&serviceName=${serviceName}&metricName=NetworkRxBytes`
       ];
 
       // URL for WebSocket connection to receive notifications
-      const notificationURL = 'ws://localhost:3000/checkNotifications?userId=1';
+      const notificationURL = `ws://localhost:3000/checkNotifications?userId=${userId}`;
 
       /**
        * Function to create a WebSocket connection.

@@ -30,10 +30,12 @@ import { updateNotification, saveNotifications } from '../redux/notificationSlic
 // Setting component for managing user notification settings.
 const Setting = () => {
   const dispatch = useDispatch();
-  const userId = 1;
-  const accountName = "AriaLiang"; // change with redux later
-  const clusterName = "DeClustor"; // change with redux later
-  const region = "us-east-2"; // change with redux later
+  const { userId, accountName, region, clusterName } = useSelector((state) => ({
+    userId: state.user.userId,
+    accountName: state.user.accountName,
+    region: state.user.region,
+    clusterName: state.user.clusterName,
+  })); 
   const { notifications = [] } = useSelector((state) => state.notification);
 
   const [serviceNames, setServiceNames] = useState([]);

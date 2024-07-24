@@ -8,45 +8,83 @@ import {
   Tabs,
   Tab,
 } from '@mui/material'
-import { useDispatch } from 'react-redux'
-import { setServiceName } from '../redux/userSlice.js'
+import { useDispatch, useSelector } from 'react-redux'
+import { setServiceName, setAccountName, setClusterName, fetchAccounts, fetchClusters } from '../redux/userSlice.js'
 import PieChart from '../components/PieChart.jsx'
 
 
 const Overview = () => {
-  const [serviceName, setServiceNameLocal] = useState(null)
-  const [serviceNames, setServiceNames] = useState([])
-  const [accountName, setAccountName] = useState('AriaLiang')
-  const [clusterName, setClusterName] = useState('DeClustor')
+  const [serviceNames, setServiceNames] = useState([]);
+  const [accountNames, setAccountNames] = useState([]); 
+  const [clusterNames, setClusterNames] = useState([]);
   const [inputValueService, setInputValueService] = useState('')
   const [inputValueAccount, setInputValueAccount] = useState('')
   const [inputValueCluster, setInputValueCluster] = useState('')
   const dispatch = useDispatch()
-  const userId = 1 // <= change this later
   const theme = useTheme();
 
-// fetching services from backend
-useEffect(() => {
-  if (userId) {
-    fetch(
-      `http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=us-east-2`
-    )
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Fetching service names -->', data)
-        if (data && data.length > 0) {
-          setServiceNames(data)
-          setServiceNameLocal(data[0])
-          dispatch(setServiceName(data[0])) // Update Redux state
-        } else {
-          throw new Error('No services found')
-        }
-      })
-      .catch((error) => {
-        console.error('Error fetching service names:', error)
-      })
-  }
-}, [userId, accountName, clusterName, dispatch])
+  const { userId, accountName, clusterName, serviceName, region } = useSelector((state) => ({
+    userId: state.user.userId,
+    accountName: state.user.accountName,
+    clusterName: state.user.clusterName,
+    serviceName: state.user.serviceName,
+    region: state.user.region
+  }));
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchAccounts(userId))
+        .unwrap()
+        .then((data) => {
+          const combinedAccountNames = [
+            ...data.root.map(account => account.account_name),
+            ...data.subaccount.map(account => account.account_name)
+          ];
+          setAccountNames(combinedAccountNames);
+        })
+        .catch((error) => {
+          console.error('Error fetching account names:', error);
+        });
+    }
+  }, [userId, dispatch]);
+
+  useEffect(() => {
+    if (userId && accountName) {
+      dispatch(fetchClusters({ userId, accountName }))
+        .unwrap()
+        .then((data) => {
+          const clusterNames = data.flatMap(regionData => regionData.clusters.map(cluster => cluster.clusterName));
+          setClusterNames(clusterNames);
+        })
+        .catch((error) => {
+          console.error('Error fetching cluster names:', error);
+        });
+    }
+  }, [userId, accountName, dispatch]);
+
+  // fetching services from backend
+  useEffect(() => {
+    if (userId && accountName && clusterName) {
+      fetch(
+        `http://localhost:3000/list/AllServices?userId=${userId}&accountName=${accountName}&clusterName=${clusterName}&region=${region}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          console.log('Fetching service names -->', data)
+          if (data && data.length > 0) {
+            setServiceNames(data)
+            dispatch(setServiceName(data[0]));
+          } else {
+            setServiceNames([]); 
+            dispatch(setServiceName(null));
+            throw new Error('No services found')
+          }
+        })
+        .catch((error) => {
+          console.error('Error fetching service names:', error)
+        })
+    }
+  }, [userId, accountName, clusterName, region, dispatch])
 
 
 
@@ -59,14 +97,14 @@ useEffect(() => {
         <Autocomplete
           value={accountName}
           onChange={(event, newValue) => {
-            setAccountName(newValue)
+            dispatch(setAccountName(newValue));
           }}
           inputValue={inputValueAccount}
           onInputChange={(event, newInputValue) => {
             setInputValueAccount(newInputValue)
           }}
           id="account-name-dropdown"
-          options={['Aria Liang']}
+          options={accountNames}
           sx={{ minWidth: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Choose your account name" />
@@ -77,14 +115,14 @@ useEffect(() => {
         <Autocomplete
           value={clusterName}
           onChange={(event, newValue) => {
-            setClusterName(newValue)
+            dispatch(setClusterName(newValue));
           }}
           inputValue={inputValueCluster}
           onInputChange={(event, newInputValue) => {
             setInputValueCluster(newInputValue)
           }}
           id="cluster-name-dropdown"
-          options={['DeClustor']} // change this later
+          options={clusterNames} // change this later
           sx={{ minWidth: 300 }}
           renderInput={(params) => (
             <TextField {...params} label="Choose your cluster name" />
@@ -95,8 +133,7 @@ useEffect(() => {
         <Autocomplete
           value={serviceName}
           onChange={(event, newValue) => {
-            setServiceNameLocal(newValue)
-            dispatch(setServiceName(newValue)) // Update Redux state
+            dispatch(setServiceName(newValue));
           }}
           inputValue={inputValueService}
           onInputChange={(event, newInputValue) => {

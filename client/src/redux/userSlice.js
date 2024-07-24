@@ -22,6 +22,10 @@ const initialState = {
   clustersLoading: false,
   clustersError: null,
   selectedCluster: null,
+  // new state
+  accountName: '',
+  clusterName: '',
+  region: '',
 };
 
 // Async thunk for fetching current user data
@@ -220,6 +224,15 @@ const userSlice = createSlice({
     selectCluster: (state, action) => {
       state.selectedCluster = action.payload;
     },
+    setAccountName: (state, action) => {
+      state.accountName = action.payload;
+    },
+    setClusterName: (state, action) => {
+      state.clusterName = action.payload;
+    },
+    setRegion: (state, action) => {
+      state.region = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -293,6 +306,9 @@ export const {
   clearSelectedAccount,
   setUserId,
   selectCluster,
+  setAccountName,
+  setClusterName,
+  setRegion,
 } = userSlice.actions;
 
 export default userSlice.reducer;
