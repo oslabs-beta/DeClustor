@@ -16,6 +16,7 @@ const BreadcrumbsNav = ({ breadcrumbs, currentPath }) => {
         justifyContent: 'flex-start',
         margin: 0,
         padding: 0,
+        marginBottom: '20px', // Added margin bottom
       }}
     >
       {breadcrumbs.map((breadcrumb, index) => {
@@ -23,14 +24,14 @@ const BreadcrumbsNav = ({ breadcrumbs, currentPath }) => {
         const isActive = breadcrumb.path === currentPathname;
         return isLast ? (
           <Typography
-            color={isActive ? 'primary.main' : 'text.primary'}
+            sx={{ color: isActive ? 'rgb(29, 99, 237)' : 'text.primary' }}
             key={breadcrumb.path}
           >
             {breadcrumb.name}
           </Typography>
         ) : (
           <Link
-            color={isActive ? 'primary.main' : 'inherit'}
+            sx={{ color: isActive ? 'rgb(29, 99, 237)' : 'inherit', cursor: 'pointer' }} 
             onClick={() => navigate(breadcrumb.path)}
             key={breadcrumb.path}
           >

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo } from 'react'
 import {
   BrowserRouter as Router,
   Navigate,
@@ -22,11 +22,11 @@ import Credentials from './pages/credentials'
 import GetStarted from './pages/getstarted'
 import LogsNotification from './pages/LogsNotification'
 import ClusterMetrics from './pages/ClusterMetrics'
-import Overview from './pages/Overview';
-import Accounts from './pages/Accounts';
-import AccountDetails from './components/accountDetails';
-import Clusters from './pages/clusters';
-import ClusterDetails from './components/clusterDetails';
+import Overview from './pages/Overview'
+import Accounts from './pages/accounts'
+import AccountDetails from './components/accountDetails'
+import Clusters from './pages/Clusters2'
+import ClusterDetails from './components/clusterDetails'
 
 // Main application component
 const App = () => {
@@ -47,28 +47,31 @@ const App = () => {
         >
           <Box sx={{ flex: 1 }}>
             <Routes>
-              <Route path='/' element={<Home />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/info' element={<Info />} />
-              <Route path='/signup' element={<Signup />} />
-              <Route path='/credentials' element={<Credentials />} />
-              <Route path='/login' element={<Login />} />
-              <Route path='/protected' element={<Dashboard />} />
-              <Route path='/get-started' element={<GetStarted />} />
-              <Route path='/userprofile' element={<UserProfile />} />
-              <Route path='/accounts' element={<Accounts />} />
-              <Route path='/accounts/:accountId' element={<AccountDetails />} />
-              <Route path='/clusters/:accountName' element={<Clusters />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/info" element={<Info />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/credentials" element={<Credentials />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/protected" element={<Dashboard />} />
+              <Route path="/get-started" element={<GetStarted />} />
+              <Route path="/userprofile" element={<UserProfile />} />
               <Route element={<Layout />}>
-                <Route path='/dashboard/:clusterName' element={<Dashboard />} />
+                <Route path="/dashboard/:clusterName" element={<Dashboard />} />
                 <Route
-                  path='/dashboard/:accountName'
+                  path="/dashboard/:accountName"
                   element={<ClusterDetails />}
                 />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/logs" element={<LogsNotification />} />
-                <Route path="/clustermetics" element={<ClusterMetrics />} />
+                <Route path="/clustermetrics" element={<ClusterMetrics />} />
                 <Route path="/taskoverview" element={<Overview />} />
+                <Route path="/accounts" element={<Accounts />} />
+                <Route
+                  path="/accounts/:accountId"
+                  element={<AccountDetails />}
+                />
+                <Route path="/clusters/:accountName" element={<Clusters />} />
               </Route>
             </Routes>
           </Box>
@@ -77,6 +80,6 @@ const App = () => {
         </Box>
       </Router>
     </ThemeProvider>
-  );
-};
-export default App;
+  )
+}
+export default App

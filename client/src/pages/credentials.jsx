@@ -15,6 +15,7 @@ import {
   MenuItem,
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import Navbar from '../components/Navbar.jsx';
 
 const Credentials = () => {
   const [accessKey, setAccessKey] = useState('');
@@ -66,6 +67,13 @@ const Credentials = () => {
   };
 
   return (
+    <div>
+    <Navbar
+      showSidebar={false}
+      showSearch={false}
+      showNotification={false}
+      showUser={false}
+    />
     <Container maxWidth='md'>
       <Box
         sx={{
@@ -192,6 +200,7 @@ const Credentials = () => {
         </Paper>
       </Box>
     </Container>
+    </div>
   );
 };
 

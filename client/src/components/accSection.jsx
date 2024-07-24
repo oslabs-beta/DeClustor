@@ -9,8 +9,15 @@ import {
   Typography,
   useTheme,
   Box,
+  ListItemIcon,
+  Tooltip,
+  IconButton,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -50,67 +57,111 @@ const AccountsSection = ({ userId }) => {
     }
   };
 
+  const handleAddAccountClick = () => {
+    navigate('/credentials');
+  };
+
   return (
-    <Box display='flex' flexDirection='column' alignItems='center' mt={2}>
+    <Box
+      display='flex'
+      flexDirection='column'
+      alignItems='center'
+      mt={2}
+      width='100%'
+      sx={{ backgroundColor: 'transparent' }}
+    >
       <Accordion
         expanded={expanded === 'panel1'}
         onChange={handleChange('panel1')}
-        sx={{ backgroundColor: 'transparent', boxShadow: 'none' }}
+        sx={{ backgroundColor: 'transparent', boxShadow: 'none', width: '100%' }}
       >
         <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
+          expandIcon={<ExpandMoreIcon sx={{ color: textColor }} />}
           aria-controls='panel1d-content'
           id='panel1d-header'
         >
-          <Typography sx={{ color: textColor }}>Account Management</Typography>
+          <Box display='flex' alignItems='center' justifyContent='center' width='100%'>
+            <ManageAccountsIcon sx={{ color:'#03a9f4' , mr: 1 }} />
+            <Typography sx={{ color: '#4fc3f7', textAlign: 'center' }}>
+              Account Management
+            </Typography>
+          </Box>
         </AccordionSummary>
         <AccordionDetails>
           <Box display='flex' flexDirection='column' alignItems='center'>
             {rootAccounts.length > 0 && (
-              <Box>
+              <Box mb={2} width='100%'>
                 <Typography
-                  sx={{ color: textColor, fontWeight: 'bold', mb: 1 }}
+                  sx={{ color: theme.palette.secondary[400], fontWeight: 'bold', mb: 1, textAlign: 'center' }}
                 >
                   Root Accounts
                 </Typography>
                 <List sx={{ textAlign: 'center' }}>
                   {rootAccounts.map((account) => (
                     <ListItem
-                      button
                       key={account.id}
                       onClick={() => handleAccountClick(account, 'Root')}
-                      sx={{ justifyContent: 'center' }}
+                      sx={{
+                        justifyContent: 'center',
+                        '&:hover': {
+                          backgroundColor: theme.palette.action.hover,
+                          width: '100%',
+                          cursor: 'pointer',
+                        },
+                      }}
                     >
-                      <ListItemText primary={account.account_name} />
+                      <ListItemIcon>
+                        <AccountBalanceIcon sx={{ color: textColor }} />
+                      </ListItemIcon>
+                      <ListItemText primary={account.account_name} sx={{ color: textColor }} />
                     </ListItem>
                   ))}
                 </List>
               </Box>
             )}
             {subAccounts.length > 0 && (
-              <Box mt={2}>
+              <Box width='100%'>
                 <Typography
-                  sx={{ color: textColor, fontWeight: 'bold', mb: 1 }}
+                  sx={{ color: textColor, fontWeight: 'bold', mb: 1, textAlign: 'center' }}
                 >
                   Sub Accounts
                 </Typography>
                 <List sx={{ textAlign: 'center' }}>
                   {subAccounts.map((account) => (
                     <ListItem
-                      button
                       key={account.id}
                       onClick={() => handleAccountClick(account, 'Sub')}
-                      sx={{ justifyContent: 'center' }}
+                      sx={{
+                        justifyContent: 'center',
+                        '&:hover': {
+                          backgroundColor: theme.palette.action.hover,
+                          width: '100%',
+                          cursor: 'pointer',
+                        },
+                      }}
                     >
-                      <ListItemText primary={account.account_name} />
+                      <ListItemIcon>
+                        <SupervisorAccountIcon sx={{ color: textColor }} />
+                      </ListItemIcon>
+                      <ListItemText primary={account.account_name} sx={{ color: textColor }} />
                     </ListItem>
                   ))}
                 </List>
               </Box>
             )}
             {rootAccounts.length === 0 && subAccounts.length === 0 && (
-              <Typography>No accounts available</Typography>
+              <Typography sx={{ color: textColor }}>No accounts available</Typography>
             )}
+          </Box>
+          <Box display='flex' justifyContent='flex-end' width='100%' mt={2}>
+            <Tooltip title='Add more accounts'>
+              <IconButton
+                onClick={handleAddAccountClick}
+                sx={{ color:'#03a9f4' }}
+              >
+                <GroupAddIcon />
+              </IconButton>
+            </Tooltip>
           </Box>
         </AccordionDetails>
       </Accordion>

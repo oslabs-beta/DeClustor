@@ -24,7 +24,7 @@ import FlexBetween from './FlexBetween';
 import profileImage from '../assets/profile.png';
 import logo from '../assets/logo.png';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchAccounts } from '../redux/userSlice';
+import { fetchAccounts, selectAccount, fetchSubAccountDetails } from '../redux/userSlice';
 import AccountsSection from './accSection';
 
 // passin props from Layout

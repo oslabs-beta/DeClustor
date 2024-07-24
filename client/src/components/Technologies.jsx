@@ -1,7 +1,7 @@
-import React from 'react'
+// import React from 'react'
 
-function Technologies() {
-  return <div></div>
-}
+// function Technologies() {
+//   return <div></div>
+// }
 
-export default Technologies
+// export default Technologies

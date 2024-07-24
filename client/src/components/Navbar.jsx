@@ -103,6 +103,7 @@ const Navbar = ({
           }}
         />
       )}
+
       {/* search bar */}
       {showSearch && (
         <FlexBetween
@@ -117,6 +118,7 @@ const Navbar = ({
           </IconButton>
         </FlexBetween>
       )}
+
       {/* dark/light mode , notification and profile icons */}
       <FlexBetween gap='1.5rem'>
         {/* dark/light mode */}
@@ -127,6 +129,7 @@ const Navbar = ({
             <LightModeOutlinedIcon sx={{ fontSize: '25px' }} />
           )}
         </IconButton>
+
         {/* Notification alert button */}
         {/* check if there is no unread .length, tooltip box equals no notification */}
         {showNotification && (
@@ -137,6 +140,7 @@ const Navbar = ({
                 : 'No notifications'
             }
           >
+
             {/* handle notification  */}
             <IconButton onClick={handleNotificationClick}>
               {unreadNotificationCount > 0 ? (
@@ -149,12 +153,15 @@ const Navbar = ({
             </IconButton>
           </Tooltip>
         )}
+
         {/* setting icon button */}
+        {showUser && (
         <Tooltip title='Notification Setting'>
           <IconButton>
             <Setting />
           </IconButton>
         </Tooltip>
+        )}
         {/* profile icon button */}
         {showUser && (
           <Tooltip title='Profile'>
