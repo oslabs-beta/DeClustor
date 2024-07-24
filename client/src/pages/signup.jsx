@@ -68,7 +68,7 @@ const Signup = () => {
         // Display success message
         setSuccess('Signup successful!');
         // Dispatch signup success action
-        dispatch(signupSuccess({ userId: data.userId, username }));
+        dispatch(signupSuccess({ userId: data.userId, firstName: data.firstName, lastName: data.lastName, username: data.userName, email: data.email }));
         // Navigate to credentials page after 2 seconds
         setTimeout(() => {
           navigate('/credentials');
