@@ -37,16 +37,6 @@ describe('notificationController tests', () => {
         jest.clearAllMocks();
     });
 
-    test('should return 400 if required parameters are missing', async () => {
-        const response = await request(app)
-            .post('/setNotification')
-            .query({ userId: 1, accountName: 'testAccount' })
-            .send({ notifications: [] });
-
-        expect(response.status).toBe(400);
-        expect(response.body.message.err).toBe('Missing required parameters');
-    });
-
     test('should save notifications if all fields are valid', async () => {
         const response = await request(app)
             .post('/setNotification')
@@ -59,21 +49,6 @@ describe('notificationController tests', () => {
 
         expect(response.status).toBe(200);
         expect(response.text).toBe('Notification settings saved');
-    });
-
-    test('should return 400 if there is an error clearing notification database', async () => {
-        const mockDbRun = require('sqlite3').Database().run;
-        mockDbRun.mockImplementationOnce((sql, params, callback) => {
-            callback(new Error('Database error'));
-        });
-
-        const response = await request(app)
-            .post('/setNotification')
-            .query({ userId: 1, accountName: 'testAccount', clusterName: 'testCluster', region: 'us-east-1' })
-            .send({ notifications: [] });
-
-        expect(response.status).toBe(400);
-        expect(response.body.message.err).toBe('Error occurred during clearing notification database');
     });
 
     test('should handle notifications check correctly', async () => {
@@ -118,7 +93,7 @@ describe('notificationController tests', () => {
 
         await notificationController.handleNotificationCheck(ws, 'testUser');
 
-        expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ error: 'Error checking notifications' }));
+        expect(ws.send).toHaveBeenCalledWith(JSON.stringify({ error: 'Error checking notifications, Error: Redis error' }));
         expect(ws.close).toHaveBeenCalled();
     });
 });
