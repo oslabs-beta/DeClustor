@@ -4,10 +4,12 @@ on:
   push:
     branches:
       - main
+      - checkmain
   
   pull_request:
     branches:
       - main
+      - checkmain
 
 jobs:
   build:
