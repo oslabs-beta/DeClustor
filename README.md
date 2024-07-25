@@ -11,16 +11,19 @@ Managing AWS ECS environments can be challenging due to fragmented metrics and r
 
 DeClustor offers a centralized solution for seamless ECS monitoring and management, enabling effortless tracking of metrics and real-time performance across multiple services within a single ECS cluster.
 
-
 ## Features
 
 ## Getting Started
 
 ## Meet the Team
 
-| Developed By          | GitHub                                                | LinkedIn                                                     |
-|-----------------------|-------------------------------------------------------|--------------------------------------------------------------|
-| Grace Lo              | [GitHub](https://github.com/gracelo0717)              | [LinkedIn]()                                                 |
-| Will Di               | [GitHub](https://github.com/xiudou401)                | [LinkedIn]()                                                 |
-| Aria Liang            | [GitHub](https://github.com/Aria-Liang)               | [LinkedIn]()                                                 |
-| Ploynapa Yang         | [GitHub](https://github.com/Ploynpk)                  | [LinkedIn]()                                                 |
+| Developed By  | GitHub                                   | LinkedIn     |
+| ------------- | ---------------------------------------- | ------------ |
+| Grace Lo      | [GitHub](https://github.com/gracelo0717) | [LinkedIn]() |
+| Will Di       | [GitHub](https://github.com/xiudou401)   | [LinkedIn]() |
+| Aria Liang    | [GitHub](https://github.com/Aria-Liang)  | [LinkedIn]() |
+| Ploynapa Yang | [GitHub](https://github.com/Ploynpk)     | [LinkedIn]() |
+
+![alt text](client/src/assets/newdash.gif)
+
+![alt text](client/src/assets/dash2.gif)

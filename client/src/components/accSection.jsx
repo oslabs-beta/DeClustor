@@ -33,7 +33,7 @@ const AccountsSection = ({ userId }) => {
   const rootAccounts = useSelector((state) => state.user.rootAccounts) || [];
   const subAccounts = useSelector((state) => state.user.subAccounts) || [];
   const theme = useTheme();
-  const textColor = theme.palette.secondary[100]; 
+  const textColor = theme.palette.secondary[100];
 
   useEffect(() => {
     if (userId) {
@@ -56,7 +56,7 @@ const AccountsSection = ({ userId }) => {
       }
     }
   };
-  // add more account will redirect to credential page 
+  // add more account will redirect to credential page
   const handleAddAccountClick = () => {
     navigate('/credentials');
   };
@@ -68,21 +68,30 @@ const AccountsSection = ({ userId }) => {
       alignItems='center'
       mt={2}
       width='100%'
-      sx={{ backgroundColor: theme.palette.background.alt, }}
+      sx={{ backgroundColor: theme.palette.background.alt }}
     >
       {/* hiden panel for the account details */}
       <Accordion
         expanded={expanded === 'panel1'}
         onChange={handleChange('panel1')}
-        sx={{ backgroundColor: 'transparent', boxShadow: 'none', width: '100%' }}
+        sx={{
+          backgroundColor: 'transparent',
+          boxShadow: 'none',
+          width: '100%',
+        }}
       >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon sx={{ color: textColor }} />}
           aria-controls='panel1d-content'
           id='panel1d-header'
         >
-          <Box display='flex' alignItems='center' justifyContent='center' width='100%'>
-            <ManageAccountsIcon sx={{ color:'#03a9f4' , mr: 1 }} />
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            width='100%'
+          >
+            <ManageAccountsIcon sx={{ color: '#03a9f4', mr: 1 }} />
             <Typography sx={{ color: '#4fc3f7', textAlign: 'center' }}>
               Account Management
             </Typography>
@@ -94,7 +103,12 @@ const AccountsSection = ({ userId }) => {
             {rootAccounts.length > 0 && (
               <Box mb={2} width='100%'>
                 <Typography
-                  sx={{ color: theme.palette.secondary[400], fontWeight: 'bold', mb: 1, textAlign: 'center' }}
+                  sx={{
+                    color: theme.palette.secondary[400],
+                    fontWeight: 'bold',
+                    mb: 1,
+                    textAlign: 'center',
+                  }}
                 >
                   Root Accounts
                 </Typography>
@@ -116,7 +130,10 @@ const AccountsSection = ({ userId }) => {
                         <AccountBalanceIcon sx={{ color: textColor }} />
                       </ListItemIcon>
                       {/* subaccount  */}
-                      <ListItemText primary={account.account_name} sx={{ color: textColor }} />
+                      <ListItemText
+                        primary={account.account_name}
+                        sx={{ color: textColor }}
+                      />
                     </ListItem>
                   ))}
                 </List>
@@ -125,9 +142,14 @@ const AccountsSection = ({ userId }) => {
             {subAccounts.length > 0 && (
               <Box width='100%'>
                 <Typography
-                  sx={{ color: textColor, fontWeight: 'bold', mb: 1, textAlign: 'center' }}
+                  sx={{
+                    color: theme.palette.secondary[400],
+                    fontWeight: 'bold',
+                    mb: 1,
+                    textAlign: 'center',
+                  }}
                 >
-                  Sub Accounts
+                  Subaccounts
                 </Typography>
                 <List sx={{ textAlign: 'center' }}>
                   {subAccounts.map((account) => (
@@ -147,7 +169,10 @@ const AccountsSection = ({ userId }) => {
                       <ListItemIcon>
                         <SupervisorAccountIcon sx={{ color: textColor }} />
                       </ListItemIcon>
-                      <ListItemText primary={account.account_name} sx={{ color: textColor }} />
+                      <ListItemText
+                        primary={account.account_name}
+                        sx={{ color: textColor }}
+                      />
                     </ListItem>
                   ))}
                 </List>
@@ -155,7 +180,9 @@ const AccountsSection = ({ userId }) => {
             )}
             {/* if no account available */}
             {rootAccounts.length === 0 && subAccounts.length === 0 && (
-              <Typography sx={{ color: textColor }}>No accounts available</Typography>
+              <Typography sx={{ color: textColor }}>
+                No accounts available
+              </Typography>
             )}
           </Box>
           <Box display='flex' justifyContent='flex-end' width='100%' mt={2}>
@@ -163,7 +190,7 @@ const AccountsSection = ({ userId }) => {
             <Tooltip title='Add more accounts'>
               <IconButton
                 onClick={handleAddAccountClick}
-                sx={{ color:'#03a9f4' }}
+                sx={{ color: '#03a9f4' }}
               >
                 <GroupAddIcon />
               </IconButton>
