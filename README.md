@@ -20,7 +20,7 @@ DeClustor offers a centralized solution for seamless ECS monitoring and manageme
 
 | Developed By          | GitHub                                                | LinkedIn                                                     |
 |-----------------------|-------------------------------------------------------|--------------------------------------------------------------|
-| Grace Lo              | [GitHub](https://github.com/gracelo0717)              | [LinkedIn]()                                                 |
-| Will Di               | [GitHub](https://github.com/xiudou401)                | [LinkedIn]()                                                 |
-| Aria Liang            | [GitHub](https://github.com/Aria-Liang)               | [LinkedIn]()                                                 |
-| Ploynapa Yang         | [GitHub](https://github.com/Ploynpk)                  | [LinkedIn]()                                                 |
+| Grace Lo              | [GitHub](https://github.com/gracelo0717)              | [LinkedIn](https://www.linkedin.com/in/gracelo0717)          |
+| Will Di               | [GitHub](https://github.com/xiudou401)                | [LinkedIn](https://www.linkedin.com/in/will-di)              |
+| Aria Liang            | [GitHub](https://github.com/Aria-Liang)               | [LinkedIn](https://www.linkedin.com/in/arialiang)            |
+| Ploynapa Yang         | [GitHub](https://github.com/Ploynpk)                  | [LinkedIn](https://www.linkedin.com/in/ploynapa-py/)         |
