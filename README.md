@@ -19,23 +19,23 @@ A very powerful dashboard displays which can present users all the real-time met
 
 ![dash-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/1ad4b259-78c5-4ea7-be31-1eb9a61bc18e)
 
-3. Logs and data report generation by notification setting
+2. Logs and data report generation by notification setting
 Users are able to customize different types of metrics and set thresholds to monitor their services. They will be noticed once the thresholds are reached.
 They can also analyze the sorted logs and export customized reports.
 
 ![logsnew-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/a4c80276-302c-41f5-b5e5-6a5cbfdc80ce)
 
-5. Task and cluster overview
+3. Task and cluster overview
 Users can observe their task data and cluster metrics in detail by easily choosing different accounts, cluster names and services.
 
 ![taskoverview-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/f3b6806f-ba2b-4aab-99ae-92c65e9c35b0)
 ![clustermetrics-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/74fc381a-2068-4737-b753-7a61f31b87f7)
 
 
-7. Local database intergration
+4. Local database intergration
 The security of users' credentials is most valued. Therefore, by providing lightweight and self contained data management, Decluster allows users to store their credentials locally.
 
-8. Seamless third-party authentication
+5. Seamless third-party authentication
 Users are provided with easy signup and login options through Google and GitHub OAuth, enhancing security and user experience.
 
 
