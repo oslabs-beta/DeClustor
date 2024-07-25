@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Feedback from './Feedback';
+import Feedback from './feedback';
 
 describe('Feedback component', () => {
   test('renders the feedback button', () => {
