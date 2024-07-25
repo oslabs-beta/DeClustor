@@ -59,6 +59,7 @@
     "@babel/preset-env": "^7.24.8",
     "@babel/preset-react": "^7.24.7",
     "@react-oauth/google": "^0.12.1",
+    "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "babel-jest": "^29.7.0",
