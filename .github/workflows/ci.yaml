@@ -24,8 +24,11 @@ jobs:
       with:
         node-version: 18.x
 
-    - name: Install root dependencies
-      run: npm install
+    - name: Clean npm cache and install root dependencies
+      run: |
+        npm cache clean --force
+        rm -rf node_modules package-lock.json
+        npm install --legacy-peer-deps
 
     - name: Clean and install client dependencies
       run: |
