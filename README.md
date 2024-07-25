@@ -14,6 +14,24 @@ DeClustor offers a centralized solution for seamless ECS monitoring and manageme
 
 ## Features
 
+1. Centralized Dashboard with easy-to-use account management feature
+A very powerful dashboard displays which can present users all the real-time metircs based on the service they choose, and users are enabled to manage their AWS accounts easily, as depicted in this demo
+
+2. Logs and data report generation by notification setting
+Users are able to customize different types of metrics and set thresholds to monitor their services. They will be noticed once the thresholds are reached.
+They can also analyze the sorted logs and export customized reports.
+
+3. Task and cluster overview
+Users can observe their task data and cluster metrics in detail by easily choosing different accounts, cluster names and services.
+
+4. Local database intergration
+The security of users' credentials is most valued. Therefore, by providing lightweight and self contained data management, Decluster allows users to store their credentials locally.
+
+5. Seamless third-party authentication
+Users are provided with easy signup and login options through Google and GitHub OAuth, enhancing security and user experience.
+
+
+
 ## Getting Started
 
 ## Meet the Team
