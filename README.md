@@ -41,14 +41,16 @@ Users are provided with easy signup and login options through Google and GitHub 
 
 So what are you waiting for? Follow the instructions below to get started!
 
-1. Git pull from DockerHub
-2. Clone the repository from GitHub: git clone https://github.com/oslabs-beta/DeClustor.git
+1. Git pull from [DockerHub](https://hub.docker.com/r/declustorteam/declustor)
+2. Clone this repository from GitHub
 3. Decrypt the the .env file by using the following commands:
+   ```yml
    openssl enc -aes-256-cbc -d -pbkdf2 -iter 100000 -in .env.enc -out .env -k ilovedeclustor
+   ```
 4. docker-compose up -build
 5. Access the application by opening up your web browser and head over to http://localhost:8080
 6. Sign up to make an account
-7. Use our Google Docs Instructions to create a IAM User for DeClustor to access your AWS account
+7. Use our [Google Docs Instructions](https://docs.google.com/document/d/1Vf7OrThD2bj3LU9Dxm4l7vFzVKmexYBO/edit) to create a IAM User for DeClustor to access your AWS account
 8. Select Account → Clusters → Services
 
 
