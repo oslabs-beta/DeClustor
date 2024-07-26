@@ -44,7 +44,10 @@ Users are provided with easy signup and login options through Google and GitHub 
 
 So what are you waiting for? Follow the instructions below to get started!
 
-1. Git pull from [DockerHub](https://hub.docker.com/r/declustorteam/declustor)
+# Using GitHub Repository
+1. **Pull the Docker Image from [DockerHub](https://hub.docker.com/r/declustorteam/declustor):**
+   ```sh
+   docker pull declustorteam/declustor
 2. Clone this repository from GitHub
 3. Decrypt the the .env file by using the following commands:
    ```yml
@@ -55,6 +58,7 @@ So what are you waiting for? Follow the instructions below to get started!
 6. Sign up to make an account
 7. Use our [Google Docs Instructions](https://docs.google.com/document/d/1Vf7OrThD2bj3LU9Dxm4l7vFzVKmexYBO/edit) to create a IAM User for DeClustor to access your AWS account
 8. Select Account → Clusters → Services
+
 
 
 ## Meet the Team
