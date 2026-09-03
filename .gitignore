@@ -3,3 +3,4 @@ node_modules
 .env
 server/database/Credentials.db
 server/database/Users.db
+.DS_Store
